@@ -6,7 +6,7 @@ Launch with torchrun, which sets RANK, LOCAL_RANK, and WORLD_SIZE:
 
 Every rank builds its own dataset, including the shoulder-scale scan, so that
 cost is paid once per process. Rank 0 goes first so only one process writes
-labels.json.
+labels/<tag>_<model>.json in the working directory.
 """
 
 from __future__ import annotations

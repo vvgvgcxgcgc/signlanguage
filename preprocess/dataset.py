@@ -493,6 +493,7 @@ def build_datasets(
     is_leg: bool = False,
     seed: int = 0,
     min_shoulder: float = 1e-3,
+    name: str = "labels",
     metadata_path: Optional[Path | str] = None,
     workers: Optional[int] = None,
     scale_range: tuple[float, float] = (0.5, 1.5),
@@ -500,11 +501,14 @@ def build_datasets(
     noise_std: float = 0.01,
     crop_range: tuple[float, float] = (0.5, 1.0),
 ) -> tuple[KeypointDataset, KeypointDataset, list[str]]:
-    """Filter glosses on the train split, write `labels.json`, and build both datasets.
+    """Filter glosses on the train split, write the label list, and build both datasets.
 
     A gloss stays only when its number of shoulder-valid train clips is at least
     `min_train_samples`. The JSON list is that filtered order, and index i in
     the file is label i for both splits. The test split does not write the file again.
+
+    The file is `labels/{name}.json` in the current working directory. It is not
+    placed under the dataset root. `metadata_path` overrides that location.
     """
     if min_train_samples < 1:
         raise ValueError(f"min_train_samples must be positive, got {min_train_samples}")
@@ -530,7 +534,13 @@ def build_datasets(
         dropped,
         min_train_samples,
     )
-    label_path = root_path / "labels.json" if metadata_path is None else Path(metadata_path)
+    if metadata_path is None:
+        trial_name = Path(name).name
+        if not trial_name or trial_name in {".", ".."}:
+            raise ValueError(f"label file name must not be empty, got {name!r}")
+        label_path = Path.cwd() / "labels" / f"{trial_name}.json"
+    else:
+        label_path = Path(metadata_path)
     _write_labels(label_path, class_names)
 
     test_groups = _gloss_files(root_path / "test")
