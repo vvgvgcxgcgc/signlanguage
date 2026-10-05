@@ -77,10 +77,33 @@ def reduce_sum(tensor: torch.Tensor, topology: Topology) -> torch.Tensor:
 
 
 def resolve_device(topology: Topology, parallel: str) -> torch.device:
-    if torch.cuda.is_available():
-        return torch.device(f"cuda:{topology.local_rank}" if topology.distributed else "cuda")
-    if parallel != "none":
-        logger.warning("No CUDA device, so parallel=%r falls back to a single device", parallel)
+    """Pick the CUDA device for this process.
+
+    `dp` and `ddp` are two-GPU modes. They do not fall back to CPU: a T4
+    session with the accelerator off, or a CPU torch wheel, has to fail here
+    instead of training for hours on the host.
+    """
+    available = torch.cuda.is_available()
+    count = torch.cuda.device_count() if available else 0
+    if parallel in {"dp", "ddp"} and not available:
+        raise RuntimeError(
+            f"parallel={parallel!r} needs CUDA, but torch.cuda.is_available() is False. "
+            "On Kaggle set the accelerator to GPU T4 x2. Reinstalling torch from "
+            "requirements.txt can replace that image's CUDA build with a CPU wheel."
+        )
+    if parallel == "dp" and count < 2:
+        raise RuntimeError(f"parallel='dp' needs at least 2 CUDA devices, found {count}.")
+    if parallel == "ddp" and topology.world_size < 2:
+        raise RuntimeError(
+            "parallel='ddp' needs torchrun --standalone --nproc_per_node=2 so each T4 gets a process."
+        )
+    if available:
+        index = topology.local_rank if topology.distributed else 0
+        if index >= count:
+            raise RuntimeError(f"local_rank {index} is outside the {count} visible CUDA device(s).")
+        names = ", ".join(f"{i}:{torch.cuda.get_device_name(i)}" for i in range(count))
+        logger.info("CUDA device cuda:%d | %d visible (%s) | parallel=%s", index, count, names, parallel)
+        return torch.device(f"cuda:{index}")
     if getattr(torch.backends, "mps", None) is not None and torch.backends.mps.is_available():
         return torch.device("mps")
     return torch.device("cpu")

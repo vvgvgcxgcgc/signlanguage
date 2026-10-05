@@ -5,10 +5,9 @@
 # hyperparameter, so the only thing the pair measures is the legs.
 # Checkpoint files are {tag}_{model}_best.pth, which is why the tags differ.
 #
-# Effective batch is micro_batch * accumulate = 64. DataParallel splits the
-# micro-batch across the two cards, so each T4 sees 32 samples.
-# For torchrun, set parallel to ddp and micro_batch to 32. That keeps the
-# effective batch at 64. Leaving micro_batch at 64 under ddp makes it 128.
+# Two T4s: torchrun --standalone --nproc_per_node=2 and parallel ddp.
+# micro_batch is the batch on each GPU. Effective batch is
+# micro_batch * accumulate * 2 = 128. Each T4 sees 32 samples per forward.
 #
 # The test split is the validation split. Reported scores are an upper bound.
 
@@ -17,9 +16,9 @@ root: null
 shared: &shared
   frames: 64
   epochs: 70
-  micro_batch: 64
+  micro_batch: 32
   accumulate: 2
-  parallel: dp
+  parallel: ddp
   workers: 2
   seed: 0
   warmup_epochs: 5
