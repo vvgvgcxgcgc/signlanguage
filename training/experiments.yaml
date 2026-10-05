@@ -1,0 +1,58 @@
+# Ten runs: 5 models x 2 joint counts, for two T4s.
+#
+# Fill `root` with the dataset directory that holds train/ and test/.
+# J=68 drops the legs. J=76 keeps them. Both of a model share every
+# hyperparameter, so the only thing the pair measures is the legs.
+# Checkpoint files are {tag}_{model}_best.pth, which is why the tags differ.
+#
+# Effective batch is micro_batch * accumulate = 64. DataParallel splits the
+# micro-batch across the two cards, so each T4 sees 32 samples.
+# For torchrun, set parallel to ddp and micro_batch to 32. That keeps the
+# effective batch at 64. Leaving micro_batch at 64 under ddp makes it 128.
+#
+# The test split is the validation split. Reported scores are an upper bound.
+
+root: null
+
+shared: &shared
+  frames: 64
+  epochs: 70
+  micro_batch: 64
+  accumulate: 2
+  parallel: dp
+  workers: 2
+  seed: 0
+  warmup_epochs: 5
+  min_lr_ratio: 0.0
+  label_smoothing: 0.1
+  grad_clip: 1.0
+  ema_decay: 0.999
+  amp: true
+  select_by: macro_f1
+  checkpoint_dir: checkpoints
+  mask_only: false
+  min_train_samples: 20
+
+sgd: &sgd
+  optimizer: sgd
+  lr: 0.1
+  momentum: 0.9
+  weight_decay: 0.0004
+
+adamw: &adamw
+  optimizer: adamw
+  lr: 0.001
+  momentum: 0.9
+  weight_decay: 0.01
+
+runs:
+  - { <<: [*shared, *sgd], model: MS-TCN, is_leg: false, tag: j68 }
+  - { <<: [*shared, *sgd], model: MS-TCN, is_leg: true, tag: j76 }
+  - { <<: [*shared, *sgd], model: CTR-GCN, is_leg: false, tag: j68 }
+  - { <<: [*shared, *sgd], model: CTR-GCN, is_leg: true, tag: j76 }
+  - { <<: [*shared, *sgd], model: ST-GCN, is_leg: false, tag: j68 }
+  - { <<: [*shared, *sgd], model: ST-GCN, is_leg: true, tag: j76 }
+  - { <<: [*shared, *sgd], model: AAGCN, is_leg: false, tag: j68 }
+  - { <<: [*shared, *sgd], model: AAGCN, is_leg: true, tag: j76 }
+  - { <<: [*shared, *adamw], model: Transformer, is_leg: false, tag: j68 }
+  - { <<: [*shared, *adamw], model: Transformer, is_leg: true, tag: j76 }

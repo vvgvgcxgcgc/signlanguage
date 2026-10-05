@@ -1,8 +1,13 @@
 """Train and test dataset for raw MediaPipe clips of shape (T, 76, 3).
 
 Shoulder width is one scale per clip, so a signer close to the camera and a
-signer far away land in the same frame. Temporal branches are interpolated
-only. Online augmentation runs on the training split.
+signer far away land in the same frame. Each joint is xyz plus a validity
+channel: a missing joint stays at the shoulder-midpoint origin, and validity
+is what separates that hole from a joint that really sits there. Temporal
+branches are resampled with interpolation that never blends a joint across a
+hole, so xyz always carries an observed value. Training draws one random
+temporal crop of the clip, resamples every branch from that crop, then applies
+scale, xy rotation, and noise.
 """
 
 from __future__ import annotations
@@ -19,10 +24,13 @@ from typing import Optional, Sequence
 import numpy as np
 import torch
 from torch.utils.data import DataLoader, Dataset, Sampler
+from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
 N_JOINTS = 76
+N_COORDS = 3
+N_CHANNELS = 4
 BODY_COUNT = 34
 LEFT_SHOULDER = 11
 RIGHT_SHOULDER = 12
@@ -39,7 +47,7 @@ class TemporalMode:
     length: int
 
 
-MODE_MAIN = TemporalMode("main", 60)
+MODE_MAIN = TemporalMode("main", 64)
 MODE_SLOW = TemporalMode("slow", 8)
 MODE_FAST = TemporalMode("fast", 32)
 SINGLE_MODES = (MODE_MAIN,)
@@ -55,7 +63,10 @@ def normalize_clip(array: np.ndarray, min_shoulder: float) -> Optional[np.ndarra
     Body xyz, including the neck, is shifted by that frame's shoulder midpoint
     and divided by the clip median. Hand xy uses the same origin and scale.
     Hand z is already wrist-relative, so it is only divided by the scale.
-    A joint that was (0, 0, 0) stays (0, 0, 0).
+    The last channel is 1 when the raw joint was not (0, 0, 0) and 0 when it
+    was. Missing xyz is written back to the origin after the shift, so a hole
+    and a joint that lands on the shoulder midpoint share xyz and differ only
+    in that channel. Returned shape is (T, 76, 4).
     """
     clip = np.asarray(array, dtype=np.float32)
     if clip.ndim != 3 or clip.shape[1:] != (N_JOINTS, 3) or clip.shape[0] == 0:
@@ -87,7 +98,11 @@ def normalize_clip(array: np.ndarray, min_shoulder: float) -> Optional[np.ndarra
     hands_out[..., 1] = (hands[..., 1] - origin[:, None, 1]) / scale_value
     hands_out[..., 2] = hands[..., 2] / scale_value
     hands_out[hand_missing] = 0
-    return np.concatenate((body_out, hands_out), axis=1)
+    body_valid = (~body_missing).astype(np.float32)[..., None]
+    hand_valid = (~hand_missing).astype(np.float32)[..., None]
+    body_out = np.concatenate((body_out, body_valid), axis=-1)
+    hands_out = np.concatenate((hands_out, hand_valid), axis=-1)
+    return np.ascontiguousarray(np.concatenate((body_out, hands_out), axis=1), dtype=np.float32)
 
 
 def drop_legs(clip: np.ndarray) -> np.ndarray:
@@ -98,9 +113,14 @@ def drop_legs(clip: np.ndarray) -> np.ndarray:
 def interpolate_clip(clip: np.ndarray, length: int) -> np.ndarray:
     """Sample `length` phases evenly from the first frame to the last.
 
-    Phase i sits at t = i * (N - 1) / (length - 1). Non-integer t mixes
-    floor(t) and ceil(t) on x, y, and z. A one-frame clip repeats that frame.
-    A length of 1 returns the first frame.
+    Phase i sits at t = i * (N - 1) / (length - 1). When both neighbouring
+    frames observed a joint, its xyz is the linear mix of the two. When only
+    one of them observed it, xyz is that frame's value, so the joint never
+    drifts toward the origin and no motion is invented out of a hole. When
+    neither observed it, xyz is the origin. Validity is the linear mix in
+    every case: 1 inside an observed span, 0 inside a hole, and in between at
+    a boundary, which records how far the xyz was carried. A one-frame clip
+    repeats that frame. A length of 1 returns the first frame.
     """
     if length < 1:
         raise ValueError(f"temporal length must be positive, got {length}")
@@ -116,8 +136,20 @@ def interpolate_clip(clip: np.ndarray, length: int) -> np.ndarray:
     low = np.floor(positions).astype(np.int64)
     high = np.ceil(positions).astype(np.int64)
     weight = (positions - low).astype(np.float32)[:, None, None]
-    mixed = (1.0 - weight) * clip[low] + weight * clip[high]
-    return np.ascontiguousarray(mixed, dtype=np.float32)
+
+    low_frames = clip[low]
+    high_frames = clip[high]
+    mixed = (1.0 - weight) * low_frames + weight * high_frames
+    low_seen = low_frames[..., N_COORDS:] > 0
+    high_seen = high_frames[..., N_COORDS:] > 0
+
+    xyz = mixed[..., :N_COORDS]
+    xyz = np.where(low_seen & ~high_seen, low_frames[..., :N_COORDS], xyz)
+    xyz = np.where(high_seen & ~low_seen, high_frames[..., :N_COORDS], xyz)
+    xyz = np.where(low_seen | high_seen, xyz, np.float32(0.0))
+    return np.ascontiguousarray(
+        np.concatenate((xyz, mixed[..., N_COORDS:]), axis=-1), dtype=np.float32
+    )
 
 
 def _check_modes(modes: Sequence[TemporalMode]) -> tuple[TemporalMode, ...]:
@@ -134,6 +166,28 @@ def _check_modes(modes: Sequence[TemporalMode]) -> tuple[TemporalMode, ...]:
     return checked
 
 
+def _temporal_crop(
+    clip: np.ndarray,
+    rng: np.random.Generator,
+    crop_range: tuple[float, float],
+) -> np.ndarray:
+    """Slice one contiguous span covering a random fraction of `clip`.
+
+    The fraction is drawn from `crop_range`. Resampling that span to a fixed
+    length is left to `interpolate_clip`. A span that already covers every
+    frame returns the clip. A one-frame clip is unchanged.
+    """
+    frames = int(clip.shape[0])
+    if frames <= 1:
+        return clip
+    fraction = float(rng.uniform(crop_range[0], crop_range[1]))
+    span = int(np.clip(np.round(fraction * frames), 1, frames))
+    if span >= frames:
+        return clip
+    start = int(rng.integers(0, frames - span + 1))
+    return np.ascontiguousarray(clip[start:start + span])
+
+
 def _augment_branches(
     branches: Sequence[np.ndarray],
     rng: np.random.Generator,
@@ -141,10 +195,13 @@ def _augment_branches(
     rotate_deg: float,
     noise_std: float,
 ) -> tuple[np.ndarray, ...]:
-    """Apply one scale and one xy rotation to every branch, then add noise.
+    """Apply one scale and one xy rotation to xyz on every branch, then add noise.
 
-    Missing joints are captured before the noise and written back as zeros.
-    There is no left-right flip.
+    Validity is not scaled, rotated, or noised. Validity 0 is the only case
+    where xyz is a placeholder, so those joints are written back to the origin
+    after the noise. Any validity above 0 means xyz came from a real
+    observation and keeps the noise, including a joint that genuinely sits on
+    the origin. There is no left-right flip.
     """
     scale = np.float32(rng.uniform(scale_range[0], scale_range[1]))
     theta = np.deg2rad(float(rng.uniform(-rotate_deg, rotate_deg)))
@@ -152,17 +209,20 @@ def _augment_branches(
     sine = np.float32(np.sin(theta))
     augmented: list[np.ndarray] = []
     for branch in branches:
-        missing = np.all(branch == 0, axis=-1)
-        scaled_x = branch[..., 0] * scale
-        scaled_y = branch[..., 1] * scale
-        scaled_z = branch[..., 2] * scale
+        xyz = branch[..., :N_COORDS]
+        valid = branch[..., N_COORDS]
+        missing = valid == 0
+        scaled_x = xyz[..., 0] * scale
+        scaled_y = xyz[..., 1] * scale
+        scaled_z = xyz[..., 2] * scale
         rotated_x = cosine * scaled_x - sine * scaled_y
         rotated_y = sine * scaled_x + cosine * scaled_y
         transformed = np.stack((rotated_x, rotated_y, scaled_z), axis=-1)
         noise = rng.normal(0.0, noise_std, size=transformed.shape).astype(np.float32)
         transformed = transformed + noise
         transformed[missing] = 0
-        augmented.append(np.ascontiguousarray(transformed, dtype=np.float32))
+        stacked = np.concatenate((transformed, valid[..., None]), axis=-1)
+        augmented.append(np.ascontiguousarray(stacked, dtype=np.float32))
     return tuple(augmented)
 
 
@@ -176,7 +236,10 @@ def _generator_seed(seed: int, epoch: int) -> int:
 
 
 class KeypointDataset(Dataset):
-    """Normalized keypoint clips. Each item is `(tuple of branch tensors, label)`."""
+    """Normalized keypoint clips. Each item is `(tuple of branch tensors, label)`.
+
+    A branch tensor has shape `(T, J, 4)`: xyz, then validity.
+    """
 
     def __init__(
         self,
@@ -190,6 +253,7 @@ class KeypointDataset(Dataset):
         scale_range: tuple[float, float] = (0.5, 1.5),
         rotate_deg: float = 15.0,
         noise_std: float = 0.01,
+        crop_range: tuple[float, float] = (0.5, 1.0),
     ) -> None:
         if min_shoulder <= 0:
             raise ValueError(f"min_shoulder must be positive, got {min_shoulder}")
@@ -199,6 +263,8 @@ class KeypointDataset(Dataset):
             raise ValueError(f"rotate_deg must be non-negative, got {rotate_deg}")
         if noise_std < 0:
             raise ValueError(f"noise_std must be non-negative, got {noise_std}")
+        if not 0 < crop_range[0] <= crop_range[1] <= 1:
+            raise ValueError(f"crop_range must lie in (0, 1] and be ordered, got {crop_range}")
         self.samples = [(Path(path), int(label)) for path, label in samples]
         self.class_names = tuple(class_names)
         self.modes = _check_modes(modes)
@@ -209,6 +275,7 @@ class KeypointDataset(Dataset):
         self.scale_range = (float(scale_range[0]), float(scale_range[1]))
         self.rotate_deg = float(rotate_deg)
         self.noise_std = float(noise_std)
+        self.crop_range = (float(crop_range[0]), float(crop_range[1]))
         self.epoch = 0
 
     @property
@@ -219,8 +286,12 @@ class KeypointDataset(Dataset):
     def num_joints(self) -> int:
         return N_JOINTS if self.is_leg else int(_KEEP_JOINTS.shape[0])
 
+    @property
+    def num_channels(self) -> int:
+        return N_CHANNELS
+
     def set_epoch(self, epoch: int) -> None:
-        """Change the augmentation draw for this epoch. Interpolation stays fixed."""
+        """Change the augmentation draw for this epoch, including the temporal crop."""
         self.epoch = int(epoch)
 
     def __len__(self) -> int:
@@ -233,9 +304,11 @@ class KeypointDataset(Dataset):
             raise RuntimeError(f"clip failed shoulder normalization: {path}")
         if not self.is_leg:
             normalized = drop_legs(normalized)
-        branches = tuple(interpolate_clip(normalized, mode.length) for mode in self.modes)
         if self.train:
             rng = _sample_rng(self.seed, self.epoch, index)
+            normalized = _temporal_crop(normalized, rng, self.crop_range)
+        branches = tuple(interpolate_clip(normalized, mode.length) for mode in self.modes)
+        if self.train:
             branches = _augment_branches(branches, rng, self.scale_range, self.rotate_deg, self.noise_std)
         tensors = tuple(torch.from_numpy(branch) for branch in branches)
         return tensors, label
@@ -358,7 +431,7 @@ def _validate_clip(job: tuple[str, float]) -> bool:
     return normalize_clip(array, min_shoulder) is not None
 
 
-def _valid_paths(paths: Sequence[Path], min_shoulder: float, workers: int) -> list[Path]:
+def _valid_paths(paths: Sequence[Path], min_shoulder: float, workers: int, desc: str) -> list[Path]:
     if not paths:
         return []
     jobs = [(str(path), min_shoulder) for path in paths]
@@ -366,7 +439,14 @@ def _valid_paths(paths: Sequence[Path], min_shoulder: float, workers: int) -> li
     chunksize = max(1, len(jobs) // (worker_count * 4))
     logger.info("Checking shoulder scale for %d clips with %d workers", len(jobs), worker_count)
     with Pool(processes=worker_count) as pool:
-        flags = pool.map(_validate_clip, jobs, chunksize=chunksize)
+        flags = list(
+            tqdm(
+                pool.imap(_validate_clip, jobs, chunksize=chunksize),
+                total=len(jobs),
+                desc=desc,
+                unit="clip",
+            )
+        )
     kept = [path for path, ok in zip(paths, flags) if ok]
     rejected = len(paths) - len(kept)
     if rejected:
@@ -418,6 +498,7 @@ def build_datasets(
     scale_range: tuple[float, float] = (0.5, 1.5),
     rotate_deg: float = 15.0,
     noise_std: float = 0.01,
+    crop_range: tuple[float, float] = (0.5, 1.0),
 ) -> tuple[KeypointDataset, KeypointDataset, list[str]]:
     """Filter glosses on the train split, write `labels.json`, and build both datasets.
 
@@ -434,7 +515,7 @@ def build_datasets(
     root_path = Path(root)
     train_groups = _gloss_files(root_path / "train")
     train_paths = [path for name in sorted(train_groups) for path in train_groups[name]]
-    valid_train_paths = set(_valid_paths(train_paths, min_shoulder, worker_count))
+    valid_train_paths = set(_valid_paths(train_paths, min_shoulder, worker_count, "train"))
     valid_train = {
         name: [path for path in paths if path in valid_train_paths]
         for name, paths in train_groups.items()
@@ -454,7 +535,7 @@ def build_datasets(
 
     test_groups = _gloss_files(root_path / "test")
     test_paths = [path for name in class_names for path in test_groups.get(name, [])]
-    valid_test_paths = set(_valid_paths(test_paths, min_shoulder, worker_count))
+    valid_test_paths = set(_valid_paths(test_paths, min_shoulder, worker_count, "test"))
     valid_test = {
         name: [path for path in test_groups.get(name, []) if path in valid_test_paths]
         for name in class_names
@@ -470,6 +551,7 @@ def build_datasets(
         "scale_range": scale_range,
         "rotate_deg": rotate_deg,
         "noise_std": noise_std,
+        "crop_range": crop_range,
     }
     train_dataset = KeypointDataset(train_samples, class_names, train=True, **shared)
     test_dataset = KeypointDataset(test_samples, class_names, train=False, **shared)
