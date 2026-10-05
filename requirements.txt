@@ -1,0 +1,6 @@
+numpy==1.26.4
+torch==2.14.0
+tqdm==4.70.1
+opencv-python-headless==4.11.0.86
+mediapipe==0.10.20
+pillow==12.3.0
