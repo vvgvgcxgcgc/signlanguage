@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
 export CUDA_VISIBLE_DEVICES=0
-torchrun --standalone --nproc_per_node=2 -m training.run \
+python -m training.run \
   --root "/kaggle/input/datasets/huynguang/vsl400-keypoints-final/vsl400-keypoint" \
   --model AAGCN \
   --frames 64 \
   --epochs 70 \
-  --micro-batch 32 \
+  --micro-batch 64 \
   --accumulate 2 \
-  --parallel ddp \
+  --parallel none \
   --workers 2 \
   --seed 0 \
   --warmup-epochs 5 \
