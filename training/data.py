@@ -15,7 +15,6 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 
-import numpy as np
 import torch
 from torch.utils.data import DataLoader, DistributedSampler
 
@@ -48,12 +47,6 @@ class Splits:
     @property
     def num_joints(self) -> int:
         return self.train_dataset.num_joints
-
-
-def _seed_worker(worker_id: int) -> None:
-    seed = (torch.initial_seed() + worker_id) % (2**32)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
 
 
 def build_splits(config: TrainConfig, topology: Topology) -> Splits:
@@ -91,17 +84,15 @@ def build_splits(config: TrainConfig, topology: Topology) -> Splits:
         config.micro_batch,
         config.seed + 1000 * topology.rank,
     )
+    # Clips already sit in RAM. Extra workers would fork that tensor and the
+    # CUDA context, which is what was filling host memory.
     train_loader = DataLoader(
         train_dataset,
         batch_size=config.micro_batch,
         sampler=sampler,
-        num_workers=config.workers,
+        num_workers=0,
         pin_memory=torch.cuda.is_available(),
-        worker_init_fn=_seed_worker,
         drop_last=False,
-        # Workers must be rebuilt each epoch, otherwise set_epoch never reaches
-        # the copies holding the augmentation seed.
-        persistent_workers=False,
     )
 
     val_sampler = (
@@ -114,11 +105,9 @@ def build_splits(config: TrainConfig, topology: Topology) -> Splits:
         batch_size=config.micro_batch,
         sampler=val_sampler,
         shuffle=False,
-        num_workers=config.workers,
+        num_workers=0,
         pin_memory=torch.cuda.is_available(),
-        worker_init_fn=_seed_worker,
         drop_last=False,
-        persistent_workers=False,
     )
 
     if topology.is_main:

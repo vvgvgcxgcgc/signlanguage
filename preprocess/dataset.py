@@ -236,27 +236,27 @@ def _generator_seed(seed: int, epoch: int) -> int:
 
 
 class KeypointDataset(Dataset):
-    """Normalized keypoint clips. Each item is `(tuple of branch tensors, label)`.
+    """Clips already normalized and resampled, held as one tensor per branch.
 
-    A branch tensor has shape `(T, J, 4)`: xyz, then validity.
+    `__getitem__` slices that tensor. It does not open the `.npy` again.
+    A branch tensor has shape `(N, T, J, 4)`: xyz, then validity. Training
+    still crops and augments the slice, which is a few kilobytes.
     """
 
     def __init__(
         self,
-        samples: Sequence[tuple[Path, int]],
+        features: Sequence[torch.Tensor],
+        labels: Sequence[int],
         class_names: Sequence[str],
         modes: Sequence[TemporalMode],
         is_leg: bool,
         train: bool,
         seed: int,
-        min_shoulder: float,
         scale_range: tuple[float, float] = (0.5, 1.5),
         rotate_deg: float = 15.0,
         noise_std: float = 0.01,
         crop_range: tuple[float, float] = (0.5, 1.0),
     ) -> None:
-        if min_shoulder <= 0:
-            raise ValueError(f"min_shoulder must be positive, got {min_shoulder}")
         if scale_range[0] <= 0 or scale_range[0] > scale_range[1]:
             raise ValueError(f"scale_range must be positive and ordered, got {scale_range}")
         if rotate_deg < 0:
@@ -265,13 +265,21 @@ class KeypointDataset(Dataset):
             raise ValueError(f"noise_std must be non-negative, got {noise_std}")
         if not 0 < crop_range[0] <= crop_range[1] <= 1:
             raise ValueError(f"crop_range must lie in (0, 1] and be ordered, got {crop_range}")
-        self.samples = [(Path(path), int(label)) for path, label in samples]
-        self.class_names = tuple(class_names)
         self.modes = _check_modes(modes)
+        self.features = tuple(features)
+        if len(self.features) != len(self.modes):
+            raise ValueError(f"expected {len(self.modes)} feature tensors, got {len(self.features)}")
+        count = int(self.features[0].shape[0]) if self.features else 0
+        for feature in self.features:
+            if int(feature.shape[0]) != count:
+                raise ValueError("feature tensors must hold the same number of clips")
+        self._labels = [int(label) for label in labels]
+        if len(self._labels) != count:
+            raise ValueError(f"expected {count} labels, got {len(self._labels)}")
+        self.class_names = tuple(class_names)
         self.is_leg = bool(is_leg)
         self.train = bool(train)
         self.seed = int(seed)
-        self.min_shoulder = float(min_shoulder)
         self.scale_range = (float(scale_range[0]), float(scale_range[1]))
         self.rotate_deg = float(rotate_deg)
         self.noise_std = float(noise_std)
@@ -280,11 +288,13 @@ class KeypointDataset(Dataset):
 
     @property
     def labels(self) -> list[int]:
-        return [label for _, label in self.samples]
+        return self._labels
 
     @property
     def num_joints(self) -> int:
-        return N_JOINTS if self.is_leg else int(_KEEP_JOINTS.shape[0])
+        if not self.features:
+            return N_JOINTS if self.is_leg else int(_KEEP_JOINTS.shape[0])
+        return int(self.features[0].shape[2])
 
     @property
     def num_channels(self) -> int:
@@ -295,23 +305,22 @@ class KeypointDataset(Dataset):
         self.epoch = int(epoch)
 
     def __len__(self) -> int:
-        return len(self.samples)
+        return len(self._labels)
 
     def __getitem__(self, index: int) -> tuple[tuple[torch.Tensor, ...], int]:
-        path, label = self.samples[index]
-        normalized = normalize_clip(np.load(path), self.min_shoulder)
-        if normalized is None:
-            raise RuntimeError(f"clip failed shoulder normalization: {path}")
-        if not self.is_leg:
-            normalized = drop_legs(normalized)
-        if self.train:
-            rng = _sample_rng(self.seed, self.epoch, index)
-            normalized = _temporal_crop(normalized, rng, self.crop_range)
-        branches = tuple(interpolate_clip(normalized, mode.length) for mode in self.modes)
-        if self.train:
-            branches = _augment_branches(branches, rng, self.scale_range, self.rotate_deg, self.noise_std)
-        tensors = tuple(torch.from_numpy(branch) for branch in branches)
-        return tensors, label
+        label = self._labels[index]
+        if not self.train:
+            return tuple(branch[index] for branch in self.features), label
+        rng = _sample_rng(self.seed, self.epoch, index)
+        cropped: list[np.ndarray] = []
+        for branch in self.features:
+            clip = branch[index].numpy()
+            span = _temporal_crop(clip, rng, self.crop_range)
+            if span.shape[0] != clip.shape[0]:
+                span = interpolate_clip(span, int(clip.shape[0]))
+            cropped.append(span)
+        augmented = _augment_branches(cropped, rng, self.scale_range, self.rotate_deg, self.noise_std)
+        return tuple(torch.from_numpy(branch) for branch in augmented), label
 
 
 class BalancedBatchSampler(Sampler[int]):
@@ -422,36 +431,74 @@ def make_loader(
     )
 
 
-def _validate_clip(job: tuple[str, float]) -> bool:
-    path, min_shoulder = job
+def _prepare_clip(
+    job: tuple[str, float, bool, tuple[int, ...]],
+) -> tuple[str, Optional[tuple[np.ndarray, ...]]]:
+    """Normalize one file and resample every branch. The array stays in RAM."""
+    path, min_shoulder, is_leg, lengths = job
     try:
         array = np.load(path)
     except (OSError, ValueError):
-        return False
-    return normalize_clip(array, min_shoulder) is not None
+        return path, None
+    normalized = normalize_clip(array, min_shoulder)
+    if normalized is None:
+        return path, None
+    if not is_leg:
+        normalized = drop_legs(normalized)
+    return path, tuple(interpolate_clip(normalized, length) for length in lengths)
 
 
-def _valid_paths(paths: Sequence[Path], min_shoulder: float, workers: int, desc: str) -> list[Path]:
+def _load_prepared(
+    paths: Sequence[Path],
+    min_shoulder: float,
+    is_leg: bool,
+    lengths: Sequence[int],
+    workers: int,
+    desc: str,
+) -> dict[str, tuple[np.ndarray, ...]]:
     if not paths:
-        return []
-    jobs = [(str(path), min_shoulder) for path in paths]
+        return {}
+    length_key = tuple(int(length) for length in lengths)
+    jobs = [(str(path), min_shoulder, is_leg, length_key) for path in paths]
     worker_count = max(1, min(workers, len(jobs)))
     chunksize = max(1, len(jobs) // (worker_count * 4))
-    logger.info("Checking shoulder scale for %d clips with %d workers", len(jobs), worker_count)
+    logger.info("Loading %d clips into RAM with %d workers", len(jobs), worker_count)
     with Pool(processes=worker_count) as pool:
-        flags = list(
+        loaded = list(
             tqdm(
-                pool.imap(_validate_clip, jobs, chunksize=chunksize),
+                pool.imap(_prepare_clip, jobs, chunksize=chunksize),
                 total=len(jobs),
                 desc=desc,
                 unit="clip",
             )
         )
-    kept = [path for path, ok in zip(paths, flags) if ok]
-    rejected = len(paths) - len(kept)
+    prepared = {path: branches for path, branches in loaded if branches is not None}
+    rejected = len(paths) - len(prepared)
     if rejected:
         logger.info("Rejected %d clips with a bad shoulder scale", rejected)
-    return kept
+    return prepared
+
+
+def _stack_features(
+    prepared: dict[str, tuple[np.ndarray, ...]],
+    samples: Sequence[tuple[Path, int]],
+    modes: Sequence[TemporalMode],
+    is_leg: bool,
+) -> tuple[tuple[torch.Tensor, ...], list[int]]:
+    labels = [label for _, label in samples]
+    if not samples:
+        joints = N_JOINTS if is_leg else int(_KEEP_JOINTS.shape[0])
+        empty = tuple(
+            torch.empty((0, mode.length, joints, N_CHANNELS), dtype=torch.float32)
+            for mode in modes
+        )
+        return empty, labels
+    chosen = [prepared[str(path)] for path, _label in samples]
+    features = []
+    for mode_index, _mode in enumerate(modes):
+        stacked = np.stack([item[mode_index] for item in chosen])
+        features.append(torch.from_numpy(np.ascontiguousarray(stacked, dtype=np.float32)))
+    return tuple(features), labels
 
 
 def _npy_files(gloss_dir: Path) -> list[Path]:
@@ -509,19 +556,23 @@ def build_datasets(
 
     The file is `labels/{name}.json` in the current working directory. It is not
     placed under the dataset root. `metadata_path` overrides that location.
+
+    Each returned dataset holds the resampled clips in one tensor per branch.
+    Later epochs slice that tensor instead of reading the files again.
     """
     if min_train_samples < 1:
         raise ValueError(f"min_train_samples must be positive, got {min_train_samples}")
     if min_shoulder <= 0:
         raise ValueError(f"min_shoulder must be positive, got {min_shoulder}")
     selected_modes = SINGLE_MODES if modes is None else _check_modes(modes)
+    lengths = tuple(mode.length for mode in selected_modes)
     worker_count = os.cpu_count() or 1 if workers is None else max(1, int(workers))
     root_path = Path(root)
     train_groups = _gloss_files(root_path / "train")
     train_paths = [path for name in sorted(train_groups) for path in train_groups[name]]
-    valid_train_paths = set(_valid_paths(train_paths, min_shoulder, worker_count, "train"))
+    prepared_train = _load_prepared(train_paths, min_shoulder, is_leg, lengths, worker_count, "train")
     valid_train = {
-        name: [path for path in paths if path in valid_train_paths]
+        name: [path for path in paths if str(path) in prepared_train]
         for name, paths in train_groups.items()
     }
     class_names = sorted(name for name, paths in valid_train.items() if len(paths) >= min_train_samples)
@@ -545,24 +596,34 @@ def build_datasets(
 
     test_groups = _gloss_files(root_path / "test")
     test_paths = [path for name in class_names for path in test_groups.get(name, [])]
-    valid_test_paths = set(_valid_paths(test_paths, min_shoulder, worker_count, "test"))
+    prepared_test = _load_prepared(test_paths, min_shoulder, is_leg, lengths, worker_count, "test")
     valid_test = {
-        name: [path for path in test_groups.get(name, []) if path in valid_test_paths]
+        name: [path for path in test_groups.get(name, []) if str(path) in prepared_test]
         for name in class_names
     }
     train_samples = _samples_for(valid_train, class_names)
     test_samples = _samples_for(valid_test, class_names)
-    logger.info("Train clips %d, test clips %d", len(train_samples), len(test_samples))
+    train_features, train_labels = _stack_features(prepared_train, train_samples, selected_modes, is_leg)
+    test_features, test_labels = _stack_features(prepared_test, test_samples, selected_modes, is_leg)
+    del prepared_train, prepared_test
+    train_bytes = sum(feature.nbytes for feature in train_features)
+    test_bytes = sum(feature.nbytes for feature in test_features)
+    logger.info(
+        "Train clips %d, test clips %d, cached %.2f GB",
+        len(train_samples),
+        len(test_samples),
+        (train_bytes + test_bytes) / (1024 ** 3),
+    )
     shared = {
+        "class_names": class_names,
         "modes": selected_modes,
         "is_leg": is_leg,
         "seed": seed,
-        "min_shoulder": min_shoulder,
         "scale_range": scale_range,
         "rotate_deg": rotate_deg,
         "noise_std": noise_std,
         "crop_range": crop_range,
     }
-    train_dataset = KeypointDataset(train_samples, class_names, train=True, **shared)
-    test_dataset = KeypointDataset(test_samples, class_names, train=False, **shared)
+    train_dataset = KeypointDataset(train_features, train_labels, train=True, **shared)
+    test_dataset = KeypointDataset(test_features, test_labels, train=False, **shared)
     return train_dataset, test_dataset, class_names
