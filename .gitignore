@@ -16,3 +16,6 @@ checkpoints/
 
 # os junk
 .DS_Store
+
+# video files
+vsl400-keypoint/
