@@ -76,13 +76,22 @@ def reduce_sum(tensor: torch.Tensor, topology: Topology) -> torch.Tensor:
     return tensor
 
 
-def resolve_device(topology: Topology, parallel: str) -> torch.device:
-    """Pick the CUDA device for this process.
+def _mps_available() -> bool:
+    backend = getattr(torch.backends, "mps", None)
+    return backend is not None and torch.backends.mps.is_available()
 
-    `dp` and `ddp` are two-GPU modes. They do not fall back to CPU: a T4
-    session with the accelerator off, or a CPU torch wheel, has to fail here
-    instead of training for hours on the host.
+
+def resolve_device(topology: Topology, parallel: str, device: str = "auto") -> torch.device:
+    """Pick the compute device for this process.
+
+    `auto` prefers CUDA, then Apple MPS, then CPU. An explicit `cpu` skips
+    both accelerators. `dp` and `ddp` stay CUDA-only: a T4 session with the
+    accelerator off, or a CPU torch wheel, has to fail here instead of
+    training for hours on the host.
     """
+    if parallel in {"dp", "ddp"} and device in {"cpu", "mps"}:
+        raise RuntimeError(f"parallel={parallel!r} needs CUDA, got device={device!r}.")
+
     available = torch.cuda.is_available()
     count = torch.cuda.device_count() if available else 0
     if parallel in {"dp", "ddp"} and not available:
@@ -91,19 +100,28 @@ def resolve_device(topology: Topology, parallel: str) -> torch.device:
             "On Kaggle set the accelerator to GPU T4 x2. Reinstalling torch from "
             "requirements.txt can replace that image's CUDA build with a CPU wheel."
         )
+    if device == "cuda" and not available:
+        raise RuntimeError("device='cuda' was requested, but torch.cuda.is_available() is False.")
+    if device == "mps" and not _mps_available():
+        raise RuntimeError("device='mps' was requested, but torch.backends.mps.is_available() is False.")
+
     if parallel == "dp" and count < 2:
         raise RuntimeError(f"parallel='dp' needs at least 2 CUDA devices, found {count}.")
     if parallel == "ddp" and topology.world_size < 2:
         raise RuntimeError(
             "parallel='ddp' needs torchrun --standalone --nproc_per_node=2 so each T4 gets a process."
         )
-    if available:
+
+    use_cuda = device == "cuda" or (device == "auto" and available)
+    if use_cuda:
         index = topology.local_rank if topology.distributed else 0
         if index >= count:
             raise RuntimeError(f"local_rank {index} is outside the {count} visible CUDA device(s).")
         names = ", ".join(f"{i}:{torch.cuda.get_device_name(i)}" for i in range(count))
         logger.info("CUDA device cuda:%d | %d visible (%s) | parallel=%s", index, count, names, parallel)
         return torch.device(f"cuda:{index}")
-    if getattr(torch.backends, "mps", None) is not None and torch.backends.mps.is_available():
+    if device == "mps" or (device == "auto" and _mps_available()):
+        logger.info("Apple MPS device | parallel=%s", parallel)
         return torch.device("mps")
+    logger.info("CPU device | parallel=%s", parallel)
     return torch.device("cpu")

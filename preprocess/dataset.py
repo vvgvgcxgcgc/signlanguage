@@ -152,6 +152,31 @@ def interpolate_clip(clip: np.ndarray, length: int) -> np.ndarray:
     )
 
 
+def resample_clip(
+    array: np.ndarray,
+    length: int,
+    is_leg: bool,
+    min_shoulder: float = 1e-3,
+) -> Optional[np.ndarray]:
+    """Raw `(N, 76, 3)` of any length to `(length, J, 4)` for one model.
+
+    `length` is that model's temporal size, the `max_frames` stored in its
+    checkpoint. The steps are the training ones: shoulder-normalize, drop the
+    legs unless `is_leg`, then interpolate. Returns None when the shoulders
+    are too weak to normalize.
+    """
+    if length < 1:
+        raise ValueError(f"temporal length must be positive, got {length}")
+    if min_shoulder <= 0:
+        raise ValueError(f"min_shoulder must be positive, got {min_shoulder}")
+    normalized = normalize_clip(array, min_shoulder)
+    if normalized is None:
+        return None
+    if not is_leg:
+        normalized = drop_legs(normalized)
+    return interpolate_clip(normalized, length)
+
+
 def _check_modes(modes: Sequence[TemporalMode]) -> tuple[TemporalMode, ...]:
     checked = tuple(modes)
     if len(checked) not in (1, 2, 3):

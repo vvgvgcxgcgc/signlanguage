@@ -6,6 +6,7 @@ DataParallel (`parallel="dp"`) or one process per GPU (`parallel="ddp"`).
 """
 
 from training.config import (
+    DEVICES,
     OPTIMIZERS,
     PARALLEL_MODES,
     SELECTION_METRICS,
@@ -30,6 +31,7 @@ from training.engine import (
 from training.metrics import MetricAccumulator, Scores
 
 __all__ = [
+    "DEVICES",
     "MetricAccumulator",
     "ModelEma",
     "OPTIMIZERS",

@@ -1,6 +1,7 @@
 """Infer a VSL gloss name from a video.
 
-Keypoint extraction lives in preprocess. ST-GCN and TCN live in models.
+Keypoint extraction lives in preprocess. The clip is resampled to each loaded
+model's own temporal length before it is scored.
 """
 
 from __future__ import annotations
@@ -12,7 +13,7 @@ from pathlib import Path
 from typing import Optional, Sequence
 
 from models import load_models, pick_device, predict_gloss
-from preprocess import extract_sequences, iter_videos, to_model_input
+from preprocess import extract_sequences, iter_videos, resample_clip
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +56,17 @@ def infer_videos(
             logger.error("No frames in %s", video_path)
             results.append({"video": video_path, "gloss": None, "predictions": []})
             continue
-        prediction = predict_gloss(to_model_input(sequence), loaded, glosses, torch_device)
+        specs = {(model.is_leg, model.max_frames) for model in loaded.values()}
+        if len(specs) != 1:
+            raise ValueError(f"loaded models disagree on is_leg/max_frames: {specs}")
+        is_leg, frames = next(iter(specs))
+        features = resample_clip(sequence, frames, is_leg)
+        if features is None:
+            logger.error("Shoulders too weak to normalize %s", video_path)
+            results.append({"video": video_path, "gloss": None, "predictions": []})
+            continue
+        logger.info("Resampled %s from %d frames to T=%d", video_path, sequence.shape[0], frames)
+        prediction = predict_gloss(features, loaded, glosses, torch_device)
         prediction["video"] = video_path
         logger.info("gloss: %s", prediction["gloss"])
         results.append(prediction)

@@ -27,7 +27,7 @@ import sys
 from pathlib import Path
 
 from models import MODEL_NAMES
-from training.config import OPTIMIZERS, PARALLEL_MODES, SELECTION_METRICS, TrainConfig
+from training.config import DEVICES, OPTIMIZERS, PARALLEL_MODES, SELECTION_METRICS, TrainConfig
 from training.engine import fit
 
 logger = logging.getLogger("training")
@@ -69,6 +69,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--ema-decay", type=float, default=0.999, help="0 disables the averaged copy")
 
     parser.add_argument("--parallel", default="none", choices=PARALLEL_MODES)
+    parser.add_argument(
+        "--device",
+        default="auto",
+        choices=DEVICES,
+        help="auto prefers CUDA, then MPS, then CPU",
+    )
     parser.add_argument("--no-amp", action="store_true", help="keep float32 on CUDA")
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument("--seed", type=int, default=0)
@@ -105,6 +111,7 @@ def config_from_args(args: argparse.Namespace, model: str) -> TrainConfig:
         ema_decay=args.ema_decay,
         amp=not args.no_amp,
         parallel=args.parallel,
+        device=args.device,
         workers=args.workers,
         seed=args.seed,
         min_train_samples=args.min_train_samples,

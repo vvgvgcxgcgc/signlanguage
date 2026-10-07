@@ -14,6 +14,7 @@ from pathlib import Path
 OPTIMIZERS = ("sgd", "adamw")
 PARALLEL_MODES = ("none", "dp", "ddp")
 SELECTION_METRICS = ("accuracy", "macro_f1", "top5")
+DEVICES = ("auto", "cpu", "cuda", "mps")
 
 
 @dataclass
@@ -41,6 +42,7 @@ class TrainConfig:
 
     amp: bool = True
     parallel: str = "none"
+    device: str = "auto"
     workers: int = 4
     seed: int = 0
 
@@ -69,6 +71,8 @@ class TrainConfig:
             raise ValueError(f"optimizer must be one of {OPTIMIZERS}, got {self.optimizer!r}")
         if self.parallel not in PARALLEL_MODES:
             raise ValueError(f"parallel must be one of {PARALLEL_MODES}, got {self.parallel!r}")
+        if self.device not in DEVICES:
+            raise ValueError(f"device must be one of {DEVICES}, got {self.device!r}")
         if self.select_by not in SELECTION_METRICS:
             raise ValueError(f"select_by must be one of {SELECTION_METRICS}, got {self.select_by!r}")
         if self.frames < 1:

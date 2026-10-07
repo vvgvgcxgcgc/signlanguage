@@ -14,8 +14,14 @@ __pycache__/
 # model weights
 checkpoints/
 
+# MediaPipe task files downloaded by preprocess.keypoints
+mediapipe_models/
+
 # os junk
 .DS_Store
 
 # video files
 vsl400-keypoint/
+
+# test files
+test.ipynb

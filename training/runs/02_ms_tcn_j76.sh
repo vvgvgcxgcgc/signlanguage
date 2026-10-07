@@ -1,14 +1,15 @@
-
-export CUDA_VISIBLE_DEVICES=0,1
-torchrun --standalone --nproc_per_node=2 -m training.run \
-  --root "/kaggle/input/datasets/huynguang/vsl400-keypoints-final/vsl400-keypoint" \
+#!/usr/bin/env bash
+# Single process on CPU. DDP is CUDA-only and is not used here.
+python -m training.run \
+  --root "/Users/huynq/Projects/sign-language/vsl400-keypoint" \
   --model MS-TCN \
   --frames 64 \
   --legs \
   --epochs 70 \
   --micro-batch 32 \
   --accumulate 2 \
-  --parallel ddp \
+  --parallel none \
+  --device cpu \
   --workers 2 \
   --seed 0 \
   --warmup-epochs 5 \

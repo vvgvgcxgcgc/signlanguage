@@ -11,8 +11,9 @@ from preprocess.dataset import (
     TemporalMode,
     build_datasets,
     make_loader,
+    resample_clip,
 )
-from preprocess.keypoints import extract_sequences, iter_videos, keypoints_from_video, to_model_input
+from preprocess.keypoints import extract_sequences, iter_videos, keypoints_from_video
 
 __all__ = [
     "MODE_FAST",
@@ -28,5 +29,5 @@ __all__ = [
     "iter_videos",
     "keypoints_from_video",
     "make_loader",
-    "to_model_input",
+    "resample_clip",
 ]

@@ -264,7 +264,7 @@ def fit(config: TrainConfig) -> RunResult:
     topology = setup(config.parallel)
     try:
         torch.manual_seed(config.seed + topology.rank)
-        device = resolve_device(topology, config.parallel)
+        device = resolve_device(topology, config.parallel, config.device)
         tune_backend(device)
         splits = build_splits(config, topology)
 

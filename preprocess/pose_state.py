@@ -86,6 +86,18 @@ def normalize_window(frames: np.ndarray) -> Optional[np.ndarray]:
     return ((pose - origin) / np.float32(scale)).astype(np.float32)
 
 
+def latest_window(frames: np.ndarray) -> Optional[np.ndarray]:
+    """Causal window ending at the last raw frame, the way a live stream sees it.
+
+    `frames` is `(T, 76, 3)`. The first frames repeat until the window is full.
+    Returns None when the last frame's shoulders are degenerate.
+    """
+    clip = np.asarray(frames)
+    if clip.ndim != 3 or clip.shape[1:] != (RAW_JOINTS, 3) or clip.shape[0] == 0:
+        raise ValueError(f"expected (T, {RAW_JOINTS}, 3), got {getattr(clip, 'shape', None)}")
+    return normalize_window(clip[window_indices(int(clip.shape[0]) - 1)])
+
+
 def clip_windows(clip: np.ndarray, window: int = WINDOW) -> tuple[np.ndarray, np.ndarray]:
     """Causal window for every frame of a raw clip, as a stream would see it.
 

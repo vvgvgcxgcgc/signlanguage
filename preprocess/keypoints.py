@@ -1,26 +1,37 @@
-"""Keypoints from extract-keypoint-vslfullfront.ipynb.
+"""Raw keypoints, matching extract-keypoint-vslfullfront-raw.ipynb.
 
-34 body points (33 pose plus the shoulder midpoint as neck) and 42 hand
-points, each xyz. Body and hand boxes are normalized per frame, then the
-clip is cut or zero-padded to 80 frames and flattened to 228 values.
+Each frame is 76 joints of xyz in MediaPipe image coordinates: 34 body points
+(33 pose plus the shoulder midpoint as neck) and 42 hand points, name-major,
+left then right. Missing joints stay (0, 0, 0). No box normalization happens
+here. preprocess.dataset.resample_clip is what turns a queue of these frames
+into a model's (T, J, 4) input.
+
+The training videos are already 224x224 squares at 25 fps, so the notebook
+feeds them as they are. A camera frame has to go through `square_frame`
+first, otherwise MediaPipe's normalized x and y are scaled by different
+widths and the shoulder-width normalization no longer means the same thing.
 """
 
 from __future__ import annotations
 
 import logging
+import os
+import time
+import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import Pool
 from pathlib import Path
 from typing import Optional, Sequence
 
 import cv2
+import mediapipe as mp
 import numpy as np
 
 logger = logging.getLogger(__name__)
 
 N_JOINTS = 76
-FEATURE_DIM = N_JOINTS * 3
-MAX_FRAMES = 80
 FRAME_SIZE = 224
+TRAIN_FPS = 25.0
 VIDEO_SUFFIXES = {".mp4", ".avi", ".mov", ".mkv", ".webm"}
 
 BODY_LANDMARKS = [
@@ -40,7 +51,6 @@ HAND_LANDMARKS = [
 ]
 HANDS_LANDMARKS = [name + suffix for name in HAND_LANDMARKS for suffix in ("_0", "_1")]
 LANDMARKS = BODY_LANDMARKS + HANDS_LANDMARKS
-ANCHOR_LANDMARKS = ["nose", "leftShoulder", "rightShoulder", "leftHip", "rightHip", "neck"]
 
 POSE_INDEX = {
     "nose": 0, "leftEyeInner": 1, "leftEye": 2, "leftEyeOuter": 3,
@@ -61,188 +71,235 @@ HAND_INDEX = {
     "littleMCP": 17, "littlePIP": 18, "littleDIP": 19, "littleTip": 20,
 }
 
-_ZERO = (0.0, 0.0, 0.0)
-_EXTRACTOR: Optional["HolisticExtractor"] = None
+_BODY_ROW = {name: index for index, name in enumerate(BODY_LANDMARKS)}
+_NECK_ROW = _BODY_ROW["neck"]
+_LEFT_SHOULDER_ROW = _BODY_ROW["leftShoulder"]
+_RIGHT_SHOULDER_ROW = _BODY_ROW["rightShoulder"]
+_HAND_ROW = {
+    (name, slot): len(BODY_LANDMARKS) + name_index * 2 + slot
+    for name_index, name in enumerate(HAND_LANDMARKS)
+    for slot in (0, 1)
+}
+
+MODEL_DIR = Path(__file__).resolve().parents[1] / "mediapipe_models"
+POSE_MODEL_PATH = MODEL_DIR / "pose_landmarker_full.task"
+HAND_MODEL_PATH = MODEL_DIR / "hand_landmarker.task"
+_MODEL_URLS = {
+    POSE_MODEL_PATH: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task",
+    HAND_MODEL_PATH: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
+}
+
+_EXTRACTOR: Optional["KeypointExtractor"] = None
 
 
-class HolisticExtractor:
-    """MediaPipe Holistic. One instance per process; reset between clips."""
-
-    def __init__(self) -> None:
-        import mediapipe as mp
-
-        if not hasattr(mp, "solutions"):
-            raise ImportError(
-                "mp.solutions.holistic was removed in mediapipe 0.10.21. "
-                'Install the last build that still has it: pip install "mediapipe==0.10.20"'
-            )
-        self._cls = mp.solutions.holistic.Holistic
-        self._holistic = self._cls(static_image_mode=False, model_complexity=1)
-
-    def close(self) -> None:
-        self._holistic.close()
-
-    def reset(self) -> None:
-        self.close()
-        self._holistic = self._cls(static_image_mode=False, model_complexity=1)
-
-    def process(self, frame_bgr: np.ndarray):
-        rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
-        rgb.flags.writeable = False
-        return self._holistic.process(rgb)
-
-
-def normalize_body(row: dict) -> dict:
-    """Scale each frame's body into a box around the torso anchors."""
-    sequence_size = len(row["leftEar"])
-    for index in range(sequence_size):
-        x_coords = [row[name][index][0] for name in ANCHOR_LANDMARKS if row[name][index][0] != 0]
-        y_coords = [row[name][index][1] for name in ANCHOR_LANDMARKS if row[name][index][1] != 0]
-        if not x_coords or not y_coords:
+def ensure_models() -> None:
+    """Download the pose and hand task files once. IMAGE mode has no tracker state."""
+    MODEL_DIR.mkdir(parents=True, exist_ok=True)
+    for path, url in _MODEL_URLS.items():
+        if path.is_file() and path.stat().st_size > 0:
             continue
-        min_x, max_x = min(x_coords), max(x_coords)
-        min_y, max_y = min(y_coords), max(y_coords)
-        dx = (max_x - min_x) * 1.6
-        dy = (max_y - min_y) * 1.6
-        if dx <= 0 or dy <= 0:
+        logger.info("Downloading %s", path.name)
+        urllib.request.urlretrieve(url, path)
+
+
+def _landmarker_options(running_mode):
+    ensure_models()
+    base = mp.tasks.BaseOptions
+    vision = mp.tasks.vision
+    pose = vision.PoseLandmarkerOptions(
+        base_options=base(model_asset_path=str(POSE_MODEL_PATH)),
+        running_mode=running_mode,
+        num_poses=1,
+        min_pose_detection_confidence=0.5,
+        min_pose_presence_confidence=0.5,
+        min_tracking_confidence=0.5,
+    )
+    hand = vision.HandLandmarkerOptions(
+        base_options=base(model_asset_path=str(HAND_MODEL_PATH)),
+        running_mode=running_mode,
+        num_hands=2,
+        min_hand_detection_confidence=0.5,
+        min_hand_presence_confidence=0.5,
+        min_tracking_confidence=0.5,
+    )
+    return pose, hand
+
+
+def _select_hands(hand_result) -> dict:
+    chosen = {}
+    landmarks_list = hand_result.hand_landmarks or []
+    handedness_list = hand_result.handedness or []
+    for landmarks, handedness in zip(landmarks_list, handedness_list):
+        if not handedness:
             continue
-        center_x = (max_x + min_x) / 2
-        center_y = (max_y + min_y) / 2
-        box_min_x = center_x - dx / 2
-        box_min_y = center_y - dy / 2
-        for key in BODY_LANDMARKS:
-            x, y, z = row[key][index]
-            if x == 0 and y == 0:
-                continue
-            row[key][index] = ((x - box_min_x) / dx - 0.5, (y - box_min_y) / dy - 0.5, z)
-    return row
+        label = handedness[0].category_name
+        score = handedness[0].score
+        if label not in ("Left", "Right"):
+            continue
+        previous = chosen.get(label)
+        if previous is None or score > previous[0]:
+            chosen[label] = (score, landmarks)
+    return chosen
 
 
-def normalize_hands(row: dict) -> dict:
-    """Scale each hand into its own xy box. z stays in MediaPipe units."""
-    sequence_size = len(row["leftEar"])
-    for suffix in ("_0", "_1"):
-        for index in range(sequence_size):
-            x_coords = [
-                row[name + suffix][index][0]
-                for name in HAND_LANDMARKS
-                if row[name + suffix][index][0] != 0
-            ]
-            y_coords = [
-                row[name + suffix][index][1]
-                for name in HAND_LANDMARKS
-                if row[name + suffix][index][1] != 0
-            ]
-            if not x_coords or not y_coords:
-                continue
-            min_x, max_x = min(x_coords), max(x_coords)
-            min_y, max_y = min(y_coords), max(y_coords)
-            dx, dy = max_x - min_x, max_y - min_y
-            if dx <= 0 or dy <= 0:
-                continue
-            for name in HAND_LANDMARKS:
-                x, y, z = row[name + suffix][index]
-                if x == 0 and y == 0:
-                    continue
-                row[name + suffix][index] = ((x - min_x) / dx - 0.5, (y - min_y) / dy - 0.5, z)
-    return row
+def _fill_pose(row: np.ndarray, pose_result) -> None:
+    if not pose_result.pose_landmarks:
+        return
+    landmarks = pose_result.pose_landmarks[0]
+    for name, mp_index in POSE_INDEX.items():
+        point = landmarks[mp_index]
+        slot = _BODY_ROW[name]
+        row[slot, 0] = point.x
+        row[slot, 1] = point.y
+        row[slot, 2] = point.z
+    row[_NECK_ROW] = (row[_LEFT_SHOULDER_ROW] + row[_RIGHT_SHOULDER_ROW]) / 2
 
 
-def _empty_sequence() -> dict:
-    return {name: [] for name in LANDMARKS}
+def _fill_hand(row: np.ndarray, hand_result) -> None:
+    chosen = _select_hands(hand_result)
+    for slot, label in ((0, "Left"), (1, "Right")):
+        picked = chosen.get(label)
+        if picked is None:
+            continue
+        landmarks = picked[1]
+        for name, mp_index in HAND_INDEX.items():
+            point = landmarks[mp_index]
+            joint = _HAND_ROW[(name, slot)]
+            row[joint, 0] = point.x
+            row[joint, 1] = point.y
+            row[joint, 2] = point.z
 
 
-def _append_frame(sequence: dict, results) -> None:
-    pose_data = {name: _ZERO for name in BODY_LANDMARKS}
-    if results.pose_landmarks is not None:
-        for name, index in POSE_INDEX.items():
-            point = results.pose_landmarks.landmark[index]
-            pose_data[name] = (point.x, point.y, point.z)
-        left, right = pose_data["leftShoulder"], pose_data["rightShoulder"]
-        pose_data["neck"] = (
-            (left[0] + right[0]) / 2,
-            (left[1] + right[1]) / 2,
-            (left[2] + right[2]) / 2,
-        )
-    for name in BODY_LANDMARKS:
-        sequence[name].append(pose_data[name])
-
-    for suffix, hand in (("_0", results.left_hand_landmarks), ("_1", results.right_hand_landmarks)):
-        hand_data = {name + suffix: _ZERO for name in HAND_LANDMARKS}
-        if hand is not None:
-            for name, index in HAND_INDEX.items():
-                point = hand.landmark[index]
-                hand_data[name + suffix] = (point.x, point.y, point.z)
-        for name in HAND_LANDMARKS:
-            sequence[name + suffix].append(hand_data[name + suffix])
-
-
-def sequence_to_array(sequence: dict) -> np.ndarray:
-    """Normalized landmark dict -> (T, 76, 3) in LANDMARKS order."""
-    sequence = normalize_hands(normalize_body(sequence))
-    length = len(sequence["neck"])
-    if length == 0:
-        return np.zeros((0, N_JOINTS, 3), dtype=np.float32)
-    frames = [[sequence[name][index] for name in LANDMARKS] for index in range(length)]
-    array = np.asarray(frames, dtype=np.float32)
-    if array.shape[1:] != (N_JOINTS, 3):
-        raise ValueError(f"expected {(N_JOINTS, 3)} joints, got {array.shape[1:]}")
-    return array
-
-
-def to_model_input(sequence: np.ndarray) -> np.ndarray:
-    """(T, 76, 3) -> (80, 228), keeping the first frames and padding the tail with zeros."""
-    if sequence.ndim != 3 or sequence.shape[1:] != (N_JOINTS, 3):
-        raise ValueError(f"keypoints must be (T, {N_JOINTS}, 3), got {sequence.shape}")
-    flat = np.ascontiguousarray(sequence.reshape(sequence.shape[0], FEATURE_DIM), dtype=np.float32)
-    length = flat.shape[0]
-    if length == 0:
-        raise ValueError("video produced no keypoint frames")
-    if length > MAX_FRAMES:
-        flat = flat[:MAX_FRAMES]
-    elif length < MAX_FRAMES:
-        pad = np.zeros((MAX_FRAMES - length, FEATURE_DIM), dtype=np.float32)
-        flat = np.concatenate([flat, pad], axis=0)
-    return flat
-
-
-def resize_square(frame_bgr: np.ndarray, size: int = FRAME_SIZE) -> np.ndarray:
-    """Center-crop to a square, then resize to the 224 training frame."""
+def square_frame(frame_bgr: np.ndarray, size: int = FRAME_SIZE) -> np.ndarray:
+    """Center-crop to a square and resize to the 224 training frame."""
     height, width = frame_bgr.shape[:2]
     side = min(height, width)
     y0 = (height - side) // 2
     x0 = (width - side) // 2
     square = frame_bgr[y0:y0 + side, x0:x0 + side]
-    if square.shape[0] != size or square.shape[1] != size:
-        interpolation = cv2.INTER_AREA if side > size else cv2.INTER_LINEAR
-        square = cv2.resize(square, (size, size), interpolation=interpolation)
-    return square
+    if side == size:
+        return np.ascontiguousarray(square)
+    interpolation = cv2.INTER_AREA if side > size else cv2.INTER_LINEAR
+    return cv2.resize(square, (size, size), interpolation=interpolation)
 
 
-def blank_sequence() -> dict:
-    return _empty_sequence()
+def landmarks_from_frame(frame_bgr: np.ndarray, pose_landmarker, hand_landmarker) -> np.ndarray:
+    """One BGR frame to a raw (76, 3) row. The frame is not resized."""
+    rgb = np.ascontiguousarray(cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB))
+    image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)
+    row = np.zeros((N_JOINTS, 3), dtype=np.float32)
+    _fill_pose(row, pose_landmarker.detect(image))
+    _fill_hand(row, hand_landmarker.detect(image))
+    return row
 
 
-def append_holistic(sequence: dict, results) -> None:
-    _append_frame(sequence, results)
+class KeypointExtractor:
+    """One pose landmarker and one hand landmarker. Safe to reuse across frames.
+
+    Offline clips stay in IMAGE mode: every frame is detected on its own, which
+    is how the training keypoints were built. `live` switches both landmarkers
+    to VIDEO mode so the camera tracks instead of detecting from scratch, and
+    runs them one after the other. That stays inside the 25 fps budget on one
+    core. `parallel` still overlaps the two detectors; the camera does not use
+    it, because the overlap is what pins a second core.
+    """
+
+    def __init__(self, parallel: bool = False, live: bool = False) -> None:
+        vision = mp.tasks.vision
+        running = vision.RunningMode.VIDEO if live else vision.RunningMode.IMAGE
+        pose_options, hand_options = _landmarker_options(running)
+        self._pose = vision.PoseLandmarker.create_from_options(pose_options)
+        self._hand = vision.HandLandmarker.create_from_options(hand_options)
+        self._live = live
+        self._stamp_ms = 0
+        self._clock = time.monotonic()
+        self._threads = ThreadPoolExecutor(max_workers=2) if parallel else None
+
+    def _timestamp_ms(self) -> int:
+        """Monotonic milliseconds. VIDEO mode rejects a repeated stamp."""
+        elapsed = int((time.monotonic() - self._clock) * 1000)
+        if elapsed <= self._stamp_ms:
+            elapsed = self._stamp_ms + 1
+        self._stamp_ms = elapsed
+        return self._stamp_ms
+
+    def close(self) -> None:
+        if self._threads is not None:
+            self._threads.shutdown(wait=True)
+        self._pose.close()
+        self._hand.close()
+
+    def __enter__(self) -> "KeypointExtractor":
+        return self
+
+    def __exit__(self, *exc) -> None:
+        self.close()
+
+    def _image(self, frame_bgr: np.ndarray):
+        rgb = np.ascontiguousarray(cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB))
+        return mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)
+
+    def process(self, frame_bgr: np.ndarray, hands: bool = True) -> np.ndarray:
+        """Raw (76, 3). `hands=False` runs the pose landmarker only.
+
+        The pose gate uses body joints, so a live camera can skip the hand
+        landmarker while the signer is at rest and call `fill_hands` on the
+        frames that actually enter a gloss clip.
+        """
+        if not self._live and self._threads is None:
+            if hands:
+                return landmarks_from_frame(frame_bgr, self._pose, self._hand)
+            row = np.zeros((N_JOINTS, 3), dtype=np.float32)
+            _fill_pose(row, self._pose.detect(self._image(frame_bgr)))
+            return row
+        image = self._image(frame_bgr)
+        row = np.zeros((N_JOINTS, 3), dtype=np.float32)
+        if self._live and self._threads is None:
+            stamp = self._timestamp_ms()
+            _fill_pose(row, self._pose.detect_for_video(image, stamp))
+            if hands:
+                _fill_hand(row, self._hand.detect_for_video(image, self._timestamp_ms()))
+            return row
+        if self._live:
+            stamp = self._timestamp_ms()
+            pose_job = self._threads.submit(self._pose.detect_for_video, image, stamp)
+            hand_job = self._threads.submit(self._hand.detect_for_video, image, stamp) if hands else None
+        else:
+            pose_job = self._threads.submit(self._pose.detect, image)
+            hand_job = self._threads.submit(self._hand.detect, image) if hands else None
+        _fill_pose(row, pose_job.result())
+        if hand_job is not None:
+            _fill_hand(row, hand_job.result())
+        return row
+
+    def fill_hands(self, frame_bgr: np.ndarray, row: np.ndarray) -> None:
+        """Write the 42 hand joints into an existing row. Pose joints stay."""
+        image = self._image(frame_bgr)
+        row[len(BODY_LANDMARKS):] = 0
+        if self._live:
+            _fill_hand(row, self._hand.detect_for_video(image, self._timestamp_ms()))
+        else:
+            _fill_hand(row, self._hand.detect(image))
 
 
-def keypoints_from_video(video_path: Path, extractor: HolisticExtractor) -> np.ndarray:
-    extractor.reset()
+def keypoints_from_video(video_path: Path, extractor: KeypointExtractor) -> np.ndarray:
+    """Every frame of a video as raw float32 (T, 76, 3)."""
     capture = cv2.VideoCapture(str(video_path))
     if not capture.isOpened():
         raise FileNotFoundError(f"Cannot open video: {video_path}")
-    sequence = _empty_sequence()
+    frames = []
     try:
         while True:
             ok, frame = capture.read()
             if not ok:
                 break
-            frame = resize_square(frame)
-            _append_frame(sequence, extractor.process(frame))
+            frames.append(extractor.process(frame))
     finally:
         capture.release()
-    array = sequence_to_array(sequence)
+    if not frames:
+        logger.error("No frames in %s", video_path)
+        return np.zeros((0, N_JOINTS, 3), dtype=np.float32)
+    array = np.stack(frames)
     logger.info("Keypoints %s %s", video_path, tuple(array.shape))
     return array
 
@@ -250,14 +307,15 @@ def keypoints_from_video(video_path: Path, extractor: HolisticExtractor) -> np.n
 def _init_worker() -> None:
     global _EXTRACTOR
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(processName)s %(message)s")
-    _EXTRACTOR = HolisticExtractor()
+    cv2.setNumThreads(1)
+    os.environ["OMP_NUM_THREADS"] = "1"
+    _EXTRACTOR = KeypointExtractor()
 
 
 def _extract_job(video_path: str) -> tuple[str, np.ndarray]:
     if _EXTRACTOR is None:
         raise RuntimeError("Worker extractor was not initialized")
-    sequence = keypoints_from_video(Path(video_path), _EXTRACTOR)
-    return video_path, sequence
+    return video_path, keypoints_from_video(Path(video_path), _EXTRACTOR)
 
 
 def iter_videos(source: Path) -> list[Path]:
@@ -269,8 +327,12 @@ def iter_videos(source: Path) -> list[Path]:
 
 def extract_sequences(videos: Sequence[Path], workers: int) -> list[tuple[str, np.ndarray]]:
     jobs = [str(video) for video in videos]
+    if not jobs:
+        return []
+    ensure_models()
     worker_count = max(1, min(workers, len(jobs)))
     logger.info("Extracting keypoints for %d video(s) with %d worker(s)", len(jobs), worker_count)
+    cv2.setNumThreads(1)
     if worker_count == 1:
         _init_worker()
         try:
