@@ -236,6 +236,117 @@ def evaluate(
     return accumulator.compute()
 
 
+def _to_cpu(value):
+    """Copy tensors out of the training device so a checkpoint reloads anywhere."""
+    if torch.is_tensor(value):
+        return value.detach().cpu()
+    if isinstance(value, dict):
+        return {key: _to_cpu(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return type(value)(_to_cpu(item) for item in value)
+    return value
+
+
+def _read_checkpoint(path, device: torch.device) -> dict:
+    try:
+        payload = torch.load(path, map_location=device, weights_only=False)
+    except TypeError:
+        payload = torch.load(path, map_location=device)
+    if not isinstance(payload, dict) or "state_dict" not in payload:
+        raise ValueError(f"unrecognized checkpoint format: {path}")
+    return payload
+
+
+def _load_weights(model: nn.Module, state: dict) -> None:
+    cleaned = {}
+    for key, value in state.items():
+        cleaned[key[7:] if key.startswith("module.") else key] = value
+    model.load_state_dict(cleaned)
+
+
+def _move_optimizer_state(optimizer: torch.optim.Optimizer, device: torch.device) -> None:
+    for state in optimizer.state.values():
+        for key, value in state.items():
+            if torch.is_tensor(value):
+                state[key] = value.to(device)
+
+
+def _scores_from(raw) -> Scores | None:
+    if not isinstance(raw, dict):
+        return None
+    needed = ("loss", "accuracy", "top5", "macro_f1")
+    if any(key not in raw for key in needed):
+        return None
+    return Scores(
+        loss=float(raw["loss"]),
+        accuracy=float(raw["accuracy"]),
+        top5=float(raw["top5"]),
+        macro_f1=float(raw["macro_f1"]),
+    )
+
+
+def _check_resume(payload: dict, config: TrainConfig, num_classes: int) -> None:
+    """Refuse a checkpoint that was trained as a different model or dataset."""
+    if payload.get("model_name") != config.model:
+        raise ValueError(
+            f"resume checkpoint is {payload.get('model_name')!r}, run is {config.model!r}"
+        )
+    saved_classes = int(payload.get("num_classes", num_classes))
+    if saved_classes != num_classes:
+        raise ValueError(
+            f"resume checkpoint has {saved_classes} classes, dataset has {num_classes}"
+        )
+    if bool(payload.get("is_leg", config.is_leg)) != config.is_leg:
+        raise ValueError("resume checkpoint joint set does not match --legs")
+    saved_frames = int(payload.get("max_frames", config.frames))
+    if saved_frames != config.frames:
+        raise ValueError(
+            f"resume checkpoint has {saved_frames} frames, run has {config.frames}"
+        )
+
+
+def _restore_training_state(
+    payload: dict,
+    optimizer: torch.optim.Optimizer,
+    scheduler: LambdaLR,
+    scaler: torch.amp.GradScaler,
+    ema: ModelEma | None,
+    device: torch.device,
+) -> None:
+    """Put optimizer, schedule, scaler, and EMA back where the snapshot left them."""
+    missing = [key for key in ("optimizer", "scheduler") if key not in payload]
+    if scaler.is_enabled() and "scaler" not in payload:
+        missing.append("scaler")
+    if ema is not None and not payload.get("ema"):
+        missing.append("ema")
+    if missing:
+        raise ValueError(
+            "resume checkpoint is missing " + ", ".join(missing) + "; use the _last.pth snapshot"
+        )
+    optimizer.load_state_dict(payload["optimizer"])
+    _move_optimizer_state(optimizer, device)
+    scheduler.load_state_dict(payload["scheduler"])
+    if scaler.is_enabled():
+        scaler.load_state_dict(payload["scaler"])
+    if ema is not None:
+        ema.module.load_state_dict(payload["ema"])
+
+
+def _write_checkpoint(path, module: nn.Module, config: TrainConfig, splits: Splits, epoch: int, scores: Scores, **extra):
+    return save_checkpoint(
+        path,
+        module,
+        config.model,
+        splits.num_classes,
+        config.is_leg,
+        config.frames,
+        epoch=epoch,
+        scores=scores.__dict__,
+        class_names=splits.class_names,
+        **extra,
+    )
+
+
 def wrap_parallel(model: nn.Module, config: TrainConfig, topology: Topology, device: torch.device) -> nn.Module:
     """Apply the requested parallel mode, or return the model untouched."""
     if config.parallel == "ddp" and topology.distributed:
@@ -255,12 +366,13 @@ class RunResult:
     best_score: float
     best_scores: Scores | None
     checkpoint: str | None
+    last_checkpoint: str | None
     parameters: int
     history: list[dict]
 
 
 def fit(config: TrainConfig) -> RunResult:
-    """Train one model end to end and keep the best checkpoint by `select_by`."""
+    """Train one model and keep the best weights plus the latest full state."""
     topology = setup(config.parallel)
     try:
         torch.manual_seed(config.seed + topology.rank)
@@ -276,6 +388,24 @@ def fit(config: TrainConfig) -> RunResult:
             **config.model_overrides,
         ).to(device)
         parameters = count_parameters(model)
+
+        resume = None
+        start_epoch = 1
+        best_score = -1.0
+        best_epoch = 0
+        best_scores: Scores | None = None
+        if config.resume is not None:
+            if not config.resume.is_file():
+                raise FileNotFoundError(f"resume checkpoint not found: {config.resume}")
+            resume = _read_checkpoint(config.resume, device)
+            _check_resume(resume, config, splits.num_classes)
+            _load_weights(model, resume["state_dict"])
+            start_epoch = int(resume.get("epoch", 0)) + 1
+            if "best_score" in resume:
+                best_score = float(resume["best_score"])
+                best_epoch = int(resume.get("best_epoch", 0))
+                best_scores = _scores_from(resume.get("best_scores"))
+
         wrapped = wrap_parallel(model, config, topology, device)
 
         criterion = nn.CrossEntropyLoss(label_smoothing=config.label_smoothing)
@@ -284,6 +414,8 @@ def fit(config: TrainConfig) -> RunResult:
         scheduler = make_scheduler(optimizer, config, steps_per_epoch)
         amp_dtype, scaler = make_amp(device, config.amp)
         ema = ModelEma(model, config.ema_decay) if config.ema_decay > 0 else None
+        if resume is not None:
+            _restore_training_state(resume, optimizer, scheduler, scaler, ema, device)
 
         if topology.is_main:
             logger.info(
@@ -297,15 +429,29 @@ def fit(config: TrainConfig) -> RunResult:
                 config.effective_batch(topology.world_size),
                 steps_per_epoch,
             )
+            if resume is not None:
+                logger.info(
+                    "Resuming from %s at epoch %d, best %s=%.4f at epoch %d",
+                    config.resume,
+                    start_epoch - 1,
+                    config.select_by,
+                    best_score,
+                    best_epoch,
+                )
             config.checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
-        best_score = -1.0
-        best_epoch = 0
-        best_scores: Scores | None = None
         checkpoint: str | None = None
+        last_checkpoint: str | None = None
         history: list[dict] = []
 
-        for epoch in range(1, config.epochs + 1):
+        if start_epoch > config.epochs and topology.is_main:
+            logger.info(
+                "Checkpoint already finished epoch %d and the run stops at %d",
+                start_epoch - 1,
+                config.epochs,
+            )
+
+        for epoch in range(start_epoch, config.epochs + 1):
             set_epoch(splits, epoch)
             train_scores = train_one_epoch(
                 wrapped, splits, optimizer, scheduler, scaler, criterion,
@@ -325,30 +471,40 @@ def fit(config: TrainConfig) -> RunResult:
                 logger.info(
                     "epoch %3d/%d | train %s | val %s", epoch, config.epochs, train_scores, val_scores
                 )
+                scored_module = ema.module if ema is not None else model
                 if score > best_score:
                     best_score = score
                     best_epoch = epoch
                     best_scores = val_scores
                     checkpoint = str(
-                        save_checkpoint(
-                            config.checkpoint_path(),
-                            ema.module if ema is not None else model,
-                            config.model,
-                            splits.num_classes,
-                            config.is_leg,
-                            config.frames,
-                            epoch=epoch,
-                            scores=val_scores.__dict__,
-                            class_names=splits.class_names,
+                        _write_checkpoint(
+                            config.checkpoint_path(), scored_module, config, splits, epoch, val_scores
                         )
                     )
                     logger.info("new best %s=%.4f at epoch %d", config.select_by, best_score, epoch)
+                last_checkpoint = str(
+                    _write_checkpoint(
+                        config.last_checkpoint_path(),
+                        model,
+                        config,
+                        splits,
+                        epoch,
+                        val_scores,
+                        best_score=best_score,
+                        best_epoch=best_epoch,
+                        best_scores=None if best_scores is None else best_scores.__dict__,
+                        optimizer=_to_cpu(optimizer.state_dict()),
+                        scheduler=scheduler.state_dict(),
+                        scaler=_to_cpu(scaler.state_dict()),
+                        ema=None if ema is None else _to_cpu(ema.module.state_dict()),
+                    )
+                )
             barrier(topology)
 
         if topology.is_main:
             logger.info(
-                "Done. best %s=%.4f at epoch %d -> %s",
-                config.select_by, best_score, best_epoch, checkpoint,
+                "Done. best %s=%.4f at epoch %d -> %s | last -> %s",
+                config.select_by, best_score, best_epoch, checkpoint, last_checkpoint,
             )
         return RunResult(
             model=config.model,
@@ -356,6 +512,7 @@ def fit(config: TrainConfig) -> RunResult:
             best_score=best_score,
             best_scores=best_scores,
             checkpoint=checkpoint,
+            last_checkpoint=last_checkpoint,
             parameters=parameters,
             history=history,
         )

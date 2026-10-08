@@ -3,7 +3,8 @@
 # Fill `root` with the dataset directory that holds train/ and test/.
 # J=68 drops the legs. J=76 keeps them. Both of a model share every
 # hyperparameter, so the only thing the pair measures is the legs.
-# Checkpoint files are {tag}_{model}_best.pth, which is why the tags differ.
+# Checkpoint files are {tag}_{model}_best.pth and {tag}_{model}_last.pth.
+# best is the selected weights. last is the training state for --resume.
 #
 # Two T4s: torchrun --standalone --nproc_per_node=2 and parallel ddp.
 # micro_batch is the batch on each GPU. Effective batch is

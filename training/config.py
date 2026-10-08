@@ -54,6 +54,8 @@ class TrainConfig:
     crop_range: tuple[float, float] = (0.5, 1.0)
 
     checkpoint_dir: Path = Path("checkpoints")
+    # Full training state to continue from. None trains from scratch.
+    resume: Path | None = None
     tag: str = "vsl"
     # Macro F1 is the default selector because accuracy on hundreds of skewed
     # classes can climb while most of the tail stays unlearned.
@@ -67,6 +69,8 @@ class TrainConfig:
     def __post_init__(self) -> None:
         self.root = Path(self.root)
         self.checkpoint_dir = Path(self.checkpoint_dir)
+        if self.resume is not None:
+            self.resume = Path(self.resume)
         if self.optimizer not in OPTIMIZERS:
             raise ValueError(f"optimizer must be one of {OPTIMIZERS}, got {self.optimizer!r}")
         if self.parallel not in PARALLEL_MODES:
@@ -95,3 +99,6 @@ class TrainConfig:
 
     def checkpoint_path(self) -> Path:
         return self.checkpoint_dir / f"{self.tag}_{self.model}_best.pth"
+
+    def last_checkpoint_path(self) -> Path:
+        return self.checkpoint_dir / f"{self.tag}_{self.model}_last.pth"

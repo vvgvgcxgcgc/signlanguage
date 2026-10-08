@@ -93,6 +93,9 @@ def find_checkpoints(directory: Path | str) -> dict[str, Path]:
         raise FileNotFoundError(f"missing checkpoint directory: {root}")
     found: dict[str, Path] = {}
     for path in sorted(root.glob("*.pth")):
+        # `_last.pth` is the resume snapshot, not a model to serve.
+        if path.name.endswith("_last.pth"):
+            continue
         name = _checkpoint_model_name(path)
         if name is None:
             logger.warning("Skipping checkpoint with no known model name: %s", path.name)

@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
-# Single process on CPU. DDP is CUDA-only and is not used here.
+# Single process on Apple MPS. DDP is CUDA-only and is not used here.
+export PYTORCH_ENABLE_MPS_FALLBACK=1
+# Empty trains from scratch. Example: checkpoints/j76_CTR-GCN_last.pth
+RESUME=""
 python -m training.run \
-  --root "/Users/huynq/Projects/sign-language/vsl400-keypoint" \
+  --root "/Users/hugonguyen/PythonProjects/signlanguage/vsl400-keypoint" \
   --model CTR-GCN \
   --frames 64 \
   --legs \
@@ -9,7 +12,6 @@ python -m training.run \
   --micro-batch 32 \
   --accumulate 2 \
   --parallel none \
-  --device cpu \
   --workers 2 \
   --seed 0 \
   --warmup-epochs 5 \
@@ -23,4 +25,5 @@ python -m training.run \
   --lr 0.1 \
   --momentum 0.9 \
   --weight-decay 0.0004 \
-  --tag j76
+  --tag j76 \
+  ${RESUME:+--resume "$RESUME"}

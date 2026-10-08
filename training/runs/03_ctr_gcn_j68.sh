@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
-# Single process on CPU. DDP is CUDA-only and is not used here.
-python -m training.run \
-  --root "/Users/huynq/Projects/sign-language/vsl400-keypoint" \
+
+export CUDA_VISIBLE_DEVICES=0,1
+# Empty trains from scratch. Example: checkpoints/j68_CTR-GCN_last.pth
+RESUME=""
+torchrun --standalone --nproc_per_node=2 -m training.run \
+  --root "/kaggle/input/datasets/huynguang/vsl400-keypoints-final/vsl400-keypoint" \
   --model CTR-GCN \
   --frames 64 \
   --epochs 70 \
   --micro-batch 32 \
   --accumulate 2 \
-  --parallel none \
-  --device cpu \
+  --parallel ddp \
   --workers 2 \
   --seed 0 \
   --warmup-epochs 5 \
@@ -22,4 +24,5 @@ python -m training.run \
   --lr 0.1 \
   --momentum 0.9 \
   --weight-decay 0.0004 \
-  --tag j68
+  --tag j68 \
+  ${RESUME:+--resume "$RESUME"}

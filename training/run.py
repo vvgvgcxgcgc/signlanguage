@@ -81,6 +81,12 @@ def build_parser() -> argparse.ArgumentParser:
 
     parser.add_argument("--min-train-samples", type=int, default=1)
     parser.add_argument("--checkpoint-dir", type=Path, default=Path("checkpoints"))
+    parser.add_argument(
+        "--resume",
+        type=Path,
+        default=None,
+        help="checkpoint to continue from, usually {tag}_{model}_last.pth",
+    )
     parser.add_argument("--tag", default="vsl", help="checkpoint filename prefix")
     parser.add_argument("--select-by", default="macro_f1", choices=SELECTION_METRICS)
     parser.add_argument(
@@ -116,6 +122,7 @@ def config_from_args(args: argparse.Namespace, model: str) -> TrainConfig:
         seed=args.seed,
         min_train_samples=args.min_train_samples,
         checkpoint_dir=args.checkpoint_dir,
+        resume=args.resume,
         tag=args.tag,
         select_by=args.select_by,
         mask_only=args.mask_only,
