@@ -4,7 +4,7 @@ export PYTORCH_ENABLE_MPS_FALLBACK=1
 # Empty trains from scratch. Example: checkpoints/j76_CTR-GCN_last.pth
 RESUME=""
 python -m training.run \
-  --root "/Users/hugonguyen/PythonProjects/signlanguage/vsl400-keypoint" \
+  --root "/kaggle/input/datasets/huynguang/vsl400-keypoints-final/vsl400-keypoint" \
   --model CTR-GCN \
   --frames 64 \
   --legs \
