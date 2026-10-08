@@ -12,6 +12,7 @@ torchrun --standalone --nproc_per_node=2 -m training.run \
   --micro-batch 32 \
   --accumulate 2 \
   --parallel ddp \
+  --device cuda \
   --workers 2 \
   --seed 0 \
   --warmup-epochs 5 \
