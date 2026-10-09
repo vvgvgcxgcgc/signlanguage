@@ -39,6 +39,18 @@ def launched_with_torchrun() -> bool:
     return "RANK" in os.environ and "WORLD_SIZE" in os.environ
 
 
+def _configure_nccl() -> None:
+    """Keep NCCL off the paths that SIGSEGV on a pair of T4s.
+
+    Those cards have no NVLink. The process group can still start, then the
+    first DDP broadcast dies with signal 11 if P2P or the cuMem allocator is on.
+    """
+    os.environ.setdefault("NCCL_P2P_DISABLE", "1")
+    os.environ.setdefault("NCCL_IB_DISABLE", "1")
+    os.environ.setdefault("NCCL_NVLS_ENABLE", "0")
+    os.environ.setdefault("NCCL_CUMEM_ENABLE", "0")
+
+
 def setup(parallel: str) -> Topology:
     """Join the process group when asked for DDP, otherwise report a single rank."""
     if parallel != "ddp":
@@ -53,8 +65,11 @@ def setup(parallel: str) -> Topology:
     world_size = int(os.environ["WORLD_SIZE"])
     backend = "nccl" if torch.cuda.is_available() else "gloo"
     if torch.cuda.is_available():
+        _configure_nccl()
         torch.cuda.set_device(local_rank)
-    dist.init_process_group(backend=backend)
+        dist.init_process_group(backend=backend, device_id=torch.device(f"cuda:{local_rank}"))
+    else:
+        dist.init_process_group(backend=backend)
     logger.info("Joined %s group as rank %d of %d", backend, rank, world_size)
     return Topology(rank=rank, local_rank=local_rank, world_size=world_size, distributed=True)
 
