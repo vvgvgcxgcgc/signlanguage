@@ -21,6 +21,7 @@ from torch.utils.data import DataLoader, DistributedSampler
 from preprocess.dataset import (
     BalancedBatchSampler,
     KeypointDataset,
+    MULTIRATE_MODES,
     TemporalMode,
     build_datasets,
 )
@@ -51,7 +52,11 @@ class Splits:
 
 def build_splits(config: TrainConfig, topology: Topology) -> Splits:
     """Scan the dataset once per rank and wire up both loaders."""
-    modes = (TemporalMode("main", config.frames),)
+    modes = (
+        MULTIRATE_MODES
+        if config.model == "MultiRate-Attn-STGCN"
+        else (TemporalMode("main", config.frames),)
+    )
     # Rank 0 goes first so only one process writes labels.json.
     if not topology.is_main:
         barrier(topology)

@@ -153,7 +153,10 @@ def load_models(
         state = {key.replace("module.", ""): value for key, value in payload["state_dict"].items()}
         module.load_state_dict(state)
         module.to(device).eval()
-        num_joints = module.embed.num_joints
+        if hasattr(module, "embed"):
+            num_joints = module.embed.num_joints
+        else:
+            num_joints = module.pathways[0].embed.num_joints
         loaded[name] = LoadedModel(
             name=name,
             module=module,

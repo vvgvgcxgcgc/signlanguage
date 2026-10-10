@@ -52,6 +52,11 @@ MODE_SLOW = TemporalMode("slow", 8)
 MODE_FAST = TemporalMode("fast", 32)
 SINGLE_MODES = (MODE_MAIN,)
 SLOWFAST_MODES = (MODE_SLOW, MODE_FAST)
+MULTIRATE_MODES = (
+    TemporalMode("t32", 32),
+    TemporalMode("t64", 64),
+    TemporalMode("t96", 96),
+)
 
 
 def normalize_clip(array: np.ndarray, min_shoulder: float) -> Optional[np.ndarray]:
@@ -213,6 +218,27 @@ def _temporal_crop(
     return np.ascontiguousarray(clip[start:start + span])
 
 
+def _aligned_temporal_crop(
+    clip: np.ndarray,
+    fraction: float,
+    start_fraction: float,
+) -> np.ndarray:
+    """Slice the same relative span from one branch of a multi-rate clip.
+
+    `fraction` and `start_fraction` are drawn once per sample and reused, so
+    T=32, 64, and 96 stay on the same signing interval. Single-branch training
+    still uses `_temporal_crop` and keeps its original RNG stream.
+    """
+    frames = int(clip.shape[0])
+    if frames <= 1:
+        return clip
+    span = int(np.clip(np.round(fraction * frames), 1, frames))
+    if span >= frames:
+        return clip
+    start = int(np.clip(np.round(start_fraction * (frames - span)), 0, frames - span))
+    return np.ascontiguousarray(clip[start:start + span])
+
+
 def _augment_branches(
     branches: Sequence[np.ndarray],
     rng: np.random.Generator,
@@ -338,12 +364,21 @@ class KeypointDataset(Dataset):
             return tuple(branch[index] for branch in self.features), label
         rng = _sample_rng(self.seed, self.epoch, index)
         cropped: list[np.ndarray] = []
-        for branch in self.features:
-            clip = branch[index].numpy()
+        if len(self.features) == 1:
+            clip = self.features[0][index].numpy()
             span = _temporal_crop(clip, rng, self.crop_range)
             if span.shape[0] != clip.shape[0]:
                 span = interpolate_clip(span, int(clip.shape[0]))
             cropped.append(span)
+        else:
+            fraction = float(rng.uniform(self.crop_range[0], self.crop_range[1]))
+            start_fraction = float(rng.random())
+            for branch in self.features:
+                clip = branch[index].numpy()
+                span = _aligned_temporal_crop(clip, fraction, start_fraction)
+                if span.shape[0] != clip.shape[0]:
+                    span = interpolate_clip(span, int(clip.shape[0]))
+                cropped.append(span)
         augmented = _augment_branches(cropped, rng, self.scale_range, self.rotate_deg, self.noise_std)
         return tuple(torch.from_numpy(branch) for branch in augmented), label
 

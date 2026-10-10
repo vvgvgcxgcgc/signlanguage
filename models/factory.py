@@ -1,9 +1,10 @@
-"""One entry point for building any of the five models.
+"""One entry point for building any of the six models.
 
 `is_leg` must match the flag the KeypointDataset was built with: False keeps
 the 68 joints that preprocess.dataset.drop_legs leaves, True keeps all 76.
-Every model takes (B, T, J, 4) and returns logits, and only the transformer
-cares what T is.
+Every single-stream model takes (B, T, J, 4) and returns logits.
+`MultiRate-Attn-STGCN` also accepts three aligned clips at T=32, 64, 96.
+Only the transformer has a parameter that depends on T.
 """
 
 from __future__ import annotations
@@ -18,16 +19,21 @@ from models.aagcn import AAGCN
 from models.ctrgcn import CTRGCN
 from models.graph import SkeletonGraph, build_graph
 from models.mstcn import MSTCN
+from models.multirate_stgcn import MultiRateAttentionSTGCN
 from models.stgcn import STGCN
 from models.transformer import SignTransformer
 
 logger = logging.getLogger(__name__)
 
-MODEL_NAMES = ("MS-TCN", "ST-GCN", "CTR-GCN", "AAGCN", "Transformer")
+# The original five stay the `--model all` sweep so old batch jobs do not
+# suddenly grow a sixth run. MultiRate is opt-in by name.
+SWEEP_NAMES = ("MS-TCN", "ST-GCN", "CTR-GCN", "AAGCN", "Transformer")
+MODEL_NAMES = (*SWEEP_NAMES, "MultiRate-Attn-STGCN")
 
 _BUILDERS: dict[str, Callable[..., nn.Module]] = {
     "MS-TCN": MSTCN,
     "ST-GCN": STGCN,
+    "MultiRate-Attn-STGCN": MultiRateAttentionSTGCN,
     "CTR-GCN": CTRGCN,
     "AAGCN": AAGCN,
     "Transformer": SignTransformer,

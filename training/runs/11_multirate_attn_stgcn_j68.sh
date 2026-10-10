@@ -10,12 +10,12 @@ export NCCL_P2P_DISABLE=1
 export NCCL_IB_DISABLE=1
 export NCCL_NVLS_ENABLE=0
 export NCCL_CUMEM_ENABLE=0
-# Empty trains from scratch. Example: checkpoints/j68_CTR-GCN_last.pth
+# Empty trains from scratch. Example: checkpoints/j68_MultiRate-Attn-STGCN_last.pth
 RESUME=""
 torchrun --standalone --nproc_per_node=2 -m training.run \
-  --root "/Users/huynq/Projects/sign-language/vsl400-keypoint" \
-  --model CTR-GCN \
-  --frames 64 \
+  --root "/kaggle/input/datasets/huynguang/vsl400-keypoints-final/vsl400-keypoint" \
+  --model MultiRate-Attn-STGCN \
+  --frames 96 \
   --epochs 70 \
   --micro-batch 32 \
   --accumulate 2 \

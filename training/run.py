@@ -26,7 +26,7 @@ import os
 import sys
 from pathlib import Path
 
-from models import MODEL_NAMES
+from models import MODEL_NAMES, SWEEP_NAMES
 from training.config import DEVICES, OPTIMIZERS, PARALLEL_MODES, SELECTION_METRICS, TrainConfig
 from training.engine import fit
 
@@ -136,7 +136,7 @@ def main(argv: list[str] | None = None) -> int:
         logger.error("Dataset root %s does not exist", args.root)
         return 2
 
-    names = MODEL_NAMES if args.model == "all" else (args.model,)
+    names = SWEEP_NAMES if args.model == "all" else (args.model,)
     results = []
     for name in names:
         results.append(fit(config_from_args(args, name)))

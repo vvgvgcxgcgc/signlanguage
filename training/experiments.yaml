@@ -1,4 +1,4 @@
-# Ten runs: 5 models x 2 joint counts, for two T4s.
+# Twelve runs: 6 models x 2 joint counts, for two T4s.
 #
 # Fill `root` with the dataset directory that holds train/ and test/.
 # J=68 drops the legs. J=76 keeps them. Both of a model share every
@@ -52,6 +52,8 @@ runs:
   - { <<: [*shared, *sgd], model: CTR-GCN, is_leg: true, tag: j76 }
   - { <<: [*shared, *sgd], model: ST-GCN, is_leg: false, tag: j68 }
   - { <<: [*shared, *sgd], model: ST-GCN, is_leg: true, tag: j76 }
+  - { <<: [*shared, *sgd], model: MultiRate-Attn-STGCN, is_leg: false, frames: 96, tag: j68 }
+  - { <<: [*shared, *sgd], model: MultiRate-Attn-STGCN, is_leg: true, frames: 96, tag: j76 }
   - { <<: [*shared, *sgd], model: AAGCN, is_leg: false, tag: j68 }
   - { <<: [*shared, *sgd], model: AAGCN, is_leg: true, tag: j76 }
   - { <<: [*shared, *adamw], model: Transformer, is_leg: false, tag: j68 }

@@ -16,9 +16,10 @@ from models.classifiers import (
 )
 from models.ctrgcn import CTRGCN
 from models.embed import MaskedSkeletonEmbed, SkeletonFeatures, masked_global_pool
-from models.factory import MODEL_NAMES, build_model, count_parameters, pick_device
+from models.factory import MODEL_NAMES, SWEEP_NAMES, build_model, count_parameters, pick_device
 from models.graph import SkeletonGraph, build_graph, verify_joint_names
 from models.mstcn import MSTCN
+from models.multirate_stgcn import MultiRateAttentionSTGCN
 from models.pose_state import PoseStateMLP
 from models.stgcn import STGCN
 from models.transformer import SignTransformer
@@ -27,7 +28,9 @@ __all__ = [
     "AAGCN",
     "CTRGCN",
     "MODEL_NAMES",
+    "SWEEP_NAMES",
     "MSTCN",
+    "MultiRateAttentionSTGCN",
     "LoadedModel",
     "MaskedSkeletonEmbed",
     "PoseStateMLP",

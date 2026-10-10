@@ -27,7 +27,17 @@ logger = logging.getLogger(__name__)
 # zero erases the declared skeleton. The rest are tokens and gates, not
 # weights, and decaying them only biases the model toward the origin.
 NO_DECAY_PARAMETERS = frozenset(
-    {"edge_importance", "topology", "offset", "alpha", "missing", "class_token", "position"}
+    {
+        "edge_importance",
+        "topology",
+        "offset",
+        "alpha",
+        "missing",
+        "class_token",
+        "position",
+        "fusion_token",
+        "rate_embedding",
+    }
 )
 
 
@@ -133,15 +143,25 @@ class ModelEma:
                 stored.copy_(value)
 
 
-def _prepare(batch, device: torch.device, mask_only: bool) -> tuple[torch.Tensor, torch.Tensor]:
-    """Move one batch to the device. `mask_only` blanks xyz for the leak test."""
+def _prepare(
+    batch, device: torch.device, mask_only: bool
+) -> tuple[torch.Tensor | tuple[torch.Tensor, ...], torch.Tensor]:
+    """Move one batch to the device. `mask_only` blanks xyz for the leak test.
+
+    A single-branch dataset stays a tensor so the existing models keep the
+    same call. MultiRate-Attn-STGCN receives the three aligned clips as a
+    tuple, in T=32, 64, 96 order.
+    """
     branches, labels = batch
-    clip = branches[0].to(device, non_blocking=True)
     labels = labels.to(device, non_blocking=True)
+    clips = [branch.to(device, non_blocking=True) for branch in branches]
     if mask_only:
-        clip = clip.clone()
-        clip[..., :3] = 0.0
-    return clip, labels
+        clips = [clip.clone() for clip in clips]
+        for clip in clips:
+            clip[..., :3] = 0.0
+    if len(clips) == 1:
+        return clips[0], labels
+    return tuple(clips), labels
 
 
 def train_one_epoch(
