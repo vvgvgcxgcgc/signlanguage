@@ -7,6 +7,7 @@ preprocess.keypoints.
 """
 
 from models.aagcn import AAGCN
+from models.anchorgcn import AnchorGCN
 from models.classifiers import (
     LoadedModel,
     find_checkpoints,
@@ -26,6 +27,7 @@ from models.transformer import SignTransformer
 
 __all__ = [
     "AAGCN",
+    "AnchorGCN",
     "CTRGCN",
     "MODEL_NAMES",
     "SWEEP_NAMES",

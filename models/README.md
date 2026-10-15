@@ -96,6 +96,52 @@ cannot wash out the few frames carrying the sign. Frames where nothing was
 observed are dropped from attention through the key padding mask; the class
 token is always kept so no row can be fully masked.
 
+### AnchorGCN — `anchorgcn.py`
+
+CTR-GCN that sees where each hand is relative to the face and the torso.
+Fourteen hand points (wrist, five fingertips, MCP centroid, per hand) are
+measured against eight anchors built from real landmarks: both ears, eye
+center, mouth center, head center, neck, both shoulders. Per point it gets
+face-local `(u, v)` (head center origin, ear-to-ear unit, `v = 0` at the eyes
+and `1` at the mouth), body-local `(u, v)` in shoulder widths, a 2D RBF
+distance to every anchor, the time derivative of both, and the anchor
+confidence. All of it is computed inside the model from the same `(B, T, J, 4)`
+clip, so the data pipeline is untouched and the features are invariant to the
+scale and rotation augmentation.
+
+The face is fit per frame to a per-clip template with a robust similarity
+transform, frames with a poor fit are treated as missing, and missing frames
+take the interpolated transform. A corrupted mouth corner moves the mouth
+anchor by 0.009 shoulder widths instead of the 0.2 a raw average gives.
+
+| name | params (J=68) | what it adds over CTR-GCN |
+|---|---|---|
+| `AnchorGCN-A` | 1,643,409 | anchor features on the input only |
+| `AnchorGCN` | 2,220,759 | plus a per-frame hand-to-anchor relation conv in blocks 1–6 and pooling per body part |
+
+`relation_blocks`, `part_pool`, and `repair_face` are constructor arguments
+for the remaining ablations. No AnchorGCN name is in the `--model all` sweep.
+
+Confused pairs such as Chị/Cô differ in a short stretch of handshape in the
+middle of the clip, while about a third of every clip is rest, raise, and
+lower that all glosses share. A mean over frames and joints washes that
+stretch out, so three variants replace the mean head:
+
+| name | params (J=68) | head |
+|---|---|---|
+| `AnchorGCN-AS` | 2,479,336 | per-frame tokens that concatenate every hand joint, attentive mean and std over frames |
+| `AnchorGCN-T` | 3,534,056 | the same tokens through a two-layer encoder with a sinusoidal position code, then attentive pooling |
+| `AnchorGCN-T32` | 3,534,056 | `AnchorGCN-T` without the last temporal stride, so the head sees 32 positions instead of 16 |
+
+Each token also gets the wrist height, wrist speed, and hand presence, so the
+head can tell rest from signing without any frame being cut; Nhẹ/Bây giờ
+differ inside the raise. `model.frame_weights` holds the attention over
+positions from the last forward.
+
+Train them with `--crop-mode rest`. The default random crop keeps a 50-100%
+span and cuts into the active signing span in 53% of draws; `rest` only trims
+frames before and after it (`preprocess.dataset.active_span`).
+
 ## The skeleton graph — `graph.py`
 
 Joint order is 34 body landmarks, then 42 hand landmarks **interleaved** left

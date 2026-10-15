@@ -11,6 +11,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from preprocess.dataset import CROP_MODES
+
 OPTIMIZERS = ("sgd", "adamw")
 PARALLEL_MODES = ("none", "dp", "ddp")
 SELECTION_METRICS = ("accuracy", "macro_f1", "top5")
@@ -52,6 +54,7 @@ class TrainConfig:
     rotate_deg: float = 15.0
     noise_std: float = 0.01
     crop_range: tuple[float, float] = (0.5, 1.0)
+    crop_mode: str = "random"
 
     checkpoint_dir: Path = Path("checkpoints")
     # Full training state to continue from. None trains from scratch.
@@ -77,6 +80,8 @@ class TrainConfig:
             raise ValueError(f"parallel must be one of {PARALLEL_MODES}, got {self.parallel!r}")
         if self.device not in DEVICES:
             raise ValueError(f"device must be one of {DEVICES}, got {self.device!r}")
+        if self.crop_mode not in CROP_MODES:
+            raise ValueError(f"crop_mode must be one of {CROP_MODES}, got {self.crop_mode!r}")
         if self.select_by not in SELECTION_METRICS:
             raise ValueError(f"select_by must be one of {SELECTION_METRICS}, got {self.select_by!r}")
         if self.frames < 1:

@@ -1,4 +1,4 @@
-"""One entry point for building any of the six models.
+"""One entry point for building any of the models.
 
 `is_leg` must match the flag the KeypointDataset was built with: False keeps
 the 68 joints that preprocess.dataset.drop_legs leaves, True keeps all 76.
@@ -10,12 +10,14 @@ Only the transformer has a parameter that depends on T.
 from __future__ import annotations
 
 import logging
+from functools import partial
 from typing import Any, Callable
 
 import torch
 import torch.nn as nn
 
 from models.aagcn import AAGCN
+from models.anchorgcn import BLOCKS_T32, AnchorGCN
 from models.ctrgcn import CTRGCN
 from models.graph import SkeletonGraph, build_graph
 from models.mstcn import MSTCN
@@ -26,9 +28,17 @@ from models.transformer import SignTransformer
 logger = logging.getLogger(__name__)
 
 # The original five stay the `--model all` sweep so old batch jobs do not
-# suddenly grow a sixth run. MultiRate is opt-in by name.
+# suddenly grow a sixth run. MultiRate and AnchorGCN are opt-in by name.
 SWEEP_NAMES = ("MS-TCN", "ST-GCN", "CTR-GCN", "AAGCN", "Transformer")
-MODEL_NAMES = (*SWEEP_NAMES, "MultiRate-Attn-STGCN")
+MODEL_NAMES = (
+    *SWEEP_NAMES,
+    "MultiRate-Attn-STGCN",
+    "AnchorGCN-A",
+    "AnchorGCN",
+    "AnchorGCN-AS",
+    "AnchorGCN-T",
+    "AnchorGCN-T32",
+)
 
 _BUILDERS: dict[str, Callable[..., nn.Module]] = {
     "MS-TCN": MSTCN,
@@ -37,6 +47,14 @@ _BUILDERS: dict[str, Callable[..., nn.Module]] = {
     "CTR-GCN": CTRGCN,
     "AAGCN": AAGCN,
     "Transformer": SignTransformer,
+    # Anchor features on the input only, the cheapest step of the ablation.
+    "AnchorGCN-A": partial(AnchorGCN, relation_blocks=0, part_pool=False),
+    "AnchorGCN": AnchorGCN,
+    # Per-frame tokens that keep hand joint identity, pooled with attention.
+    "AnchorGCN-AS": partial(AnchorGCN, head="attentive"),
+    # The same tokens through a two-layer encoder that knows frame order.
+    "AnchorGCN-T": partial(AnchorGCN, head="transformer"),
+    "AnchorGCN-T32": partial(AnchorGCN, head="transformer", blocks=BLOCKS_T32),
 }
 
 # Only the transformer has a frame-dependent parameter, the positional table.

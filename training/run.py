@@ -27,6 +27,7 @@ import sys
 from pathlib import Path
 
 from models import MODEL_NAMES, SWEEP_NAMES
+from preprocess.dataset import CROP_MODES
 from training.config import DEVICES, OPTIMIZERS, PARALLEL_MODES, SELECTION_METRICS, TrainConfig
 from training.engine import fit
 
@@ -79,6 +80,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument("--seed", type=int, default=0)
 
+    parser.add_argument(
+        "--crop-mode",
+        default="random",
+        choices=CROP_MODES,
+        help="random keeps any 50-100%% span; rest only trims frames outside the active signing span",
+    )
     parser.add_argument("--min-train-samples", type=int, default=1)
     parser.add_argument("--checkpoint-dir", type=Path, default=Path("checkpoints"))
     parser.add_argument(
@@ -121,6 +128,7 @@ def config_from_args(args: argparse.Namespace, model: str) -> TrainConfig:
         workers=args.workers,
         seed=args.seed,
         min_train_samples=args.min_train_samples,
+        crop_mode=args.crop_mode,
         checkpoint_dir=args.checkpoint_dir,
         resume=args.resume,
         tag=args.tag,

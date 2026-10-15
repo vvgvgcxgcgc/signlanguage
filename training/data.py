@@ -72,6 +72,7 @@ def build_splits(config: TrainConfig, topology: Topology) -> Splits:
         rotate_deg=config.rotate_deg,
         noise_std=config.noise_std,
         crop_range=config.crop_range,
+        crop_mode=config.crop_mode,
         name=f"{config.tag}_{config.model}",
     )
     if topology.is_main:
