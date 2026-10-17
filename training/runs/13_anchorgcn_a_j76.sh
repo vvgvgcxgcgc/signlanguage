@@ -10,7 +10,7 @@ export NCCL_IB_DISABLE=1
 export NCCL_NVLS_ENABLE=0
 export NCCL_CUMEM_ENABLE=0
 # Empty trains from scratch. Example: checkpoints/j76_AnchorGCN-A_last.pth
-RESUME=""
+RESUME="/kaggle/input/datasets/lngmnht/checkpoints/signlanguage/checkpoints/j76_AnchorGCN-A_last.pth"
 torchrun --standalone --nproc_per_node=2 -m training.run \
   --root "/kaggle/input/datasets/huynguang/vsl400-keypoints-final/vsl400-keypoint" \
   --model AnchorGCN-A \
