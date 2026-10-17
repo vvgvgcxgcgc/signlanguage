@@ -38,6 +38,15 @@ RIGHT_SHOULDER = 12
 LEFT_WRIST = 15
 RIGHT_WRIST = 16
 MIN_VALID_FRAMES = 3
+# One hand is 21 joints. A one-handed sign may hide a whole hand. Losing more
+# than that means both hands failed, so the frame is not a sign frame.
+MAX_MISSING_HAND_POINTS = 21
+# Inference refuses a clip when at least this share of its frames was rejected.
+MAX_DROPPED_FRACTION = 0.5
+# A live queue is mostly the gesture, about 30-40 frames. Training clips sit
+# nearer 60 and keep the rest pose at both ends, so inference repeats the
+# opening rest and the closing rest this many times on each side.
+PREPARE_PAD = 5
 CROP_MODES = ("random", "rest")
 LEG_INDICES = (25, 26, 27, 28, 29, 30, 31, 32)
 _KEEP_JOINTS = np.array([index for index in range(N_JOINTS) if index not in LEG_INDICES], dtype=np.int64)
@@ -63,6 +72,102 @@ MULTIRATE_MODES = (
 )
 
 
+def shoulder_frame_mask(clip: np.ndarray, min_shoulder: float) -> np.ndarray:
+    """True where both shoulders exist and the 2D shoulder width clears `min_shoulder`.
+
+    The two shoulders are the base set. A failed pose zeros the whole body at
+    once, and every model scales the clip by this width, so a frame that lost
+    them has lost the only reference the checkpoint was trained on.
+    """
+    left = clip[:, LEFT_SHOULDER]
+    right = clip[:, RIGHT_SHOULDER]
+    present = ~(np.all(left == 0, axis=-1) | np.all(right == 0, axis=-1))
+    distance = np.linalg.norm(left[:, :2] - right[:, :2], axis=-1)
+    return present & (distance > min_shoulder)
+
+
+def missing_hand_points(clip: np.ndarray) -> np.ndarray:
+    """Per-frame count of hand joints sitting at (0, 0, 0). Shape `(T,)`."""
+    hands = clip[:, BODY_COUNT:]
+    return np.all(hands == 0, axis=-1).sum(axis=-1)
+
+
+def accept_raw_frame(row: np.ndarray, min_shoulder: float, check_hands: bool = True) -> bool:
+    """Keep one raw `(76, 3)` frame, or refuse it.
+
+    The base set is the shoulder pair. A frame that lost it is refused.
+    `check_hands` is false only for a rest frame whose hands have not been
+    filled yet. Once hands have been run, more than one hand of missing
+    points refuses the frame too.
+    """
+    frame = np.asarray(row, dtype=np.float32)
+    if frame.shape != (N_JOINTS, N_COORDS):
+        raise ValueError(f"expected ({N_JOINTS}, {N_COORDS}), got {frame.shape}")
+    if min_shoulder <= 0:
+        raise ValueError(f"min_shoulder must be positive, got {min_shoulder}")
+    if not bool(shoulder_frame_mask(frame[None], min_shoulder)[0]):
+        return False
+    if not check_hands:
+        return True
+    return int(missing_hand_points(frame[None])[0]) <= MAX_MISSING_HAND_POINTS
+
+
+def select_sign_frames(array: np.ndarray, min_shoulder: float = 1e-3) -> tuple[np.ndarray, int]:
+    """Drop raw frames that lost the shoulder base or more than one hand.
+
+    Training keeps a missing hand as a validity-0 hole. Inference does not:
+    those frames never reach `resample_clip`. Returns the kept `(N, 76, 3)`
+    clip and how many frames were removed. An empty input stays empty.
+    """
+    clip = np.asarray(array, dtype=np.float32)
+    if clip.ndim != 3 or clip.shape[1:] != (N_JOINTS, N_COORDS):
+        raise ValueError(f"expected (T, {N_JOINTS}, {N_COORDS}), got {clip.shape}")
+    if min_shoulder <= 0:
+        raise ValueError(f"min_shoulder must be positive, got {min_shoulder}")
+    if clip.shape[0] == 0:
+        return np.zeros((0, N_JOINTS, N_COORDS), dtype=np.float32), 0
+    keep = shoulder_frame_mask(clip, min_shoulder) & (missing_hand_points(clip) <= MAX_MISSING_HAND_POINTS)
+    dropped = int(clip.shape[0] - int(np.count_nonzero(keep)))
+    if not np.any(keep):
+        return np.zeros((0, N_JOINTS, N_COORDS), dtype=np.float32), dropped
+    return np.ascontiguousarray(clip[keep]), dropped
+
+
+def clip_needs_redo(kept: int, dropped: int, max_fraction: float = MAX_DROPPED_FRACTION) -> bool:
+    """True when the surviving frames are too few, or the reject rate is too high.
+
+    Fewer than three kept frames cannot be normalized. A reject rate at or
+    above `max_fraction` means the clip is mostly holes, so the caller alerts
+    and does not score it.
+    """
+    if kept < 0 or dropped < 0:
+        raise ValueError(f"frame counts must be non-negative, got kept={kept} dropped={dropped}")
+    if not 0.0 < max_fraction <= 1.0:
+        raise ValueError(f"max_fraction must be in (0, 1], got {max_fraction}")
+    if kept < MIN_VALID_FRAMES:
+        return True
+    return dropped / (kept + dropped) >= max_fraction
+
+
+def pad_prepare(clip: np.ndarray, count: int = PREPARE_PAD) -> np.ndarray:
+    """Repeat the first frame in front and the last frame behind, `count` times each.
+
+    Those two frames are the rest poses that opened and closed the live queue.
+    Five extra copies on each side bring a 30-40 frame gesture closer to the
+    rest-sign-rest shape of a training clip. An empty clip is unchanged.
+    """
+    if count < 0:
+        raise ValueError(f"prepare pad must be non-negative, got {count}")
+    array = np.asarray(clip, dtype=np.float32)
+    if array.ndim != 3 or array.shape[1:] != (N_JOINTS, N_COORDS):
+        raise ValueError(f"expected (T, {N_JOINTS}, {N_COORDS}), got {array.shape}")
+    if array.shape[0] == 0 or count == 0:
+        return np.ascontiguousarray(array)
+    head = np.repeat(array[:1], count, axis=0)
+    tail = np.repeat(array[-1:], count, axis=0)
+    return np.ascontiguousarray(np.concatenate((head, array, tail), axis=0))
+
+
 def normalize_clip(array: np.ndarray, min_shoulder: float) -> Optional[np.ndarray]:
     """Map one raw clip into a shoulder-centered frame.
 
@@ -80,13 +185,12 @@ def normalize_clip(array: np.ndarray, min_shoulder: float) -> Optional[np.ndarra
     clip = np.asarray(array, dtype=np.float32)
     if clip.ndim != 3 or clip.shape[1:] != (N_JOINTS, 3) or clip.shape[0] == 0:
         return None
-    left = clip[:, LEFT_SHOULDER]
-    right = clip[:, RIGHT_SHOULDER]
-    shoulders_present = ~(np.all(left == 0, axis=-1) | np.all(right == 0, axis=-1))
-    distance = np.linalg.norm(left[:, :2] - right[:, :2], axis=-1)
-    valid = shoulders_present & (distance > min_shoulder)
+    valid = shoulder_frame_mask(clip, min_shoulder)
     if int(np.count_nonzero(valid)) < MIN_VALID_FRAMES:
         return None
+    left = clip[:, LEFT_SHOULDER]
+    right = clip[:, RIGHT_SHOULDER]
+    distance = np.linalg.norm(left[:, :2] - right[:, :2], axis=-1)
     scale = float(np.median(distance[valid]))
     if not np.isfinite(scale) or scale < min_shoulder:
         return None

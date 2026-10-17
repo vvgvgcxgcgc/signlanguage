@@ -3,8 +3,9 @@
 Each frame is 76 joints of xyz in MediaPipe image coordinates: 34 body points
 (33 pose plus the shoulder midpoint as neck) and 42 hand points, name-major,
 left then right. Missing joints stay (0, 0, 0). No box normalization happens
-here. preprocess.dataset.resample_clip is what turns a queue of these frames
-into a model's (T, J, 4) input.
+here. Inference drops a frame that lost both shoulders, or more than one
+hand, before preprocess.dataset.resample_clip turns the queue into a
+model's (T, J, 4) input.
 
 The training videos are already 224x224 squares at 25 fps, so the notebook
 feeds them as they are. A camera frame has to go through `square_frame`

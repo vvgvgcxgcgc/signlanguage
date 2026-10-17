@@ -4,9 +4,12 @@ Every frame is scored by the pose-state model. P(action) <= threshold is the
 rest pose (label 0). The sign queue is raw (76, 3) frames and is not cut to a
 fixed length: while the pose stays at rest the queue keeps only the frame just
 scored, and once P(action) rises it accumulates every frame of the gesture.
-When the pose returns to rest, that closing frame is appended and
-preprocess.dataset.resample_clip turns the whole queue into the sign model's
-own T.
+When the pose returns to rest, that closing frame is appended. Five copies of
+that opening rest and five copies of the closing rest are added, then
+preprocess.dataset.resample_clip turns the padded queue into the sign model's
+own T. A frame that lost the shoulder pair, or more than one hand of points,
+never enters the queue. If half or more of the gesture was rejected, the sign
+is not scored and the window says to perform it again.
 
     python infer_camera.py \\
         --checkpoint checkpoints/MS-TCN/j68_MS-TCN_best.pth \\
@@ -39,21 +42,23 @@ from models.classifiers import LoadedModel, predict_gloss
 from models.factory import build_model, pick_device
 from models.pose_state import PoseStateMLP
 from preprocess.camera import FrameGrabber, Pacer, display_frame, open_capture, paint_status, resolve_camera
-from preprocess.dataset import resample_clip
+from preprocess.dataset import PREPARE_PAD, accept_raw_frame, clip_needs_redo, pad_prepare, resample_clip
 from preprocess.keypoints import TRAIN_FPS, KeypointExtractor, square_frame
 from preprocess.pose_state import ACTION, WINDOW, latest_window
 
 logger = logging.getLogger("infer_camera")
 
 _WINDOW_NAME = "sign"
+_REDO = "Thực hiện lại"
 
 
 class GestureQueue:
     """Raw-frame buffer for one gloss.
 
-    Rest pops the queue and stores the frame just scored. Action appends, with
-    no length cap. The next rest frame is appended too, then the caller
-    resamples whatever was collected.
+    Rest keeps only the frame just scored. Action appends, with no length cap,
+    and the next rest frame closes the clip. `accept` is false when the frame
+    lost the shoulder base or too many hand points: that frame is counted and
+    left out. `last_kept` and `last_dropped` describe the clip just closed.
     """
 
     def __init__(self, threshold: float = 0.3) -> None:
@@ -63,35 +68,93 @@ class GestureQueue:
         self.frames: list[np.ndarray] = []
         self.phase = "idle"
         self._in_action = False
+        self._attempted = False
+        self._prepare_rejected = False
+        self.dropped = 0
+        self.last_kept = 0
+        self.last_dropped = 0
 
     @property
     def in_action(self) -> bool:
         return self._in_action
 
-    def step(self, frame: np.ndarray, action_prob: Optional[float]) -> Optional[np.ndarray]:
+    @property
+    def prepare_rejected(self) -> bool:
+        """The rest frame that would have opened this gloss was refused."""
+        return self._prepare_rejected
+
+    def discard_prepare(self) -> None:
+        """Drop the stored rest frame after its hands came back too empty."""
+        if not self.frames or self._in_action:
+            return
+        self.frames.clear()
+        self.dropped += 1
+        self._attempted = True
+        self._prepare_rejected = True
+
+    def _close(self, prepare: Optional[np.ndarray] = None) -> np.ndarray:
+        self.last_kept = len(self.frames)
+        self.last_dropped = self.dropped
+        if self.frames:
+            clip = np.stack(self.frames)
+        else:
+            clip = np.zeros((0, 76, 3), dtype=np.float32)
+        self.frames.clear()
+        self._in_action = False
+        self._attempted = False
+        self._prepare_rejected = False
+        self.dropped = 0
+        if prepare is not None:
+            self.frames.append(prepare)
+        # The closing rest frame was consumed by the clip. The next rest frame
+        # fills the queue again; until then an action frame must not open a sign.
+        self.phase = "prepare"
+        return clip
+
+    def step(
+        self,
+        frame: np.ndarray,
+        action_prob: Optional[float],
+        accept: bool = True,
+    ) -> Optional[np.ndarray]:
         """Return the raw (N, 76, 3) clip when a gesture closes."""
         row = np.asarray(frame, dtype=np.float32).copy()
-        if action_prob is None or not np.isfinite(action_prob):
-            if self._in_action:
-                self.frames.append(row)
+        pose_known = action_prob is not None and bool(np.isfinite(action_prob))
+        resting = pose_known and action_prob <= self.threshold
+
+        if not pose_known:
+            if self._in_action or self._prepare_rejected:
+                self.dropped += 1
+                self._attempted = True
             return None
-        if action_prob <= self.threshold:
+
+        if resting:
             if self._in_action:
-                self.frames.append(row)
-                clip = np.stack(self.frames)
-                self.frames.clear()
-                self._in_action = False
-                self.phase = "prepare"
-                return clip
+                if accept:
+                    self.frames.append(row)
+                else:
+                    self.dropped += 1
+                return self._close()
+            if self._attempted:
+                return self._close(row if accept else None)
+            if not accept:
+                return None
             self.frames.clear()
             self.frames.append(row)
             self.phase = "prepare"
             return None
-        if not self.frames:
+
+        if not accept:
+            if self._in_action or self._prepare_rejected or self.frames:
+                self.dropped += 1
+                self._attempted = True
+            return None
+        if not self.frames and not self._prepare_rejected:
             self.phase = "idle"
             return None
         self.frames.append(row)
         self._in_action = True
+        self._prepare_rejected = False
         self.phase = "action"
         return None
 
@@ -213,7 +276,8 @@ def run_camera(
             # Hands cost more than the body. The gate only reads body joints,
             # so they run while a gloss is open. The rest frame that opens the
             # next gloss is filled in when the pose crosses the threshold.
-            row = extractor.process(square, hands=gate.in_action)
+            # After that rest frame is refused, later action frames still need hands.
+            row = extractor.process(square, hands=gate.in_action or gate.prepare_rejected)
             recent.append(row)
             if len(recent) > WINDOW:
                 del recent[0]
@@ -229,7 +293,11 @@ def run_camera(
                 if held_square is not None:
                     extractor.fill_hands(held_square, gate.frames[0])
                 extractor.fill_hands(square, row)
-            finished = gate.step(row, probability)
+                if not accept_raw_frame(gate.frames[0], min_shoulder, check_hands=True):
+                    gate.discard_prepare()
+            check_hands = gate.in_action or gate.prepare_rejected or opening
+            accept = accept_raw_frame(row, min_shoulder, check_hands=check_hands)
+            finished = gate.step(row, probability, accept)
             if gate.in_action:
                 held_square = None
             else:
@@ -239,20 +307,39 @@ def run_camera(
                 logger.info("phase %s P(action)=%s queue=%d", gate.phase, shown, len(gate.frames))
                 previous = gate.phase
             if finished is not None:
-                features = resample_clip(finished, sign.max_frames, sign.is_leg, min_shoulder)
-                if features is None:
-                    logger.warning("Dropped a %d-frame clip, shoulders were too weak", finished.shape[0])
-                else:
-                    logger.info(
-                        "Resampled %d raw frames to T=%d J=%d",
-                        finished.shape[0],
-                        features.shape[0],
-                        features.shape[1],
+                if clip_needs_redo(gate.last_kept, gate.last_dropped):
+                    logger.warning(
+                        "Redo the sign: kept %d frames, dropped %d",
+                        gate.last_kept,
+                        gate.last_dropped,
                     )
-                    prediction = predict_gloss(features, {sign.name: sign}, glosses, torch_device)
-                    gloss = f"{prediction['gloss']}  {prediction['confidence']:.2f}"
-                    logger.info("gloss: %s", gloss)
-            detail = "no pose" if probability is None else f"p={probability:.2f}  n={len(gate.frames)}"
+                    gloss = _REDO
+                else:
+                    padded = pad_prepare(finished, PREPARE_PAD)
+                    features = resample_clip(padded, sign.max_frames, sign.is_leg, min_shoulder)
+                    if features is None:
+                        logger.warning(
+                            "Redo the sign: %d kept frames could not be normalized",
+                            finished.shape[0],
+                        )
+                        gloss = _REDO
+                    else:
+                        logger.info(
+                            "Padded %d queue frames to %d, resampled to T=%d J=%d",
+                            finished.shape[0],
+                            padded.shape[0],
+                            features.shape[0],
+                            features.shape[1],
+                        )
+                        prediction = predict_gloss(features, {sign.name: sign}, glosses, torch_device)
+                        gloss = f"{prediction['gloss']}  {prediction['confidence']:.2f}"
+                        logger.info("gloss: %s", gloss)
+            if probability is None:
+                detail = "no pose"
+            else:
+                detail = f"p={probability:.2f}  n={len(gate.frames)}"
+            if gate.dropped:
+                detail = f"{detail}  drop={gate.dropped}"
             shown = display_frame(square, row)
             paint_status(shown, gate.phase, detail, gloss)
             cv2.imshow(_WINDOW_NAME, shown)

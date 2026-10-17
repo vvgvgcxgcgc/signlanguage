@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Optional, Sequence
 
 from models import load_models, pick_device, predict_gloss
-from preprocess import extract_sequences, iter_videos, resample_clip
+from preprocess import clip_needs_redo, extract_sequences, iter_videos, resample_clip, select_sign_frames
 
 logger = logging.getLogger(__name__)
 
@@ -54,18 +54,35 @@ def infer_videos(
     for video_path, sequence in extracted:
         if sequence.shape[0] == 0:
             logger.error("No frames in %s", video_path)
-            results.append({"video": video_path, "gloss": None, "predictions": []})
+            results.append({"video": video_path, "gloss": None, "predictions": [], "redo": True})
             continue
         specs = {(model.is_leg, model.max_frames) for model in loaded.values()}
         if len(specs) != 1:
             raise ValueError(f"loaded models disagree on is_leg/max_frames: {specs}")
         is_leg, frames = next(iter(specs))
-        features = resample_clip(sequence, frames, is_leg)
-        if features is None:
-            logger.error("Shoulders too weak to normalize %s", video_path)
-            results.append({"video": video_path, "gloss": None, "predictions": []})
+        kept, dropped = select_sign_frames(sequence)
+        if clip_needs_redo(int(kept.shape[0]), dropped):
+            logger.error(
+                "Redo %s: kept %d of %d frames, dropped %d",
+                video_path,
+                kept.shape[0],
+                sequence.shape[0],
+                dropped,
+            )
+            results.append({"video": video_path, "gloss": None, "predictions": [], "redo": True})
             continue
-        logger.info("Resampled %s from %d frames to T=%d", video_path, sequence.shape[0], frames)
+        features = resample_clip(kept, frames, is_leg)
+        if features is None:
+            logger.error("Redo %s: shoulders too weak to normalize", video_path)
+            results.append({"video": video_path, "gloss": None, "predictions": [], "redo": True})
+            continue
+        logger.info(
+            "Resampled %s from %d kept frames (%d dropped) to T=%d",
+            video_path,
+            kept.shape[0],
+            dropped,
+            frames,
+        )
         prediction = predict_gloss(features, loaded, glosses, torch_device)
         prediction["video"] = video_path
         logger.info("gloss: %s", prediction["gloss"])
