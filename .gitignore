@@ -27,3 +27,5 @@ vsl400-keypoint/
 test.ipynb
 
 *.npy
+*.json
+*.csv
