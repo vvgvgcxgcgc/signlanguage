@@ -17,7 +17,7 @@ from tqdm.auto import tqdm
 from models import build_model, count_parameters, save_checkpoint
 from training.config import TrainConfig
 from training.data import Splits, build_splits, set_epoch
-from training.distributed import Topology, barrier, cleanup, resolve_device, setup
+from training.distributed import Topology, apply_cpu_fallback, barrier, cleanup, resolve_device, setup
 from training.metrics import MetricAccumulator, Scores
 
 logger = logging.getLogger(__name__)
@@ -393,6 +393,17 @@ class RunResult:
 
 def fit(config: TrainConfig) -> RunResult:
     """Train one model and keep the best weights plus the latest full state."""
+    if not apply_cpu_fallback(config):
+        return RunResult(
+            model=config.model,
+            best_epoch=0,
+            best_score=0.0,
+            best_scores=None,
+            checkpoint=None,
+            last_checkpoint=None,
+            parameters=0,
+            history=[],
+        )
     topology = setup(config.parallel)
     try:
         torch.manual_seed(config.seed + topology.rank)

@@ -1,0 +1,6030 @@
+{
+  "Anh": [
+    {
+      "label": "đan",
+      "score": 0.6667
+    },
+    {
+      "label": "san hô",
+      "score": 0.6667
+    },
+    {
+      "label": "gan",
+      "score": 0.6667
+    },
+    {
+      "label": "anh vợ",
+      "score": 0.6667
+    },
+    {
+      "label": "anh rể",
+      "score": 0.6667
+    }
+  ],
+  "Ba lô": [
+    {
+      "label": "ba là",
+      "score": 0.8
+    },
+    {
+      "label": "bao la",
+      "score": 0.7273
+    },
+    {
+      "label": "va li",
+      "score": 0.6
+    },
+    {
+      "label": "ca nô",
+      "score": 0.6
+    },
+    {
+      "label": "địa lí",
+      "score": 0.5455
+    }
+  ],
+  "Bà ngoại": [
+    {
+      "label": "ông ngoại",
+      "score": 0.7059
+    },
+    {
+      "label": "ở ngoài",
+      "score": 0.6667
+    },
+    {
+      "label": "đàng ngoài",
+      "score": 0.6667
+    },
+    {
+      "label": "cháu ngoại",
+      "score": 0.6667
+    },
+    {
+      "label": "ra ngoài",
+      "score": 0.625
+    }
+  ],
+  "Bà nội": [
+    {
+      "label": "Bà Nà",
+      "score": 0.7273
+    },
+    {
+      "label": "bộ đội",
+      "score": 0.6667
+    },
+    {
+      "label": "ông nội",
+      "score": 0.6154
+    },
+    {
+      "label": "bơi lội",
+      "score": 0.6154
+    },
+    {
+      "label": "bàn tán",
+      "score": 0.6154
+    }
+  ],
+  "Bác": [
+    {
+      "label": "ác",
+      "score": 0.8
+    },
+    {
+      "label": "vác",
+      "score": 0.6667
+    },
+    {
+      "label": "bát",
+      "score": 0.6667
+    },
+    {
+      "label": "bộ sách",
+      "score": 0.6
+    },
+    {
+      "label": "bốc vác",
+      "score": 0.6
+    }
+  ],
+  "Bác sĩ": [
+    {
+      "label": "giáo sĩ",
+      "score": 0.6154
+    },
+    {
+      "label": "bọc sách",
+      "score": 0.5714
+    },
+    {
+      "label": "củ sả",
+      "score": 0.5455
+    },
+    {
+      "label": "cơ sở",
+      "score": 0.5455
+    },
+    {
+      "label": "khách sạn",
+      "score": 0.5333
+    }
+  ],
+  "Bánh bao": [
+    {
+      "label": "bánh đa",
+      "score": 0.8
+    },
+    {
+      "label": "bánh pía",
+      "score": 0.75
+    },
+    {
+      "label": "bánh gai",
+      "score": 0.75
+    },
+    {
+      "label": "bánh canh",
+      "score": 0.7059
+    },
+    {
+      "label": "bình an",
+      "score": 0.6667
+    }
+  ],
+  "Bánh chưng": [
+    {
+      "label": "bình thường",
+      "score": 0.7619
+    },
+    {
+      "label": "bình phương",
+      "score": 0.7619
+    },
+    {
+      "label": "bát hương",
+      "score": 0.7368
+    },
+    {
+      "label": "bánh cuốn",
+      "score": 0.7368
+    },
+    {
+      "label": "bánh canh",
+      "score": 0.7368
+    }
+  ],
+  "Bánh tét": [
+    {
+      "label": "bệnh tật",
+      "score": 0.75
+    },
+    {
+      "label": "bánh đa",
+      "score": 0.6667
+    },
+    {
+      "label": "bánh xe",
+      "score": 0.6667
+    },
+    {
+      "label": "bánh tráng",
+      "score": 0.6667
+    },
+    {
+      "label": "bánh mì",
+      "score": 0.6667
+    }
+  ],
+  "Bánh xèo": [
+    {
+      "label": "bánh xe",
+      "score": 0.8
+    },
+    {
+      "label": "bánh đa",
+      "score": 0.6667
+    },
+    {
+      "label": "bánh mì",
+      "score": 0.6667
+    },
+    {
+      "label": "bán đảo",
+      "score": 0.6667
+    },
+    {
+      "label": "xanh xao",
+      "score": 0.625
+    }
+  ],
+  "Bóng bàn": [
+    {
+      "label": "lồng bàn",
+      "score": 0.75
+    },
+    {
+      "label": "bóng bay",
+      "score": 0.75
+    },
+    {
+      "label": "ông bà",
+      "score": 0.7143
+    },
+    {
+      "label": "sóng biển",
+      "score": 0.7059
+    },
+    {
+      "label": "bùng binh",
+      "score": 0.7059
+    }
+  ],
+  "Bóng chuyền": [
+    {
+      "label": "băng chuyền",
+      "score": 0.9091
+    },
+    {
+      "label": "móng chân",
+      "score": 0.7
+    },
+    {
+      "label": "vận chuyển",
+      "score": 0.6667
+    },
+    {
+      "label": "nói chuyện",
+      "score": 0.6667
+    },
+    {
+      "label": "bóng bay",
+      "score": 0.6316
+    }
+  ],
+  "Bóng rổ": [
+    {
+      "label": "bảng trừ",
+      "score": 0.6667
+    },
+    {
+      "label": "bóng bay",
+      "score": 0.6667
+    },
+    {
+      "label": "đá bóng",
+      "score": 0.5714
+    },
+    {
+      "label": "rón rén",
+      "score": 0.5714
+    },
+    {
+      "label": "băng bó",
+      "score": 0.5714
+    }
+  ],
+  "Bóng đá": [
+    {
+      "label": "bảng đen",
+      "score": 0.6667
+    },
+    {
+      "label": "băng giá",
+      "score": 0.6667
+    },
+    {
+      "label": "bóng bay",
+      "score": 0.6667
+    },
+    {
+      "label": "hòn đá",
+      "score": 0.6154
+    },
+    {
+      "label": "bó đũa",
+      "score": 0.6154
+    }
+  ],
+  "Bún": [
+    {
+      "label": "bạn",
+      "score": 0.6667
+    },
+    {
+      "label": "bút",
+      "score": 0.6667
+    },
+    {
+      "label": "bún ốc",
+      "score": 0.6667
+    },
+    {
+      "label": "bùn",
+      "score": 0.6667
+    },
+    {
+      "label": "bún đậu",
+      "score": 0.6
+    }
+  ],
+  "Bút chì": [
+    {
+      "label": "gọt bút chì",
+      "score": 0.7778
+    },
+    {
+      "label": "bún chả",
+      "score": 0.7143
+    },
+    {
+      "label": "bổ ích",
+      "score": 0.6154
+    },
+    {
+      "label": "bút dạ",
+      "score": 0.6154
+    },
+    {
+      "label": "bút bi",
+      "score": 0.6154
+    }
+  ],
+  "Băn khoăn": [
+    {
+      "label": "băng hình",
+      "score": 0.6667
+    },
+    {
+      "label": "răng khểnh",
+      "score": 0.6316
+    },
+    {
+      "label": "quàng khăn",
+      "score": 0.6316
+    },
+    {
+      "label": "giàn khoan",
+      "score": 0.6316
+    },
+    {
+      "label": "nhà kho",
+      "score": 0.625
+    }
+  ],
+  "Bảng": [
+    {
+      "label": "Đảng",
+      "score": 0.75
+    },
+    {
+      "label": "bụng",
+      "score": 0.75
+    },
+    {
+      "label": "bỏng",
+      "score": 0.75
+    },
+    {
+      "label": "bằng",
+      "score": 0.75
+    },
+    {
+      "label": "xóa bảng",
+      "score": 0.6667
+    }
+  ],
+  "Bảo vệ": [
+    {
+      "label": "bảo đảm",
+      "score": 0.6154
+    },
+    {
+      "label": "bảo thủ",
+      "score": 0.6154
+    },
+    {
+      "label": "bảo tàng",
+      "score": 0.5714
+    },
+    {
+      "label": "bảo hiểm",
+      "score": 0.5714
+    },
+    {
+      "label": "tự vệ",
+      "score": 0.5455
+    }
+  ],
+  "Bận": [
+    {
+      "label": "bạn",
+      "score": 0.6667
+    },
+    {
+      "label": "bùn",
+      "score": 0.6667
+    },
+    {
+      "label": "bật đèn",
+      "score": 0.6
+    },
+    {
+      "label": "thận",
+      "score": 0.5714
+    },
+    {
+      "label": "quận",
+      "score": 0.5714
+    }
+  ],
+  "Bắt chước": [
+    {
+      "label": "Bình Phước",
+      "score": 0.6316
+    },
+    {
+      "label": "bước",
+      "score": 0.6154
+    },
+    {
+      "label": "tia chớp",
+      "score": 0.5882
+    },
+    {
+      "label": "hút nước",
+      "score": 0.5882
+    },
+    {
+      "label": "hài hước",
+      "score": 0.5882
+    }
+  ],
+  "Bệnh viện": [
+    {
+      "label": "nhân viên",
+      "score": 0.6667
+    },
+    {
+      "label": "bệnh nhân",
+      "score": 0.6667
+    },
+    {
+      "label": "bình minh",
+      "score": 0.6667
+    },
+    {
+      "label": "thành viên",
+      "score": 0.6316
+    },
+    {
+      "label": "ăn diện",
+      "score": 0.625
+    }
+  ],
+  "Ca sĩ": [
+    {
+      "label": "cửa sổ",
+      "score": 0.7273
+    },
+    {
+      "label": "chia sẻ",
+      "score": 0.6667
+    },
+    {
+      "label": "củ sả",
+      "score": 0.6
+    },
+    {
+      "label": "cơ sở",
+      "score": 0.6
+    },
+    {
+      "label": "ca nô",
+      "score": 0.6
+    }
+  ],
+  "Cay": [
+    {
+      "label": "ca",
+      "score": 0.8
+    },
+    {
+      "label": "tay",
+      "score": 0.6667
+    },
+    {
+      "label": "cổ tay",
+      "score": 0.6667
+    },
+    {
+      "label": "cỏ may",
+      "score": 0.6667
+    },
+    {
+      "label": "cấy",
+      "score": 0.6667
+    }
+  ],
+  "Chiều": [
+    {
+      "label": "chiếu",
+      "score": 0.8
+    },
+    {
+      "label": "chia đều",
+      "score": 0.7692
+    },
+    {
+      "label": "chiều tối",
+      "score": 0.7143
+    },
+    {
+      "label": "chiều dài",
+      "score": 0.7143
+    },
+    {
+      "label": "chiều cao",
+      "score": 0.7143
+    }
+  ],
+  "Cho": [
+    {
+      "label": "chảo",
+      "score": 0.8571
+    },
+    {
+      "label": "chào",
+      "score": 0.8571
+    },
+    {
+      "label": "héo",
+      "score": 0.6667
+    },
+    {
+      "label": "hoa",
+      "score": 0.6667
+    },
+    {
+      "label": "cá kho",
+      "score": 0.6667
+    }
+  ],
+  "Chua": [
+    {
+      "label": "cha",
+      "score": 0.8571
+    },
+    {
+      "label": "chậu",
+      "score": 0.75
+    },
+    {
+      "label": "chùa",
+      "score": 0.75
+    },
+    {
+      "label": "chum",
+      "score": 0.75
+    },
+    {
+      "label": "chui",
+      "score": 0.75
+    }
+  ],
+  "Cháu": [
+    {
+      "label": "chậu",
+      "score": 0.75
+    },
+    {
+      "label": "chát",
+      "score": 0.75
+    },
+    {
+      "label": "chum",
+      "score": 0.75
+    },
+    {
+      "label": "chui",
+      "score": 0.75
+    },
+    {
+      "label": "cháu họ",
+      "score": 0.7273
+    }
+  ],
+  "Chân": [
+    {
+      "label": "chặn",
+      "score": 0.75
+    },
+    {
+      "label": "chín",
+      "score": 0.75
+    },
+    {
+      "label": "chén",
+      "score": 0.75
+    },
+    {
+      "label": "cổ chân",
+      "score": 0.7273
+    },
+    {
+      "label": "đôi chân",
+      "score": 0.6667
+    }
+  ],
+  "Chăm chỉ": [
+    {
+      "label": "chăm học",
+      "score": 0.75
+    },
+    {
+      "label": "chậm chạp",
+      "score": 0.7059
+    },
+    {
+      "label": "châm chọc",
+      "score": 0.7059
+    },
+    {
+      "label": "chim chóc",
+      "score": 0.7059
+    },
+    {
+      "label": "căm thù",
+      "score": 0.6667
+    }
+  ],
+  "Chơi cờ": [
+    {
+      "label": "chơi",
+      "score": 0.7273
+    },
+    {
+      "label": "chào cờ",
+      "score": 0.7143
+    },
+    {
+      "label": "hơi nước",
+      "score": 0.6667
+    },
+    {
+      "label": "chia cắt",
+      "score": 0.6667
+    },
+    {
+      "label": "tươi cười",
+      "score": 0.625
+    }
+  ],
+  "Chậm lại": [
+    {
+      "label": "chậm chạp",
+      "score": 0.7059
+    },
+    {
+      "label": "ích lợi",
+      "score": 0.6667
+    },
+    {
+      "label": "mạch lạc",
+      "score": 0.625
+    },
+    {
+      "label": "cắm trại",
+      "score": 0.625
+    },
+    {
+      "label": "chùm vải",
+      "score": 0.625
+    }
+  ],
+  "Chật": [
+    {
+      "label": "chặt",
+      "score": 0.75
+    },
+    {
+      "label": "chậu",
+      "score": 0.75
+    },
+    {
+      "label": "chát",
+      "score": 0.75
+    },
+    {
+      "label": "cảnh vật",
+      "score": 0.6667
+    },
+    {
+      "label": "trực nhật",
+      "score": 0.6154
+    }
+  ],
+  "Chết": [
+    {
+      "label": "chặt",
+      "score": 0.75
+    },
+    {
+      "label": "chát",
+      "score": 0.75
+    },
+    {
+      "label": "xác chết",
+      "score": 0.6667
+    },
+    {
+      "label": "chữ viết",
+      "score": 0.6667
+    },
+    {
+      "label": "chúc tết",
+      "score": 0.6667
+    }
+  ],
+  "Chồng": [
+    {
+      "label": "chuồng",
+      "score": 0.9091
+    },
+    {
+      "label": "chuông",
+      "score": 0.7273
+    },
+    {
+      "label": "chiêng",
+      "score": 0.7273
+    },
+    {
+      "label": "chị chồng",
+      "score": 0.7143
+    },
+    {
+      "label": "má hồng",
+      "score": 0.6667
+    }
+  ],
+  "Chợ": [
+    {
+      "label": "chữ",
+      "score": 0.6667
+    },
+    {
+      "label": "chị",
+      "score": 0.6667
+    },
+    {
+      "label": "chỉ",
+      "score": 0.6667
+    },
+    {
+      "label": "cha",
+      "score": 0.6667
+    },
+    {
+      "label": "ích lợi",
+      "score": 0.6
+    }
+  ],
+  "Chủ nhật": [
+    {
+      "label": "phủ nhận",
+      "score": 0.75
+    },
+    {
+      "label": "trực nhật",
+      "score": 0.7059
+    },
+    {
+      "label": "chủ nhiệm",
+      "score": 0.7059
+    },
+    {
+      "label": "củ nghệ",
+      "score": 0.6667
+    },
+    {
+      "label": "chứng nhận",
+      "score": 0.6667
+    }
+  ],
+  "Con heo": [
+    {
+      "label": "con hoẵng",
+      "score": 0.75
+    },
+    {
+      "label": "con ếch",
+      "score": 0.7143
+    },
+    {
+      "label": "con voi",
+      "score": 0.7143
+    },
+    {
+      "label": "con thỏ",
+      "score": 0.7143
+    },
+    {
+      "label": "con tem",
+      "score": 0.7143
+    }
+  ],
+  "Con trâu": [
+    {
+      "label": "con trỏ",
+      "score": 0.8
+    },
+    {
+      "label": "con sâu",
+      "score": 0.8
+    },
+    {
+      "label": "con dâu",
+      "score": 0.8
+    },
+    {
+      "label": "con trăn",
+      "score": 0.75
+    },
+    {
+      "label": "con trai",
+      "score": 0.75
+    }
+  ],
+  "Cà phê": [
+    {
+      "label": "pha cà phê",
+      "score": 0.75
+    },
+    {
+      "label": "học phí",
+      "score": 0.6154
+    },
+    {
+      "label": "che phủ",
+      "score": 0.6154
+    },
+    {
+      "label": "xà phòng",
+      "score": 0.5714
+    },
+    {
+      "label": "tác phẩm",
+      "score": 0.5714
+    }
+  ],
+  "Cá": [
+    {
+      "label": "cát",
+      "score": 0.8
+    },
+    {
+      "label": "chát",
+      "score": 0.6667
+    },
+    {
+      "label": "c",
+      "score": 0.6667
+    },
+    {
+      "label": "cổ áo",
+      "score": 0.5714
+    },
+    {
+      "label": "bể cá",
+      "score": 0.5714
+    }
+  ],
+  "Cái bàn": [
+    {
+      "label": "cái bè",
+      "score": 0.7692
+    },
+    {
+      "label": "cái neo",
+      "score": 0.7143
+    },
+    {
+      "label": "các bạn",
+      "score": 0.7143
+    },
+    {
+      "label": "bồi bàn",
+      "score": 0.7143
+    },
+    {
+      "label": "cây bàng",
+      "score": 0.6667
+    }
+  ],
+  "Cái chảo": [
+    {
+      "label": "mái chèo",
+      "score": 0.75
+    },
+    {
+      "label": "cá kho",
+      "score": 0.7143
+    },
+    {
+      "label": "ai cho",
+      "score": 0.7143
+    },
+    {
+      "label": "cùi chỏ",
+      "score": 0.6667
+    },
+    {
+      "label": "cái neo",
+      "score": 0.6667
+    }
+  ],
+  "Cái cửa": [
+    {
+      "label": "chiều cao",
+      "score": 0.625
+    },
+    {
+      "label": "thi cử",
+      "score": 0.6154
+    },
+    {
+      "label": "mở cửa",
+      "score": 0.6154
+    },
+    {
+      "label": "cái bè",
+      "score": 0.6154
+    },
+    {
+      "label": "cưa (cái cưa)",
+      "score": 0.6
+    }
+  ],
+  "Cái ghế": [
+    {
+      "label": "cái gùi",
+      "score": 0.7143
+    },
+    {
+      "label": "cái nhíp",
+      "score": 0.6667
+    },
+    {
+      "label": "chia hết",
+      "score": 0.6667
+    },
+    {
+      "label": "cái gương",
+      "score": 0.625
+    },
+    {
+      "label": "ức chế",
+      "score": 0.6154
+    }
+  ],
+  "Cái kéo": [
+    {
+      "label": "cá kho",
+      "score": 0.7692
+    },
+    {
+      "label": "cái neo",
+      "score": 0.7143
+    },
+    {
+      "label": "cởi áo",
+      "score": 0.6154
+    },
+    {
+      "label": "cái bè",
+      "score": 0.6154
+    },
+    {
+      "label": "kéo",
+      "score": 0.6
+    }
+  ],
+  "Cái nồi": [
+    {
+      "label": "cái túi",
+      "score": 0.7143
+    },
+    {
+      "label": "cái neo",
+      "score": 0.7143
+    },
+    {
+      "label": "cái gùi",
+      "score": 0.7143
+    },
+    {
+      "label": "cái nhíp",
+      "score": 0.6667
+    },
+    {
+      "label": "cháu nội",
+      "score": 0.6667
+    }
+  ],
+  "Cái áo": [
+    {
+      "label": "cởi áo",
+      "score": 0.8333
+    },
+    {
+      "label": "cái neo",
+      "score": 0.7692
+    },
+    {
+      "label": "cổ áo",
+      "score": 0.7273
+    },
+    {
+      "label": "mắc áo",
+      "score": 0.6667
+    },
+    {
+      "label": "móc áo",
+      "score": 0.6667
+    }
+  ],
+  "Cái đèn": [
+    {
+      "label": "cái bè",
+      "score": 0.7692
+    },
+    {
+      "label": "cột đèn",
+      "score": 0.7143
+    },
+    {
+      "label": "cái neo",
+      "score": 0.7143
+    },
+    {
+      "label": "rước đèn",
+      "score": 0.6667
+    },
+    {
+      "label": "cái nhíp",
+      "score": 0.6667
+    }
+  ],
+  "Cám dỗ": [
+    {
+      "label": "chấm dứt",
+      "score": 0.5714
+    },
+    {
+      "label": "đám ma",
+      "score": 0.5
+    },
+    {
+      "label": "em dâu",
+      "score": 0.5
+    },
+    {
+      "label": "cụm từ",
+      "score": 0.5
+    },
+    {
+      "label": "cỗ",
+      "score": 0.5
+    }
+  ],
+  "Có": [
+    {
+      "label": "c",
+      "score": 0.6667
+    },
+    {
+      "label": "ăn cóc",
+      "score": 0.5
+    },
+    {
+      "label": "óc",
+      "score": 0.5
+    },
+    {
+      "label": "ác",
+      "score": 0.5
+    },
+    {
+      "label": "cụ",
+      "score": 0.5
+    }
+  ],
+  "Cô": [
+    {
+      "label": "ô",
+      "score": 0.6667
+    },
+    {
+      "label": "c",
+      "score": 0.6667
+    },
+    {
+      "label": "ca nô",
+      "score": 0.5714
+    },
+    {
+      "label": "ôm",
+      "score": 0.5
+    },
+    {
+      "label": "óc",
+      "score": 0.5
+    }
+  ],
+  "Công ty": [
+    {
+      "label": "công tắc",
+      "score": 0.8
+    },
+    {
+      "label": "công thức",
+      "score": 0.75
+    },
+    {
+      "label": "chung tay",
+      "score": 0.75
+    },
+    {
+      "label": "công cụ",
+      "score": 0.7143
+    },
+    {
+      "label": "ngón tay",
+      "score": 0.6667
+    }
+  ],
+  "Cũ": [
+    {
+      "label": "c",
+      "score": 0.6667
+    },
+    {
+      "label": "cổ vũ",
+      "score": 0.5714
+    },
+    {
+      "label": "óc",
+      "score": 0.5
+    },
+    {
+      "label": "ác",
+      "score": 0.5
+    },
+    {
+      "label": "mũ",
+      "score": 0.5
+    }
+  ],
+  "Cười": [
+    {
+      "label": "lười",
+      "score": 0.75
+    },
+    {
+      "label": "cờ",
+      "score": 0.6667
+    },
+    {
+      "label": "tươi cười",
+      "score": 0.6154
+    },
+    {
+      "label": "con người",
+      "score": 0.6154
+    },
+    {
+      "label": "mời",
+      "score": 0.5714
+    }
+  ],
+  "Cảm thấy": [
+    {
+      "label": "căm thù",
+      "score": 0.6667
+    },
+    {
+      "label": "cao thấp",
+      "score": 0.625
+    },
+    {
+      "label": "ma túy",
+      "score": 0.5714
+    },
+    {
+      "label": "cụm từ",
+      "score": 0.5714
+    },
+    {
+      "label": "cụ thể",
+      "score": 0.5714
+    }
+  ],
+  "Cảm ơn": [
+    {
+      "label": "cô đơn",
+      "score": 0.6667
+    },
+    {
+      "label": "cả ngày",
+      "score": 0.6154
+    },
+    {
+      "label": "câu đơn",
+      "score": 0.6154
+    },
+    {
+      "label": "chim sơn ca",
+      "score": 0.5882
+    },
+    {
+      "label": "cơm rang",
+      "score": 0.5714
+    }
+  ],
+  "Cần": [
+    {
+      "label": "tuần",
+      "score": 0.5714
+    },
+    {
+      "label": "cổng",
+      "score": 0.5714
+    },
+    {
+      "label": "cống",
+      "score": 0.5714
+    },
+    {
+      "label": "cạnh",
+      "score": 0.5714
+    },
+    {
+      "label": "cõng",
+      "score": 0.5714
+    }
+  ],
+  "Cầu lông": [
+    {
+      "label": "vợt cầu lông",
+      "score": 0.8
+    },
+    {
+      "label": "đánh cầu lông",
+      "score": 0.7619
+    },
+    {
+      "label": "chuông",
+      "score": 0.7143
+    },
+    {
+      "label": "cầu thang",
+      "score": 0.7059
+    },
+    {
+      "label": "lông",
+      "score": 0.6667
+    }
+  ],
+  "Cậu": [
+    {
+      "label": "chậu",
+      "score": 0.8571
+    },
+    {
+      "label": "cứu",
+      "score": 0.6667
+    },
+    {
+      "label": "củ đậu",
+      "score": 0.6667
+    },
+    {
+      "label": "cuốn",
+      "score": 0.5714
+    },
+    {
+      "label": "chum",
+      "score": 0.5714
+    }
+  ],
+  "Cứng": [
+    {
+      "label": "cổng",
+      "score": 0.75
+    },
+    {
+      "label": "cống",
+      "score": 0.75
+    },
+    {
+      "label": "cõng",
+      "score": 0.75
+    },
+    {
+      "label": "còng",
+      "score": 0.75
+    },
+    {
+      "label": "cong",
+      "score": 0.75
+    }
+  ],
+  "Diễn viên": [
+    {
+      "label": "động viên",
+      "score": 0.6667
+    },
+    {
+      "label": "nhân viên",
+      "score": 0.6667
+    },
+    {
+      "label": "công viên",
+      "score": 0.6667
+    },
+    {
+      "label": "thành viên",
+      "score": 0.6316
+    },
+    {
+      "label": "phóng viên",
+      "score": 0.6316
+    }
+  ],
+  "Dây chuyền": [
+    {
+      "label": "dây chun",
+      "score": 0.8889
+    },
+    {
+      "label": "dấu huyền",
+      "score": 0.7368
+    },
+    {
+      "label": "du thuyền",
+      "score": 0.7368
+    },
+    {
+      "label": "di chuyển",
+      "score": 0.7368
+    },
+    {
+      "label": "câu chuyện",
+      "score": 0.7
+    }
+  ],
+  "Dép": [
+    {
+      "label": "dập",
+      "score": 0.6667
+    },
+    {
+      "label": "đôi dép",
+      "score": 0.6
+    },
+    {
+      "label": "giầy dép",
+      "score": 0.5455
+    },
+    {
+      "label": "p",
+      "score": 0.5
+    },
+    {
+      "label": "d",
+      "score": 0.5
+    }
+  ],
+  "Dì": [
+    {
+      "label": "d",
+      "score": 0.6667
+    },
+    {
+      "label": "rìu",
+      "score": 0.4
+    },
+    {
+      "label": "dỗi",
+      "score": 0.4
+    },
+    {
+      "label": "dốt",
+      "score": 0.4
+    },
+    {
+      "label": "dốc",
+      "score": 0.4
+    }
+  ],
+  "Dơ": [
+    {
+      "label": "ơ",
+      "score": 0.6667
+    },
+    {
+      "label": "d",
+      "score": 0.6667
+    },
+    {
+      "label": "nơ",
+      "score": 0.5
+    },
+    {
+      "label": "dài hơn",
+      "score": 0.4444
+    },
+    {
+      "label": "sơn",
+      "score": 0.4
+    }
+  ],
+  "Dễ": [
+    {
+      "label": "d",
+      "score": 0.6667
+    },
+    {
+      "label": "dễ chịu",
+      "score": 0.4444
+    },
+    {
+      "label": "đạo diễn",
+      "score": 0.4
+    },
+    {
+      "label": "dỗi",
+      "score": 0.4
+    },
+    {
+      "label": "dốt",
+      "score": 0.4
+    }
+  ],
+  "Dở": [
+    {
+      "label": "d",
+      "score": 0.6667
+    },
+    {
+      "label": "mở",
+      "score": 0.5
+    },
+    {
+      "label": "thở",
+      "score": 0.4
+    },
+    {
+      "label": "phở",
+      "score": 0.4
+    },
+    {
+      "label": "dỗi",
+      "score": 0.4
+    }
+  ],
+  "Dụng cụ học tập": [
+    {
+      "label": "góc học tập",
+      "score": 0.7692
+    },
+    {
+      "label": "đồ dùng học tập",
+      "score": 0.7333
+    },
+    {
+      "label": "học tập",
+      "score": 0.6364
+    },
+    {
+      "label": "dụng cụ",
+      "score": 0.6364
+    },
+    {
+      "label": "dòng họ",
+      "score": 0.5455
+    }
+  ],
+  "Dữ": [
+    {
+      "label": "d",
+      "score": 0.6667
+    },
+    {
+      "label": "thú dữ",
+      "score": 0.5
+    },
+    {
+      "label": "dự trữ",
+      "score": 0.5
+    },
+    {
+      "label": "giận dữ",
+      "score": 0.4444
+    },
+    {
+      "label": "sữa",
+      "score": 0.4
+    }
+  ],
+  "Em": [
+    {
+      "label": "xem",
+      "score": 0.8
+    },
+    {
+      "label": "m",
+      "score": 0.6667
+    },
+    {
+      "label": "e",
+      "score": 0.6667
+    },
+    {
+      "label": "email",
+      "score": 0.5714
+    },
+    {
+      "label": "em út",
+      "score": 0.5714
+    }
+  ],
+  "Ghét": [
+    {
+      "label": "thét",
+      "score": 0.75
+    },
+    {
+      "label": "nghé",
+      "score": 0.75
+    },
+    {
+      "label": "ghé thăm",
+      "score": 0.6667
+    },
+    {
+      "label": "la hét",
+      "score": 0.6
+    },
+    {
+      "label": "hạt",
+      "score": 0.5714
+    }
+  ],
+  "Già": [
+    {
+      "label": "gửi",
+      "score": 0.6667
+    },
+    {
+      "label": "gọi",
+      "score": 0.6667
+    },
+    {
+      "label": "gói",
+      "score": 0.6667
+    },
+    {
+      "label": "giỗ",
+      "score": 0.6667
+    },
+    {
+      "label": "giã",
+      "score": 0.6667
+    }
+  ],
+  "Giàu": [
+    {
+      "label": "giàu có",
+      "score": 0.7273
+    },
+    {
+      "label": "giấy màu",
+      "score": 0.6667
+    },
+    {
+      "label": "ga tàu",
+      "score": 0.6
+    },
+    {
+      "label": "cụ già",
+      "score": 0.6
+    },
+    {
+      "label": "gửi",
+      "score": 0.5714
+    }
+  ],
+  "Giày": [
+    {
+      "label": "giấy",
+      "score": 0.75
+    },
+    {
+      "label": "gà tây",
+      "score": 0.6
+    },
+    {
+      "label": "cụ già",
+      "score": 0.6
+    },
+    {
+      "label": "gửi",
+      "score": 0.5714
+    },
+    {
+      "label": "gọi",
+      "score": 0.5714
+    }
+  ],
+  "Giáng sinh": [
+    {
+      "label": "kháng sinh",
+      "score": 0.8
+    },
+    {
+      "label": "ngày sinh",
+      "score": 0.7368
+    },
+    {
+      "label": "hi sinh",
+      "score": 0.7059
+    },
+    {
+      "label": "giống nhau",
+      "score": 0.7
+    },
+    {
+      "label": "giá sách",
+      "score": 0.6667
+    }
+  ],
+  "Giây": [
+    {
+      "label": "giấy",
+      "score": 0.75
+    },
+    {
+      "label": "gà tây",
+      "score": 0.6
+    },
+    {
+      "label": "xây",
+      "score": 0.5714
+    },
+    {
+      "label": "mây",
+      "score": 0.5714
+    },
+    {
+      "label": "gửi",
+      "score": 0.5714
+    }
+  ],
+  "Gió": [
+    {
+      "label": "gửi",
+      "score": 0.6667
+    },
+    {
+      "label": "gọi",
+      "score": 0.6667
+    },
+    {
+      "label": "gói",
+      "score": 0.6667
+    },
+    {
+      "label": "giỗ",
+      "score": 0.6667
+    },
+    {
+      "label": "giã",
+      "score": 0.6667
+    }
+  ],
+  "Giặt đồ": [
+    {
+      "label": "mặt đất",
+      "score": 0.5714
+    },
+    {
+      "label": "gặt lúa",
+      "score": 0.5714
+    },
+    {
+      "label": "gật đầu",
+      "score": 0.5714
+    },
+    {
+      "label": "giúp đỡ",
+      "score": 0.5714
+    },
+    {
+      "label": "biểu đồ",
+      "score": 0.5714
+    }
+  ],
+  "Giờ": [
+    {
+      "label": "gửi",
+      "score": 0.6667
+    },
+    {
+      "label": "gọi",
+      "score": 0.6667
+    },
+    {
+      "label": "gói",
+      "score": 0.6667
+    },
+    {
+      "label": "giỗ",
+      "score": 0.6667
+    },
+    {
+      "label": "giường",
+      "score": 0.6667
+    }
+  ],
+  "Gần": [
+    {
+      "label": "gan",
+      "score": 0.6667
+    },
+    {
+      "label": "gần gũi",
+      "score": 0.6
+    },
+    {
+      "label": "tuần",
+      "score": 0.5714
+    },
+    {
+      "label": "ngắn",
+      "score": 0.5714
+    },
+    {
+      "label": "ngán",
+      "score": 0.5714
+    }
+  ],
+  "Gối (đầu)": [
+    {
+      "label": "gói (đgt)",
+      "score": 0.6667
+    },
+    {
+      "label": "hói đầu",
+      "score": 0.625
+    },
+    {
+      "label": "gật đầu",
+      "score": 0.625
+    },
+    {
+      "label": "dầu gội đầu",
+      "score": 0.6
+    },
+    {
+      "label": "chúi đầu",
+      "score": 0.5882
+    }
+  ],
+  "Gội đầu": [
+    {
+      "label": "dầu gội đầu",
+      "score": 0.7778
+    },
+    {
+      "label": "hói đầu",
+      "score": 0.7143
+    },
+    {
+      "label": "gật đầu",
+      "score": 0.7143
+    },
+    {
+      "label": "chúi đầu",
+      "score": 0.6667
+    },
+    {
+      "label": "ngẩng đầu",
+      "score": 0.625
+    }
+  ],
+  "Hay (khen)": [
+    {
+      "label": "khoan (khoan đã)",
+      "score": 0.6154
+    },
+    {
+      "label": "khoan (cái khoan)",
+      "score": 0.5926
+    },
+    {
+      "label": "hoa sen",
+      "score": 0.5882
+    },
+    {
+      "label": "khen",
+      "score": 0.5714
+    },
+    {
+      "label": "hoa hồng",
+      "score": 0.5556
+    }
+  ],
+  "Hiền": [
+    {
+      "label": "phiền hà",
+      "score": 0.6667
+    },
+    {
+      "label": "nhiều hơn",
+      "score": 0.6154
+    },
+    {
+      "label": "khiêng",
+      "score": 0.6
+    },
+    {
+      "label": "chiêng",
+      "score": 0.6
+    },
+    {
+      "label": "đền",
+      "score": 0.5714
+    }
+  ],
+  "Hiệu trưởng": [
+    {
+      "label": "phó hiệu trưởng",
+      "score": 0.8462
+    },
+    {
+      "label": "đội trưởng",
+      "score": 0.7619
+    },
+    {
+      "label": "hội trường",
+      "score": 0.7619
+    },
+    {
+      "label": "tổ trưởng",
+      "score": 0.7
+    },
+    {
+      "label": "ý tưởng",
+      "score": 0.6667
+    }
+  ],
+  "Hàn Quốc": [
+    {
+      "label": "hành quân",
+      "score": 0.7059
+    },
+    {
+      "label": "hàng dọc",
+      "score": 0.625
+    },
+    {
+      "label": "đảo Phú Quốc",
+      "score": 0.6
+    },
+    {
+      "label": "thông qua",
+      "score": 0.5882
+    },
+    {
+      "label": "hàng chục",
+      "score": 0.5882
+    }
+  ],
+  "Hát": [
+    {
+      "label": "chát",
+      "score": 0.8571
+    },
+    {
+      "label": "tát",
+      "score": 0.6667
+    },
+    {
+      "label": "phá",
+      "score": 0.6667
+    },
+    {
+      "label": "hạt",
+      "score": 0.6667
+    },
+    {
+      "label": "hót",
+      "score": 0.6667
+    }
+  ],
+  "Hâm mộ": [
+    {
+      "label": "mâm cơm",
+      "score": 0.6154
+    },
+    {
+      "label": "tham lam",
+      "score": 0.5714
+    },
+    {
+      "label": "nhắm mắt",
+      "score": 0.5714
+    },
+    {
+      "label": "châm cứu",
+      "score": 0.5714
+    },
+    {
+      "label": "khâm phục",
+      "score": 0.5333
+    }
+  ],
+  "Hư": [
+    {
+      "label": "ư",
+      "score": 0.6667
+    },
+    {
+      "label": "h",
+      "score": 0.6667
+    },
+    {
+      "label": "nhưng",
+      "score": 0.5714
+    },
+    {
+      "label": "lá thư",
+      "score": 0.5
+    },
+    {
+      "label": "ung thư",
+      "score": 0.4444
+    }
+  ],
+  "Hẹp": [
+    {
+      "label": "kẹp",
+      "score": 0.6667
+    },
+    {
+      "label": "hộp",
+      "score": 0.6667
+    },
+    {
+      "label": "họp",
+      "score": 0.6667
+    },
+    {
+      "label": "hẹn",
+      "score": 0.6667
+    },
+    {
+      "label": "hấp",
+      "score": 0.6667
+    }
+  ],
+  "Họ hàng": [
+    {
+      "label": "nhẹ nhàng",
+      "score": 0.75
+    },
+    {
+      "label": "nhận hàng",
+      "score": 0.75
+    },
+    {
+      "label": "họng",
+      "score": 0.7273
+    },
+    {
+      "label": "đầu hàng",
+      "score": 0.6667
+    },
+    {
+      "label": "xếp hàng",
+      "score": 0.6667
+    }
+  ],
+  "Học": [
+    {
+      "label": "đi học",
+      "score": 0.6667
+    },
+    {
+      "label": "họp",
+      "score": 0.6667
+    },
+    {
+      "label": "dọc",
+      "score": 0.6667
+    },
+    {
+      "label": "du học",
+      "score": 0.6667
+    },
+    {
+      "label": "tin học",
+      "score": 0.6
+    }
+  ],
+  "Học sinh": [
+    {
+      "label": "hi sinh",
+      "score": 0.8
+    },
+    {
+      "label": "bảng học sinh",
+      "score": 0.7619
+    },
+    {
+      "label": "học nhóm",
+      "score": 0.75
+    },
+    {
+      "label": "kháng sinh",
+      "score": 0.6667
+    },
+    {
+      "label": "học phí",
+      "score": 0.6667
+    }
+  ],
+  "Kem": [
+    {
+      "label": "xem",
+      "score": 0.6667
+    },
+    {
+      "label": "kém",
+      "score": 0.6667
+    },
+    {
+      "label": "kim",
+      "score": 0.6667
+    },
+    {
+      "label": "khoe",
+      "score": 0.5714
+    },
+    {
+      "label": "khen",
+      "score": 0.5714
+    }
+  ],
+  "Khoe khoang": [
+    {
+      "label": "khoan (cái khoan)",
+      "score": 0.6429
+    },
+    {
+      "label": "pháo hoa",
+      "score": 0.6316
+    },
+    {
+      "label": "khó khăn",
+      "score": 0.6316
+    },
+    {
+      "label": "bỏ hoang",
+      "score": 0.6316
+    },
+    {
+      "label": "khoan",
+      "score": 0.625
+    }
+  ],
+  "Khó": [
+    {
+      "label": "khói",
+      "score": 0.8571
+    },
+    {
+      "label": "khóc",
+      "score": 0.8571
+    },
+    {
+      "label": "khổ",
+      "score": 0.6667
+    },
+    {
+      "label": "khố",
+      "score": 0.6667
+    },
+    {
+      "label": "hót",
+      "score": 0.6667
+    }
+  ],
+  "Khô": [
+    {
+      "label": "khổ",
+      "score": 0.6667
+    },
+    {
+      "label": "khố",
+      "score": 0.6667
+    },
+    {
+      "label": "hôn",
+      "score": 0.6667
+    },
+    {
+      "label": "hôi",
+      "score": 0.6667
+    },
+    {
+      "label": "lau khô",
+      "score": 0.6
+    }
+  ],
+  "Khỏe": [
+    {
+      "label": "khoe",
+      "score": 0.75
+    },
+    {
+      "label": "khen",
+      "score": 0.75
+    },
+    {
+      "label": "sức khỏe",
+      "score": 0.6667
+    },
+    {
+      "label": "khổ",
+      "score": 0.5714
+    },
+    {
+      "label": "khố",
+      "score": 0.5714
+    }
+  ],
+  "Kẹp tóc": [
+    {
+      "label": "cặp tóc",
+      "score": 0.7143
+    },
+    {
+      "label": "kẹp",
+      "score": 0.6
+    },
+    {
+      "label": "uốn tóc",
+      "score": 0.5714
+    },
+    {
+      "label": "túm tóc",
+      "score": 0.5714
+    },
+    {
+      "label": "nhổ tóc",
+      "score": 0.5714
+    }
+  ],
+  "Kế toán": [
+    {
+      "label": "môn Toán",
+      "score": 0.6667
+    },
+    {
+      "label": "tính toán",
+      "score": 0.625
+    },
+    {
+      "label": "sách toán",
+      "score": 0.625
+    },
+    {
+      "label": "toà án",
+      "score": 0.6154
+    },
+    {
+      "label": "kí tên",
+      "score": 0.6154
+    }
+  ],
+  "Laptop": [
+    {
+      "label": "máy tính (laptop)",
+      "score": 0.5217
+    },
+    {
+      "label": "la hét",
+      "score": 0.5
+    },
+    {
+      "label": "thù lao",
+      "score": 0.4615
+    },
+    {
+      "label": "lớp phó",
+      "score": 0.4615
+    },
+    {
+      "label": "lễ phép",
+      "score": 0.4615
+    }
+  ],
+  "Luật sư": [
+    {
+      "label": "luật lệ",
+      "score": 0.7143
+    },
+    {
+      "label": "luật chơi",
+      "score": 0.625
+    },
+    {
+      "label": "kỉ luật",
+      "score": 0.5714
+    },
+    {
+      "label": "vui sướng",
+      "score": 0.5
+    },
+    {
+      "label": "tỉ số",
+      "score": 0.5
+    }
+  ],
+  "Lùn": [
+    {
+      "label": "lặn",
+      "score": 0.6667
+    },
+    {
+      "label": "bùn",
+      "score": 0.6667
+    },
+    {
+      "label": "lọng",
+      "score": 0.5714
+    },
+    {
+      "label": "lông",
+      "score": 0.5714
+    },
+    {
+      "label": "thùng",
+      "score": 0.5
+    }
+  ],
+  "Lười biếng": [
+    {
+      "label": "cười vỡ bụng",
+      "score": 0.6364
+    },
+    {
+      "label": "lồng tiếng",
+      "score": 0.6
+    },
+    {
+      "label": "lời nói",
+      "score": 0.5882
+    },
+    {
+      "label": "bờ biển",
+      "score": 0.5882
+    },
+    {
+      "label": "người bán hàng",
+      "score": 0.5833
+    }
+  ],
+  "Lạnh": [
+    {
+      "label": "cạnh",
+      "score": 0.75
+    },
+    {
+      "label": "loạn thị",
+      "score": 0.6667
+    },
+    {
+      "label": "đông lạnh",
+      "score": 0.6154
+    },
+    {
+      "label": "lạnh lùng",
+      "score": 0.6154
+    },
+    {
+      "label": "đạn",
+      "score": 0.5714
+    }
+  ],
+  "Lễ tân": [
+    {
+      "label": "lễ vật",
+      "score": 0.6667
+    },
+    {
+      "label": "tủi thân",
+      "score": 0.5714
+    },
+    {
+      "label": "tiếp tân",
+      "score": 0.5714
+    },
+    {
+      "label": "lễ Nô-en",
+      "score": 0.5714
+    },
+    {
+      "label": "bản thân",
+      "score": 0.5714
+    }
+  ],
+  "Màu hồng": [
+    {
+      "label": "má hồng",
+      "score": 0.8
+    },
+    {
+      "label": "quả hồng",
+      "score": 0.75
+    },
+    {
+      "label": "màu trắng",
+      "score": 0.7059
+    },
+    {
+      "label": "màu đen",
+      "score": 0.6667
+    },
+    {
+      "label": "màu nâu",
+      "score": 0.6667
+    }
+  ],
+  "Màu tím": [
+    {
+      "label": "màu cam",
+      "score": 0.7143
+    },
+    {
+      "label": "màu trắng",
+      "score": 0.625
+    },
+    {
+      "label": "màu nhiệm",
+      "score": 0.625
+    },
+    {
+      "label": "mỳ tôm",
+      "score": 0.6154
+    },
+    {
+      "label": "mê tín",
+      "score": 0.6154
+    }
+  ],
+  "Màu vàng": [
+    {
+      "label": "màu trắng",
+      "score": 0.7059
+    },
+    {
+      "label": "màu đen",
+      "score": 0.6667
+    },
+    {
+      "label": "màu nâu",
+      "score": 0.6667
+    },
+    {
+      "label": "đầu hàng",
+      "score": 0.625
+    },
+    {
+      "label": "đèn vàng",
+      "score": 0.625
+    }
+  ],
+  "Mát mẻ": [
+    {
+      "label": "mệt mỏi",
+      "score": 0.6154
+    },
+    {
+      "label": "mét (m)",
+      "score": 0.6154
+    },
+    {
+      "label": "máy bơm",
+      "score": 0.6154
+    },
+    {
+      "label": "mái vòm",
+      "score": 0.6154
+    },
+    {
+      "label": "một mình",
+      "score": 0.5714
+    }
+  ],
+  "Máy bay": [
+    {
+      "label": "máy quay",
+      "score": 0.8
+    },
+    {
+      "label": "hãng máy bay",
+      "score": 0.7368
+    },
+    {
+      "label": "máy bơm",
+      "score": 0.7143
+    },
+    {
+      "label": "ủy ban",
+      "score": 0.6154
+    },
+    {
+      "label": "máy in",
+      "score": 0.6154
+    }
+  ],
+  "Máy giặt": [
+    {
+      "label": "máy in",
+      "score": 0.7143
+    },
+    {
+      "label": "máy vi tính",
+      "score": 0.6316
+    },
+    {
+      "label": "mấy giờ?",
+      "score": 0.625
+    },
+    {
+      "label": "bột giặt",
+      "score": 0.625
+    },
+    {
+      "label": "máy chiếu",
+      "score": 0.5882
+    }
+  ],
+  "Máy tính cầm tay": [
+    {
+      "label": "máy tính bỏ túi",
+      "score": 0.7097
+    },
+    {
+      "label": "máy tính (laptop)",
+      "score": 0.6061
+    },
+    {
+      "label": "máy vi tính",
+      "score": 0.5926
+    },
+    {
+      "label": "cánh tay",
+      "score": 0.5833
+    },
+    {
+      "label": "tính chất",
+      "score": 0.56
+    }
+  ],
+  "Máy điều hòa": [
+    {
+      "label": "điều hòa",
+      "score": 0.8
+    },
+    {
+      "label": "máy vi tính",
+      "score": 0.6087
+    },
+    {
+      "label": "điều tra",
+      "score": 0.6
+    },
+    {
+      "label": "máy quay",
+      "score": 0.6
+    },
+    {
+      "label": "điều phối",
+      "score": 0.5714
+    }
+  ],
+  "Mì gói": [
+    {
+      "label": "gói",
+      "score": 0.6667
+    },
+    {
+      "label": "em gái",
+      "score": 0.6667
+    },
+    {
+      "label": "ngói",
+      "score": 0.6
+    },
+    {
+      "label": "tam giác",
+      "score": 0.5714
+    },
+    {
+      "label": "mấy giờ?",
+      "score": 0.5714
+    }
+  ],
+  "Mùa khô": [
+    {
+      "label": "mùa hè",
+      "score": 0.7692
+    },
+    {
+      "label": "mùa thu",
+      "score": 0.7143
+    },
+    {
+      "label": "lau khô",
+      "score": 0.7143
+    },
+    {
+      "label": "mùa đông",
+      "score": 0.6667
+    },
+    {
+      "label": "san hô",
+      "score": 0.6154
+    }
+  ],
+  "Mùa mưa": [
+    {
+      "label": "đám ma",
+      "score": 0.6154
+    },
+    {
+      "label": "mùa hè",
+      "score": 0.6154
+    },
+    {
+      "label": "Ma Cao",
+      "score": 0.6154
+    },
+    {
+      "label": "trú mưa",
+      "score": 0.5714
+    },
+    {
+      "label": "say sưa",
+      "score": 0.5714
+    }
+  ],
+  "Mũ bảo hiểm": [
+    {
+      "label": "bảo hiểm",
+      "score": 0.8421
+    },
+    {
+      "label": "thoát hiểm",
+      "score": 0.5714
+    },
+    {
+      "label": "bảo đảm",
+      "score": 0.5556
+    },
+    {
+      "label": "bảo thủ",
+      "score": 0.5556
+    },
+    {
+      "label": "tìm hiểu",
+      "score": 0.5263
+    }
+  ],
+  "Mưa": [
+    {
+      "label": "ma",
+      "score": 0.8
+    },
+    {
+      "label": "xưa",
+      "score": 0.6667
+    },
+    {
+      "label": "múa",
+      "score": 0.6667
+    },
+    {
+      "label": "mía",
+      "score": 0.6667
+    },
+    {
+      "label": "cưa",
+      "score": 0.6667
+    }
+  ],
+  "Mạnh": [
+    {
+      "label": "cạnh",
+      "score": 0.75
+    },
+    {
+      "label": "mạnh mẽ",
+      "score": 0.7273
+    },
+    {
+      "label": "nhấn mạnh",
+      "score": 0.6154
+    },
+    {
+      "label": "khoẻ mạnh",
+      "score": 0.6154
+    },
+    {
+      "label": "đạn",
+      "score": 0.5714
+    }
+  ],
+  "Mập": [
+    {
+      "label": "đập",
+      "score": 0.6667
+    },
+    {
+      "label": "dập",
+      "score": 0.6667
+    },
+    {
+      "label": "cá mập",
+      "score": 0.6667
+    },
+    {
+      "label": "ấm áp",
+      "score": 0.5
+    },
+    {
+      "label": "p",
+      "score": 0.5
+    }
+  ],
+  "Mặn": [
+    {
+      "label": "nặn",
+      "score": 0.6667
+    },
+    {
+      "label": "mặt nạ",
+      "score": 0.6667
+    },
+    {
+      "label": "mặt",
+      "score": 0.6667
+    },
+    {
+      "label": "mặc",
+      "score": 0.6667
+    },
+    {
+      "label": "màn",
+      "score": 0.6667
+    }
+  ],
+  "Mẹ": [
+    {
+      "label": "m",
+      "score": 0.6667
+    },
+    {
+      "label": "dê mẹ",
+      "score": 0.5714
+    },
+    {
+      "label": "bố mẹ",
+      "score": 0.5714
+    },
+    {
+      "label": "ôm",
+      "score": 0.5
+    },
+    {
+      "label": "mở",
+      "score": 0.5
+    }
+  ],
+  "Mềm": [
+    {
+      "label": "mắm",
+      "score": 0.6667
+    },
+    {
+      "label": "mõm",
+      "score": 0.6667
+    },
+    {
+      "label": "mềm mại",
+      "score": 0.6
+    },
+    {
+      "label": "thềm",
+      "score": 0.5714
+    },
+    {
+      "label": "m",
+      "score": 0.5
+    }
+  ],
+  "Mền": [
+    {
+      "label": "đền",
+      "score": 0.6667
+    },
+    {
+      "label": "màn",
+      "score": 0.6667
+    },
+    {
+      "label": "mắng",
+      "score": 0.5714
+    },
+    {
+      "label": "măng",
+      "score": 0.5714
+    },
+    {
+      "label": "muộn",
+      "score": 0.5714
+    }
+  ],
+  "Mệt": [
+    {
+      "label": "mứt",
+      "score": 0.6667
+    },
+    {
+      "label": "mặt",
+      "score": 0.6667
+    },
+    {
+      "label": "dệt",
+      "score": 0.6667
+    },
+    {
+      "label": "mệt mỏi",
+      "score": 0.6
+    },
+    {
+      "label": "tạm biệt",
+      "score": 0.5455
+    }
+  ],
+  "Mời vào": [
+    {
+      "label": "bờ rào",
+      "score": 0.6154
+    },
+    {
+      "label": "vào",
+      "score": 0.6
+    },
+    {
+      "label": "mời",
+      "score": 0.6
+    },
+    {
+      "label": "vòi voi",
+      "score": 0.5714
+    },
+    {
+      "label": "mèo cào",
+      "score": 0.5714
+    }
+  ],
+  "Mỹ": [
+    {
+      "label": "m",
+      "score": 0.6667
+    },
+    {
+      "label": "ôm",
+      "score": 0.5
+    },
+    {
+      "label": "mở",
+      "score": 0.5
+    },
+    {
+      "label": "mũ",
+      "score": 0.5
+    },
+    {
+      "label": "má",
+      "score": 0.5
+    }
+  ],
+  "Nghèo": [
+    {
+      "label": "nghỉ hè",
+      "score": 0.6667
+    },
+    {
+      "label": "nghĩ",
+      "score": 0.6667
+    },
+    {
+      "label": "nghé",
+      "score": 0.6667
+    },
+    {
+      "label": "nghe",
+      "score": 0.6667
+    },
+    {
+      "label": "ngắt hoa",
+      "score": 0.6154
+    }
+  ],
+  "Nghề nghiệp": [
+    {
+      "label": "nông nghiệp",
+      "score": 0.8182
+    },
+    {
+      "label": "công nghiệp",
+      "score": 0.8182
+    },
+    {
+      "label": "doanh nghiệp",
+      "score": 0.7826
+    },
+    {
+      "label": "kinh nghiệm",
+      "score": 0.7273
+    },
+    {
+      "label": "khởi nghiệp",
+      "score": 0.7273
+    }
+  ],
+  "Ngoan": [
+    {
+      "label": "gan",
+      "score": 0.75
+    },
+    {
+      "label": "ngắn",
+      "score": 0.6667
+    },
+    {
+      "label": "ngán",
+      "score": 0.6667
+    },
+    {
+      "label": "Long An",
+      "score": 0.6667
+    },
+    {
+      "label": "ngoan ngoãn",
+      "score": 0.625
+    }
+  ],
+  "Ngu ngốc": [
+    {
+      "label": "nguồn gốc",
+      "score": 0.8235
+    },
+    {
+      "label": "nguệch ngoạc",
+      "score": 0.7
+    },
+    {
+      "label": "nguyện vọng",
+      "score": 0.6316
+    },
+    {
+      "label": "ống nước",
+      "score": 0.625
+    },
+    {
+      "label": "ống nghe",
+      "score": 0.625
+    }
+  ],
+  "Ngày": [
+    {
+      "label": "cả ngày",
+      "score": 0.7273
+    },
+    {
+      "label": "ngày đêm",
+      "score": 0.6667
+    },
+    {
+      "label": "ngày xưa",
+      "score": 0.6667
+    },
+    {
+      "label": "ngày nay",
+      "score": 0.6667
+    },
+    {
+      "label": "mỗi ngày",
+      "score": 0.6667
+    }
+  ],
+  "Ngày Quốc tế Thiếu nhi": [
+    {
+      "label": "ngày Quốc tế phụ nữ 8/3",
+      "score": 0.7111
+    },
+    {
+      "label": "ngày Quốc tế Lao động",
+      "score": 0.6977
+    },
+    {
+      "label": "Tết Thiếu nhi",
+      "score": 0.6857
+    },
+    {
+      "label": "thiếu nhi",
+      "score": 0.5806
+    },
+    {
+      "label": "ngày thầy thuốc Việt Nam",
+      "score": 0.5217
+    }
+  ],
+  "Ngọt": [
+    {
+      "label": "bột ngọt",
+      "score": 0.6667
+    },
+    {
+      "label": "ủng",
+      "score": 0.5714
+    },
+    {
+      "label": "ngõ",
+      "score": 0.5714
+    },
+    {
+      "label": "ngô",
+      "score": 0.5714
+    },
+    {
+      "label": "ngã",
+      "score": 0.5714
+    }
+  ],
+  "Ngủ": [
+    {
+      "label": "ủng",
+      "score": 0.6667
+    },
+    {
+      "label": "ru ngủ",
+      "score": 0.6667
+    },
+    {
+      "label": "ngõ",
+      "score": 0.6667
+    },
+    {
+      "label": "ngô",
+      "score": 0.6667
+    },
+    {
+      "label": "ngã",
+      "score": 0.6667
+    }
+  ],
+  "Ngửi": [
+    {
+      "label": "gửi",
+      "score": 0.8571
+    },
+    {
+      "label": "ngồi",
+      "score": 0.75
+    },
+    {
+      "label": "ngói",
+      "score": 0.75
+    },
+    {
+      "label": "nguội",
+      "score": 0.6667
+    },
+    {
+      "label": "người gửi",
+      "score": 0.6154
+    }
+  ],
+  "Nhanh": [
+    {
+      "label": "bánh canh",
+      "score": 0.7143
+    },
+    {
+      "label": "nhọn",
+      "score": 0.6667
+    },
+    {
+      "label": "nhận",
+      "score": 0.6667
+    },
+    {
+      "label": "nhìn",
+      "score": 0.6667
+    },
+    {
+      "label": "nhanh nhẹn",
+      "score": 0.6667
+    }
+  ],
+  "Nhà": [
+    {
+      "label": "phà",
+      "score": 0.6667
+    },
+    {
+      "label": "nhà tù",
+      "score": 0.6667
+    },
+    {
+      "label": "xây nhà",
+      "score": 0.6
+    },
+    {
+      "label": "sân nhà",
+      "score": 0.6
+    },
+    {
+      "label": "nền nhà",
+      "score": 0.6
+    }
+  ],
+  "Nhà hàng": [
+    {
+      "label": "nhẹ nhàng",
+      "score": 0.8235
+    },
+    {
+      "label": "nhận hàng",
+      "score": 0.8235
+    },
+    {
+      "label": "nhà sàn",
+      "score": 0.8
+    },
+    {
+      "label": "nhà tầng",
+      "score": 0.75
+    },
+    {
+      "label": "nhà rông",
+      "score": 0.75
+    }
+  ],
+  "Nhà sách": [
+    {
+      "label": "danh sách",
+      "score": 0.8235
+    },
+    {
+      "label": "nhà bác học",
+      "score": 0.7368
+    },
+    {
+      "label": "tính cách",
+      "score": 0.7059
+    },
+    {
+      "label": "sách",
+      "score": 0.6667
+    },
+    {
+      "label": "nhà thờ",
+      "score": 0.6667
+    }
+  ],
+  "Nhà trọ": [
+    {
+      "label": "nhà tù",
+      "score": 0.7692
+    },
+    {
+      "label": "nhà thờ",
+      "score": 0.7143
+    },
+    {
+      "label": "nhà thơ",
+      "score": 0.7143
+    },
+    {
+      "label": "nhà trường",
+      "score": 0.7059
+    },
+    {
+      "label": "kính trọng",
+      "score": 0.7059
+    }
+  ],
+  "Nhân viên phục vụ": [
+    {
+      "label": "nhân viên",
+      "score": 0.6923
+    },
+    {
+      "label": "phục vụ",
+      "score": 0.5833
+    },
+    {
+      "label": "nhân (Toán học)",
+      "score": 0.5625
+    },
+    {
+      "label": "thán phục",
+      "score": 0.5385
+    },
+    {
+      "label": "khâm phục",
+      "score": 0.5385
+    }
+  ],
+  "Nhân viên văn phòng": [
+    {
+      "label": "nhân viên",
+      "score": 0.6429
+    },
+    {
+      "label": "nhân chứng",
+      "score": 0.5517
+    },
+    {
+      "label": "cảng Hải Phòng",
+      "score": 0.5455
+    },
+    {
+      "label": "thiên nhiên",
+      "score": 0.5333
+    },
+    {
+      "label": "nhà văn hóa",
+      "score": 0.5333
+    }
+  ],
+  "Nhạt": [
+    {
+      "label": "hạt",
+      "score": 0.8571
+    },
+    {
+      "label": "ngâm hạt",
+      "score": 0.6667
+    },
+    {
+      "label": "sinh hoạt",
+      "score": 0.6154
+    },
+    {
+      "label": "hình phạt",
+      "score": 0.6154
+    },
+    {
+      "label": "nhà tù",
+      "score": 0.6
+    }
+  ],
+  "Nhảy dây": [
+    {
+      "label": "nhảy dù",
+      "score": 0.8
+    },
+    {
+      "label": "nhảy múa",
+      "score": 0.625
+    },
+    {
+      "label": "nhảy cao",
+      "score": 0.625
+    },
+    {
+      "label": "nhân dân",
+      "score": 0.625
+    },
+    {
+      "label": "nhảy lò cò",
+      "score": 0.5556
+    }
+  ],
+  "Nhầm lẫn": [
+    {
+      "label": "nhầm",
+      "score": 0.6667
+    },
+    {
+      "label": "nhào lộn",
+      "score": 0.625
+    },
+    {
+      "label": "tĩnh lặng",
+      "score": 0.5882
+    },
+    {
+      "label": "lạnh lùng",
+      "score": 0.5882
+    },
+    {
+      "label": "hành lang",
+      "score": 0.5882
+    }
+  ],
+  "Nhật Bản": [
+    {
+      "label": "văn bản",
+      "score": 0.6667
+    },
+    {
+      "label": "nhận",
+      "score": 0.6667
+    },
+    {
+      "label": "sinh sản",
+      "score": 0.625
+    },
+    {
+      "label": "nhập ngũ",
+      "score": 0.625
+    },
+    {
+      "label": "nhát gan",
+      "score": 0.625
+    }
+  ],
+  "Nhẹ": [
+    {
+      "label": "hẹn",
+      "score": 0.6667
+    },
+    {
+      "label": "nhẹ hơn",
+      "score": 0.6
+    },
+    {
+      "label": "con ghẹ",
+      "score": 0.6
+    },
+    {
+      "label": "đỉnh",
+      "score": 0.5714
+    },
+    {
+      "label": "đánh",
+      "score": 0.5714
+    }
+  ],
+  "Nhớ": [
+    {
+      "label": "ghi nhớ",
+      "score": 0.6
+    },
+    {
+      "label": "đỉnh",
+      "score": 0.5714
+    },
+    {
+      "label": "đánh",
+      "score": 0.5714
+    },
+    {
+      "label": "đinh",
+      "score": 0.5714
+    },
+    {
+      "label": "xinh",
+      "score": 0.5714
+    }
+  ],
+  "Nên": [
+    {
+      "label": "nến",
+      "score": 0.6667
+    },
+    {
+      "label": "nặn",
+      "score": 0.6667
+    },
+    {
+      "label": "nón",
+      "score": 0.6667
+    },
+    {
+      "label": "nén",
+      "score": 0.6667
+    },
+    {
+      "label": "quên",
+      "score": 0.5714
+    }
+  ],
+  "Nói": [
+    {
+      "label": "ngói",
+      "score": 0.8571
+    },
+    {
+      "label": "nồi",
+      "score": 0.6667
+    },
+    {
+      "label": "nón",
+      "score": 0.6667
+    },
+    {
+      "label": "gói",
+      "score": 0.6667
+    },
+    {
+      "label": "nói leo",
+      "score": 0.6
+    }
+  ],
+  "Nói xấu": [
+    {
+      "label": "người xấu",
+      "score": 0.75
+    },
+    {
+      "label": "nói chuyện",
+      "score": 0.5882
+    },
+    {
+      "label": "đun nấu",
+      "score": 0.5714
+    },
+    {
+      "label": "nội quy",
+      "score": 0.5714
+    },
+    {
+      "label": "nói leo",
+      "score": 0.5714
+    }
+  ],
+  "Nóng": [
+    {
+      "label": "nón",
+      "score": 0.8571
+    },
+    {
+      "label": "trà nóng",
+      "score": 0.6667
+    },
+    {
+      "label": "nổi nóng",
+      "score": 0.6667
+    },
+    {
+      "label": "nướng",
+      "score": 0.6667
+    },
+    {
+      "label": "nhưng",
+      "score": 0.6667
+    }
+  ],
+  "Nông dân": [
+    {
+      "label": "nhân dân",
+      "score": 0.75
+    },
+    {
+      "label": "nông thôn",
+      "score": 0.7059
+    },
+    {
+      "label": "Đông Dương",
+      "score": 0.6667
+    },
+    {
+      "label": "ông nội",
+      "score": 0.6667
+    },
+    {
+      "label": "đồn công an",
+      "score": 0.6316
+    }
+  ],
+  "Năm": [
+    {
+      "label": "xăm",
+      "score": 0.6667
+    },
+    {
+      "label": "tăm",
+      "score": 0.6667
+    },
+    {
+      "label": "nếm",
+      "score": 0.6667
+    },
+    {
+      "label": "nằm",
+      "score": 0.6667
+    },
+    {
+      "label": "nấm",
+      "score": 0.6667
+    }
+  ],
+  "Nước": [
+    {
+      "label": "bước",
+      "score": 0.75
+    },
+    {
+      "label": "đổ nước",
+      "score": 0.7273
+    },
+    {
+      "label": "hồ nước",
+      "score": 0.7273
+    },
+    {
+      "label": "ống nước",
+      "score": 0.6667
+    },
+    {
+      "label": "vòi nước",
+      "score": 0.6667
+    }
+  ],
+  "Nấu": [
+    {
+      "label": "nấm",
+      "score": 0.6667
+    },
+    {
+      "label": "đun nấu",
+      "score": 0.6
+    },
+    {
+      "label": "con gấu",
+      "score": 0.6
+    },
+    {
+      "label": "đóng dấu",
+      "score": 0.5455
+    },
+    {
+      "label": "sân khấu",
+      "score": 0.5455
+    }
+  ],
+  "Nắng": [
+    {
+      "label": "vắng",
+      "score": 0.75
+    },
+    {
+      "label": "ngắn",
+      "score": 0.75
+    },
+    {
+      "label": "mắng",
+      "score": 0.75
+    },
+    {
+      "label": "tia nắng",
+      "score": 0.6667
+    },
+    {
+      "label": "nướng",
+      "score": 0.6667
+    }
+  ],
+  "Nặng": [
+    {
+      "label": "nặn",
+      "score": 0.8571
+    },
+    {
+      "label": "nặng hơn",
+      "score": 0.6667
+    },
+    {
+      "label": "nướng",
+      "score": 0.6667
+    },
+    {
+      "label": "nhưng",
+      "score": 0.6667
+    },
+    {
+      "label": "dấu nặng",
+      "score": 0.6667
+    }
+  ],
+  "Phía sau": [
+    {
+      "label": "pha lê",
+      "score": 0.5714
+    },
+    {
+      "label": "họa sỹ",
+      "score": 0.5714
+    },
+    {
+      "label": "sau",
+      "score": 0.5455
+    },
+    {
+      "label": "say sưa",
+      "score": 0.5333
+    },
+    {
+      "label": "phân số",
+      "score": 0.5333
+    }
+  ],
+  "Phút": [
+    {
+      "label": "Phú Thọ",
+      "score": 0.7273
+    },
+    {
+      "label": "phô tô",
+      "score": 0.6
+    },
+    {
+      "label": "phở",
+      "score": 0.5714
+    },
+    {
+      "label": "phố",
+      "score": 0.5714
+    },
+    {
+      "label": "phá",
+      "score": 0.5714
+    }
+  ],
+  "Phơi đồ": [
+    {
+      "label": "sơ đồ",
+      "score": 0.6667
+    },
+    {
+      "label": "nhi đồng",
+      "score": 0.6667
+    },
+    {
+      "label": "thái độ",
+      "score": 0.5714
+    },
+    {
+      "label": "hải đảo",
+      "score": 0.5714
+    },
+    {
+      "label": "hói đầu",
+      "score": 0.5714
+    }
+  ],
+  "Quen": [
+    {
+      "label": "quận",
+      "score": 0.75
+    },
+    {
+      "label": "quên",
+      "score": 0.75
+    },
+    {
+      "label": "làm quen",
+      "score": 0.6667
+    },
+    {
+      "label": "thói quen",
+      "score": 0.6154
+    },
+    {
+      "label": "quả na",
+      "score": 0.6
+    }
+  ],
+  "Quán cà phê": [
+    {
+      "label": "pha cà phê",
+      "score": 0.6667
+    },
+    {
+      "label": "quá cảnh",
+      "score": 0.6316
+    },
+    {
+      "label": "luân phiên",
+      "score": 0.5714
+    },
+    {
+      "label": "quan hệ",
+      "score": 0.5556
+    },
+    {
+      "label": "tác phẩm",
+      "score": 0.5263
+    }
+  ],
+  "Quạt (đứng)": [
+    {
+      "label": "quạt trần",
+      "score": 0.6
+    },
+    {
+      "label": "quát mắng",
+      "score": 0.6
+    },
+    {
+      "label": "hoạt động",
+      "score": 0.6
+    },
+    {
+      "label": "quyết định",
+      "score": 0.5714
+    },
+    {
+      "label": "lầu (tầng)",
+      "score": 0.5714
+    }
+  ],
+  "Quả bơ": [
+    {
+      "label": "quả bầu",
+      "score": 0.7692
+    },
+    {
+      "label": "quả bưởi",
+      "score": 0.7143
+    },
+    {
+      "label": "quả ớt",
+      "score": 0.6667
+    },
+    {
+      "label": "quả ổi",
+      "score": 0.6667
+    },
+    {
+      "label": "quả na",
+      "score": 0.6667
+    }
+  ],
+  "Quả dâu": [
+    {
+      "label": "quần âu",
+      "score": 0.7143
+    },
+    {
+      "label": "quả dừa",
+      "score": 0.7143
+    },
+    {
+      "label": "quả bầu",
+      "score": 0.7143
+    },
+    {
+      "label": "quả điều",
+      "score": 0.6667
+    },
+    {
+      "label": "quả quất",
+      "score": 0.6667
+    }
+  ],
+  "Quả dứa": [
+    {
+      "label": "quả dừa",
+      "score": 0.8571
+    },
+    {
+      "label": "quả na",
+      "score": 0.7692
+    },
+    {
+      "label": "quả cam",
+      "score": 0.7143
+    },
+    {
+      "label": "quả dưa hấu",
+      "score": 0.6667
+    },
+    {
+      "label": "quả dừa xiêm",
+      "score": 0.6316
+    }
+  ],
+  "Quả mận": [
+    {
+      "label": "quả na",
+      "score": 0.7692
+    },
+    {
+      "label": "quận",
+      "score": 0.7273
+    },
+    {
+      "label": "quả nho",
+      "score": 0.7143
+    },
+    {
+      "label": "quả mít",
+      "score": 0.7143
+    },
+    {
+      "label": "quả cam",
+      "score": 0.7143
+    }
+  ],
+  "Quả đào": [
+    {
+      "label": "quả đất",
+      "score": 0.7143
+    },
+    {
+      "label": "quả táo",
+      "score": 0.7143
+    },
+    {
+      "label": "quả roi",
+      "score": 0.7143
+    },
+    {
+      "label": "quả nho",
+      "score": 0.7143
+    },
+    {
+      "label": "quả điều",
+      "score": 0.6667
+    }
+  ],
+  "Quần thun": [
+    {
+      "label": "quần âu",
+      "score": 0.75
+    },
+    {
+      "label": "lung tung",
+      "score": 0.6667
+    },
+    {
+      "label": "du thuyền",
+      "score": 0.6667
+    },
+    {
+      "label": "Trung Thu",
+      "score": 0.6667
+    },
+    {
+      "label": "đua thuyền",
+      "score": 0.6316
+    }
+  ],
+  "Quần tây": [
+    {
+      "label": "quần âu",
+      "score": 0.8
+    },
+    {
+      "label": "quần yếm",
+      "score": 0.75
+    },
+    {
+      "label": "quan tâm",
+      "score": 0.75
+    },
+    {
+      "label": "quần bò",
+      "score": 0.6667
+    },
+    {
+      "label": "tuần này",
+      "score": 0.625
+    }
+  ],
+  "Rẻ": [
+    {
+      "label": "r",
+      "score": 0.6667
+    },
+    {
+      "label": "rổ",
+      "score": 0.5
+    },
+    {
+      "label": "rế",
+      "score": 0.5
+    },
+    {
+      "label": "nẻ",
+      "score": 0.5
+    },
+    {
+      "label": "trà",
+      "score": 0.4
+    }
+  ],
+  "Rẽ trái": [
+    {
+      "label": "tay trái",
+      "score": 0.6667
+    },
+    {
+      "label": "bên trái",
+      "score": 0.6667
+    },
+    {
+      "label": "tím tái",
+      "score": 0.5714
+    },
+    {
+      "label": "rẽ phải",
+      "score": 0.5714
+    },
+    {
+      "label": "rắc rối",
+      "score": 0.5714
+    }
+  ],
+  "Rộng": [
+    {
+      "label": "răng",
+      "score": 0.75
+    },
+    {
+      "label": "mở rộng",
+      "score": 0.7273
+    },
+    {
+      "label": "trứng",
+      "score": 0.6667
+    },
+    {
+      "label": "trống",
+      "score": 0.6667
+    },
+    {
+      "label": "trăng",
+      "score": 0.6667
+    }
+  ],
+  "Rửa chén": [
+    {
+      "label": "rửa chân",
+      "score": 0.875
+    },
+    {
+      "label": "chén",
+      "score": 0.6667
+    },
+    {
+      "label": "đau chân",
+      "score": 0.625
+    },
+    {
+      "label": "sửa chữa",
+      "score": 0.625
+    },
+    {
+      "label": "sao chép",
+      "score": 0.625
+    }
+  ],
+  "Sai": [
+    {
+      "label": "ai",
+      "score": 0.8
+    },
+    {
+      "label": "vai",
+      "score": 0.6667
+    },
+    {
+      "label": "tai",
+      "score": 0.6667
+    },
+    {
+      "label": "sữa",
+      "score": 0.6667
+    },
+    {
+      "label": "sợi",
+      "score": 0.6667
+    }
+  ],
+  "Sinh viên": [
+    {
+      "label": "nhân viên",
+      "score": 0.7778
+    },
+    {
+      "label": "thành viên",
+      "score": 0.7368
+    },
+    {
+      "label": "sinh đôi",
+      "score": 0.7059
+    },
+    {
+      "label": "sinh vật",
+      "score": 0.7059
+    },
+    {
+      "label": "sinh sản",
+      "score": 0.7059
+    }
+  ],
+  "Sạch sẽ": [
+    {
+      "label": "tay chân sạch sẽ",
+      "score": 0.6087
+    },
+    {
+      "label": "mạnh mẽ",
+      "score": 0.5714
+    },
+    {
+      "label": "chó sói",
+      "score": 0.5714
+    },
+    {
+      "label": "chim sẻ",
+      "score": 0.5714
+    },
+    {
+      "label": "chia sẻ",
+      "score": 0.5714
+    }
+  ],
+  "Sớm": [
+    {
+      "label": "sơ mi",
+      "score": 0.5
+    },
+    {
+      "label": "s",
+      "score": 0.5
+    },
+    {
+      "label": "m",
+      "score": 0.5
+    },
+    {
+      "label": "số lớn",
+      "score": 0.4444
+    },
+    {
+      "label": "sa mạc",
+      "score": 0.4444
+    }
+  ],
+  "Sử dụng": [
+    {
+      "label": "tác dụng",
+      "score": 0.6667
+    },
+    {
+      "label": "ăn vụng",
+      "score": 0.5714
+    },
+    {
+      "label": "sĩ diện",
+      "score": 0.5714
+    },
+    {
+      "label": "dụng cụ",
+      "score": 0.5714
+    },
+    {
+      "label": "cử động",
+      "score": 0.5714
+    }
+  ],
+  "Thay đổi": [
+    {
+      "label": "theo đuổi",
+      "score": 0.7059
+    },
+    {
+      "label": "thổi",
+      "score": 0.6667
+    },
+    {
+      "label": "tha mồi",
+      "score": 0.6667
+    },
+    {
+      "label": "thiếp đi",
+      "score": 0.625
+    },
+    {
+      "label": "tay trái",
+      "score": 0.625
+    }
+  ],
+  "Thuyền": [
+    {
+      "label": "du thuyền",
+      "score": 0.8
+    },
+    {
+      "label": "đua thuyền",
+      "score": 0.75
+    },
+    {
+      "label": "tàu thuyền",
+      "score": 0.75
+    },
+    {
+      "label": "huyện",
+      "score": 0.7273
+    },
+    {
+      "label": "thuyền rồng",
+      "score": 0.7059
+    }
+  ],
+  "Thành phố": [
+    {
+      "label": "thành thị",
+      "score": 0.7778
+    },
+    {
+      "label": "thành lập",
+      "score": 0.7778
+    },
+    {
+      "label": "thành thạo",
+      "score": 0.7368
+    },
+    {
+      "label": "thán phục",
+      "score": 0.6667
+    },
+    {
+      "label": "hình phạt",
+      "score": 0.6667
+    }
+  ],
+  "Thái Lan": [
+    {
+      "label": "thù lao",
+      "score": 0.6667
+    },
+    {
+      "label": "thái độ",
+      "score": 0.6667
+    },
+    {
+      "label": "hỏi han",
+      "score": 0.6667
+    },
+    {
+      "label": "Thái Nguyên",
+      "score": 0.6316
+    },
+    {
+      "label": "thổi kèn",
+      "score": 0.625
+    }
+  ],
+  "Tháng ba": [
+    {
+      "label": "tháng",
+      "score": 0.7692
+    },
+    {
+      "label": "ngã ba",
+      "score": 0.7143
+    },
+    {
+      "label": "thông qua",
+      "score": 0.7059
+    },
+    {
+      "label": "thông báo",
+      "score": 0.7059
+    },
+    {
+      "label": "thăng bằng",
+      "score": 0.6667
+    }
+  ],
+  "Tháng bảy": [
+    {
+      "label": "tháng",
+      "score": 0.7143
+    },
+    {
+      "label": "trưng bày",
+      "score": 0.6667
+    },
+    {
+      "label": "thông cảm",
+      "score": 0.6667
+    },
+    {
+      "label": "thông báo",
+      "score": 0.6667
+    },
+    {
+      "label": "thương yêu",
+      "score": 0.6316
+    }
+  ],
+  "Tháng chín": [
+    {
+      "label": "tháng",
+      "score": 0.6667
+    },
+    {
+      "label": "phòng chống",
+      "score": 0.6667
+    },
+    {
+      "label": "kháng cự",
+      "score": 0.6667
+    },
+    {
+      "label": "chong chóng",
+      "score": 0.6667
+    },
+    {
+      "label": "thông thường",
+      "score": 0.6364
+    }
+  ],
+  "Tháng hai": [
+    {
+      "label": "tránh thai",
+      "score": 0.7368
+    },
+    {
+      "label": "tháng",
+      "score": 0.7143
+    },
+    {
+      "label": "hăng hái",
+      "score": 0.7059
+    },
+    {
+      "label": "tương lai",
+      "score": 0.6667
+    },
+    {
+      "label": "thắng lợi",
+      "score": 0.6667
+    }
+  ],
+  "Tháng mười": [
+    {
+      "label": "thương mại",
+      "score": 0.7
+    },
+    {
+      "label": "thông minh",
+      "score": 0.7
+    },
+    {
+      "label": "Đồng Tháp Mười",
+      "score": 0.6667
+    },
+    {
+      "label": "tháng",
+      "score": 0.6667
+    },
+    {
+      "label": "thông thường",
+      "score": 0.6364
+    }
+  ],
+  "Tháng mười hai": [
+    {
+      "label": "thông minh",
+      "score": 0.6667
+    },
+    {
+      "label": "người xưa",
+      "score": 0.6087
+    },
+    {
+      "label": "người gửi",
+      "score": 0.6087
+    },
+    {
+      "label": "tránh thai",
+      "score": 0.5833
+    },
+    {
+      "label": "thương mại",
+      "score": 0.5833
+    }
+  ],
+  "Tháng mười một": [
+    {
+      "label": "người máy",
+      "score": 0.6087
+    },
+    {
+      "label": "thương mại",
+      "score": 0.5833
+    },
+    {
+      "label": "thông minh",
+      "score": 0.5833
+    },
+    {
+      "label": "Đồng Tháp Mười",
+      "score": 0.5714
+    },
+    {
+      "label": "thái độ",
+      "score": 0.5714
+    }
+  ],
+  "Tháng một": [
+    {
+      "label": "tháng",
+      "score": 0.7143
+    },
+    {
+      "label": "thẳng tắp",
+      "score": 0.6667
+    },
+    {
+      "label": "thông tin",
+      "score": 0.6667
+    },
+    {
+      "label": "thông cảm",
+      "score": 0.6667
+    },
+    {
+      "label": "trắng muốt",
+      "score": 0.6316
+    }
+  ],
+  "Tháng năm": [
+    {
+      "label": "tháng",
+      "score": 0.7143
+    },
+    {
+      "label": "trông nom",
+      "score": 0.6667
+    },
+    {
+      "label": "thông tin",
+      "score": 0.6667
+    },
+    {
+      "label": "thông cảm",
+      "score": 0.6667
+    },
+    {
+      "label": "hàng trăm",
+      "score": 0.6667
+    }
+  ],
+  "Tháng sáu": [
+    {
+      "label": "tháng",
+      "score": 0.7143
+    },
+    {
+      "label": "thông qua",
+      "score": 0.6667
+    },
+    {
+      "label": "thông báo",
+      "score": 0.6667
+    },
+    {
+      "label": "trong sáng",
+      "score": 0.6316
+    },
+    {
+      "label": "trong suốt",
+      "score": 0.6316
+    }
+  ],
+  "Tháng tám": [
+    {
+      "label": "tháng",
+      "score": 0.7143
+    },
+    {
+      "label": "trung tâm",
+      "score": 0.6667
+    },
+    {
+      "label": "thẳng tắp",
+      "score": 0.6667
+    },
+    {
+      "label": "thông tin",
+      "score": 0.6667
+    },
+    {
+      "label": "thông cảm",
+      "score": 0.6667
+    }
+  ],
+  "Tháng tư": [
+    {
+      "label": "tháng",
+      "score": 0.7692
+    },
+    {
+      "label": "thẳng tắp",
+      "score": 0.7059
+    },
+    {
+      "label": "thông tin",
+      "score": 0.7059
+    },
+    {
+      "label": "thông thường",
+      "score": 0.7
+    },
+    {
+      "label": "ung thư",
+      "score": 0.6667
+    }
+  ],
+  "Thích": [
+    {
+      "label": "thích thú",
+      "score": 0.7143
+    },
+    {
+      "label": "đích",
+      "score": 0.6667
+    },
+    {
+      "label": "tách",
+      "score": 0.6667
+    },
+    {
+      "label": "thím",
+      "score": 0.6667
+    },
+    {
+      "label": "thích nghi",
+      "score": 0.6667
+    }
+  ],
+  "Thú vị": [
+    {
+      "label": "thú y",
+      "score": 0.7273
+    },
+    {
+      "label": "thú dữ",
+      "score": 0.6667
+    },
+    {
+      "label": "hú vía",
+      "score": 0.6667
+    },
+    {
+      "label": "định vị",
+      "score": 0.6154
+    },
+    {
+      "label": "hoán vị",
+      "score": 0.6154
+    }
+  ],
+  "Thư ký": [
+    {
+      "label": "thần kì",
+      "score": 0.6154
+    },
+    {
+      "label": "thổi kèn",
+      "score": 0.5714
+    },
+    {
+      "label": "thư giãn",
+      "score": 0.5714
+    },
+    {
+      "label": "thiết kế",
+      "score": 0.5714
+    },
+    {
+      "label": "thú y",
+      "score": 0.5455
+    }
+  ],
+  "Thước kẻ": [
+    {
+      "label": "trước",
+      "score": 0.6154
+    },
+    {
+      "label": "thẻ",
+      "score": 0.5455
+    },
+    {
+      "label": "thực tế",
+      "score": 0.5333
+    },
+    {
+      "label": "thực sự",
+      "score": 0.5333
+    },
+    {
+      "label": "thần kì",
+      "score": 0.5333
+    }
+  ],
+  "Thấp (đồ vật)": [
+    {
+      "label": "chạy (động vật)",
+      "score": 0.6429
+    },
+    {
+      "label": "họ (đại từ)",
+      "score": 0.5833
+    },
+    {
+      "label": "trả (đt)",
+      "score": 0.5714
+    },
+    {
+      "label": "thực vật",
+      "score": 0.5714
+    },
+    {
+      "label": "con trai (động vật)",
+      "score": 0.5625
+    }
+  ],
+  "Thể dục (thể thao)": [
+    {
+      "label": "lượt về (trong thể thao)",
+      "score": 0.619
+    },
+    {
+      "label": "giầy thể thao",
+      "score": 0.5806
+    },
+    {
+      "label": "thích thú",
+      "score": 0.5185
+    },
+    {
+      "label": "môn Giáo dục thể chất",
+      "score": 0.5128
+    },
+    {
+      "label": "thụ phấn (hoa)",
+      "score": 0.5
+    }
+  ],
+  "Thịt": [
+    {
+      "label": "thét",
+      "score": 0.75
+    },
+    {
+      "label": "đô thị",
+      "score": 0.6
+    },
+    {
+      "label": "thứ tự",
+      "score": 0.6
+    },
+    {
+      "label": "tát",
+      "score": 0.5714
+    },
+    {
+      "label": "thở",
+      "score": 0.5714
+    }
+  ],
+  "Thời gian": [
+    {
+      "label": "thời gian biểu",
+      "score": 0.7826
+    },
+    {
+      "label": "Tiền Giang",
+      "score": 0.7368
+    },
+    {
+      "label": "thư giãn",
+      "score": 0.7059
+    },
+    {
+      "label": "Hà Giang",
+      "score": 0.7059
+    },
+    {
+      "label": "trại giam",
+      "score": 0.6667
+    }
+  ],
+  "Thời tiết": [
+    {
+      "label": "chi tiết",
+      "score": 0.8235
+    },
+    {
+      "label": "thân thiết",
+      "score": 0.7368
+    },
+    {
+      "label": "hệ bài tiết",
+      "score": 0.7
+    },
+    {
+      "label": "thiệt thòi",
+      "score": 0.6316
+    },
+    {
+      "label": "tờ tiền",
+      "score": 0.625
+    }
+  ],
+  "Thứ ba": [
+    {
+      "label": "thứ tự",
+      "score": 0.6667
+    },
+    {
+      "label": "tha",
+      "score": 0.6667
+    },
+    {
+      "label": "hứa",
+      "score": 0.6667
+    },
+    {
+      "label": "thù lao",
+      "score": 0.6154
+    },
+    {
+      "label": "thu mua",
+      "score": 0.6154
+    }
+  ],
+  "Thứ bảy": [
+    {
+      "label": "thú y",
+      "score": 0.6667
+    },
+    {
+      "label": "trình bày",
+      "score": 0.625
+    },
+    {
+      "label": "thứ tự",
+      "score": 0.6154
+    },
+    {
+      "label": "tình yêu",
+      "score": 0.5333
+    },
+    {
+      "label": "tình cảm",
+      "score": 0.5333
+    }
+  ],
+  "Thứ hai": [
+    {
+      "label": "tránh thai",
+      "score": 0.7059
+    },
+    {
+      "label": "thăm hỏi",
+      "score": 0.6667
+    },
+    {
+      "label": "thực hiện",
+      "score": 0.625
+    },
+    {
+      "label": "thiếu nhi",
+      "score": 0.625
+    },
+    {
+      "label": "Thanh Hóa",
+      "score": 0.625
+    }
+  ],
+  "Thứ năm": [
+    {
+      "label": "tính nhẩm",
+      "score": 0.625
+    },
+    {
+      "label": "quanh năm",
+      "score": 0.625
+    },
+    {
+      "label": "chức năng",
+      "score": 0.625
+    },
+    {
+      "label": "thứ tự",
+      "score": 0.6154
+    },
+    {
+      "label": "tăm",
+      "score": 0.6
+    }
+  ],
+  "Thứ sáu": [
+    {
+      "label": "Võ Thị Sáu",
+      "score": 0.7059
+    },
+    {
+      "label": "thứ tự",
+      "score": 0.6154
+    },
+    {
+      "label": "thực sự",
+      "score": 0.5714
+    },
+    {
+      "label": "thu mua",
+      "score": 0.5714
+    },
+    {
+      "label": "thêu",
+      "score": 0.5455
+    }
+  ],
+  "Thứ tư": [
+    {
+      "label": "thứ tự",
+      "score": 0.8333
+    },
+    {
+      "label": "thủ tướng",
+      "score": 0.6667
+    },
+    {
+      "label": "tính từ",
+      "score": 0.6154
+    },
+    {
+      "label": "thực tế",
+      "score": 0.6154
+    },
+    {
+      "label": "thám tử",
+      "score": 0.6154
+    }
+  ],
+  "Thức dậy": [
+    {
+      "label": "thực vật",
+      "score": 0.625
+    },
+    {
+      "label": "thúc đẩy",
+      "score": 0.625
+    },
+    {
+      "label": "thú y",
+      "score": 0.6154
+    },
+    {
+      "label": "ý thức",
+      "score": 0.5714
+    },
+    {
+      "label": "thứ tự",
+      "score": 0.5714
+    }
+  ],
+  "Thức ăn": [
+    {
+      "label": "gắp thức ăn",
+      "score": 0.7778
+    },
+    {
+      "label": "chức năng",
+      "score": 0.75
+    },
+    {
+      "label": "tham ăn",
+      "score": 0.7143
+    },
+    {
+      "label": "tóc xoăn",
+      "score": 0.6667
+    },
+    {
+      "label": "thực hành",
+      "score": 0.625
+    }
+  ],
+  "Thử": [
+    {
+      "label": "thở",
+      "score": 0.6667
+    },
+    {
+      "label": "thề",
+      "score": 0.6667
+    },
+    {
+      "label": "thẻ",
+      "score": 0.6667
+    },
+    {
+      "label": "thi cử",
+      "score": 0.6667
+    },
+    {
+      "label": "tha",
+      "score": 0.6667
+    }
+  ],
+  "Tivi": [
+    {
+      "label": "tải về",
+      "score": 0.6
+    },
+    {
+      "label": "tim",
+      "score": 0.5714
+    },
+    {
+      "label": "tai",
+      "score": 0.5714
+    },
+    {
+      "label": "vòi voi",
+      "score": 0.5455
+    },
+    {
+      "label": "tập viết",
+      "score": 0.5
+    }
+  ],
+  "Trường Cao đẳng": [
+    {
+      "label": "đường cao",
+      "score": 0.6667
+    },
+    {
+      "label": "trường mầm non",
+      "score": 0.6207
+    },
+    {
+      "label": "đường thẳng",
+      "score": 0.6154
+    },
+    {
+      "label": "trong khoảng",
+      "score": 0.5926
+    },
+    {
+      "label": "tương ứng",
+      "score": 0.5833
+    }
+  ],
+  "Trường học": [
+    {
+      "label": "trường tiểu học",
+      "score": 0.8
+    },
+    {
+      "label": "trường hợp",
+      "score": 0.8
+    },
+    {
+      "label": "tin học",
+      "score": 0.7059
+    },
+    {
+      "label": "trang phục",
+      "score": 0.7
+    },
+    {
+      "label": "trưởng nhóm",
+      "score": 0.6667
+    }
+  ],
+  "Trường Đại học": [
+    {
+      "label": "trường tiểu học",
+      "score": 0.8276
+    },
+    {
+      "label": "trường hợp",
+      "score": 0.6667
+    },
+    {
+      "label": "lười học",
+      "score": 0.6364
+    },
+    {
+      "label": "tượng đài",
+      "score": 0.6087
+    },
+    {
+      "label": "đi học",
+      "score": 0.6
+    }
+  ],
+  "Trẻ": [
+    {
+      "label": "trà",
+      "score": 0.6667
+    },
+    {
+      "label": "tre",
+      "score": 0.6667
+    },
+    {
+      "label": "thẻ",
+      "score": 0.6667
+    },
+    {
+      "label": "tròn",
+      "score": 0.5714
+    },
+    {
+      "label": "trêu",
+      "score": 0.5714
+    }
+  ],
+  "Trễ": [
+    {
+      "label": "trà",
+      "score": 0.6667
+    },
+    {
+      "label": "tre",
+      "score": 0.6667
+    },
+    {
+      "label": "tròn",
+      "score": 0.5714
+    },
+    {
+      "label": "trêu",
+      "score": 0.5714
+    },
+    {
+      "label": "trứng",
+      "score": 0.5
+    }
+  ],
+  "Trực thăng": [
+    {
+      "label": "trục tung",
+      "score": 0.7368
+    },
+    {
+      "label": "trăng",
+      "score": 0.6667
+    },
+    {
+      "label": "trúng thưởng",
+      "score": 0.6364
+    },
+    {
+      "label": "truyền thống",
+      "score": 0.6364
+    },
+    {
+      "label": "truyền thông",
+      "score": 0.6364
+    }
+  ],
+  "Tìm": [
+    {
+      "label": "tăm",
+      "score": 0.6667
+    },
+    {
+      "label": "tim",
+      "score": 0.6667
+    },
+    {
+      "label": "tiêm",
+      "score": 0.5714
+    },
+    {
+      "label": "thềm",
+      "score": 0.5714
+    },
+    {
+      "label": "thơm",
+      "score": 0.5714
+    }
+  ],
+  "Tôi": [
+    {
+      "label": "xôi",
+      "score": 0.6667
+    },
+    {
+      "label": "tim",
+      "score": 0.6667
+    },
+    {
+      "label": "tai",
+      "score": 0.6667
+    },
+    {
+      "label": "môi",
+      "score": 0.6667
+    },
+    {
+      "label": "hôi",
+      "score": 0.6667
+    }
+  ],
+  "Túi xách": [
+    {
+      "label": "tách",
+      "score": 0.6667
+    },
+    {
+      "label": "tia chớp",
+      "score": 0.625
+    },
+    {
+      "label": "giá sách",
+      "score": 0.625
+    },
+    {
+      "label": "tính cách",
+      "score": 0.5882
+    },
+    {
+      "label": "thi cử",
+      "score": 0.5714
+    }
+  ],
+  "Tường": [
+    {
+      "label": "tượng",
+      "score": 0.8
+    },
+    {
+      "label": "tưởng",
+      "score": 0.8
+    },
+    {
+      "label": "giường",
+      "score": 0.7273
+    },
+    {
+      "label": "bức tường",
+      "score": 0.7143
+    },
+    {
+      "label": "ý tưởng",
+      "score": 0.6667
+    }
+  ],
+  "Tắm rửa": [
+    {
+      "label": "mở cửa",
+      "score": 0.6154
+    },
+    {
+      "label": "mớ rau",
+      "score": 0.6154
+    },
+    {
+      "label": "thám tử",
+      "score": 0.5714
+    },
+    {
+      "label": "em trai",
+      "score": 0.5714
+    },
+    {
+      "label": "bật lửa",
+      "score": 0.5714
+    }
+  ],
+  "Tết Âm lịch": [
+    {
+      "label": "Tết Âm",
+      "score": 0.7059
+    },
+    {
+      "label": "môn Lịch sử",
+      "score": 0.5455
+    },
+    {
+      "label": "xâm lược",
+      "score": 0.5263
+    },
+    {
+      "label": "tóm lược",
+      "score": 0.5263
+    },
+    {
+      "label": "tâm thần",
+      "score": 0.5263
+    }
+  ],
+  "Tốt bụng": [
+    {
+      "label": "bụng",
+      "score": 0.6667
+    },
+    {
+      "label": "đau bụng",
+      "score": 0.625
+    },
+    {
+      "label": "tác dụng",
+      "score": 0.625
+    },
+    {
+      "label": "trống",
+      "score": 0.6154
+    },
+    {
+      "label": "phẫu thuật bụng",
+      "score": 0.6087
+    }
+  ],
+  "Tủ lạnh": [
+    {
+      "label": "đông lạnh",
+      "score": 0.625
+    },
+    {
+      "label": "tuân lệnh",
+      "score": 0.625
+    },
+    {
+      "label": "to lớn",
+      "score": 0.6154
+    },
+    {
+      "label": "ít nhất",
+      "score": 0.5714
+    },
+    {
+      "label": "thu nhỏ",
+      "score": 0.5714
+    }
+  ],
+  "Uống": [
+    {
+      "label": "xuống",
+      "score": 0.8889
+    },
+    {
+      "label": "uốn",
+      "score": 0.8571
+    },
+    {
+      "label": "muốn",
+      "score": 0.75
+    },
+    {
+      "label": "cống",
+      "score": 0.75
+    },
+    {
+      "label": "cuốn",
+      "score": 0.75
+    }
+  ],
+  "Viên phấn": [
+    {
+      "label": "bụi phấn",
+      "score": 0.7059
+    },
+    {
+      "label": "liên hoan",
+      "score": 0.6667
+    },
+    {
+      "label": "thiên thần",
+      "score": 0.6316
+    },
+    {
+      "label": "in (ấn)",
+      "score": 0.625
+    },
+    {
+      "label": "thiên nhiên",
+      "score": 0.6
+    }
+  ],
+  "Viết": [
+    {
+      "label": "giết",
+      "score": 0.75
+    },
+    {
+      "label": "tập viết",
+      "score": 0.6667
+    },
+    {
+      "label": "chữ viết",
+      "score": 0.6667
+    },
+    {
+      "label": "vớt",
+      "score": 0.5714
+    },
+    {
+      "label": "vật",
+      "score": 0.5714
+    }
+  ],
+  "Vâng lời": [
+    {
+      "label": "vòng đời",
+      "score": 0.75
+    },
+    {
+      "label": "dừng lại",
+      "score": 0.625
+    },
+    {
+      "label": "va li",
+      "score": 0.6154
+    },
+    {
+      "label": "vắng lặng",
+      "score": 0.5882
+    },
+    {
+      "label": "tương lai",
+      "score": 0.5882
+    }
+  ],
+  "Võ": [
+    {
+      "label": "v",
+      "score": 0.6667
+    },
+    {
+      "label": "vỡ",
+      "score": 0.5
+    },
+    {
+      "label": "vồ",
+      "score": 0.5
+    },
+    {
+      "label": "vỏ",
+      "score": 0.5
+    },
+    {
+      "label": "vé",
+      "score": 0.5
+    }
+  ],
+  "Vở": [
+    {
+      "label": "v",
+      "score": 0.6667
+    },
+    {
+      "label": "vỡ",
+      "score": 0.5
+    },
+    {
+      "label": "vồ",
+      "score": 0.5
+    },
+    {
+      "label": "vỏ",
+      "score": 0.5
+    },
+    {
+      "label": "vé",
+      "score": 0.5
+    }
+  ],
+  "Vợ": [
+    {
+      "label": "v",
+      "score": 0.6667
+    },
+    {
+      "label": "vỡ",
+      "score": 0.5
+    },
+    {
+      "label": "vồ",
+      "score": 0.5
+    },
+    {
+      "label": "vỏ",
+      "score": 0.5
+    },
+    {
+      "label": "vé",
+      "score": 0.5
+    }
+  ],
+  "Xa": [
+    {
+      "label": "xưa",
+      "score": 0.8
+    },
+    {
+      "label": "x",
+      "score": 0.6667
+    },
+    {
+      "label": "a",
+      "score": 0.6667
+    },
+    {
+      "label": "xảy ra",
+      "score": 0.5
+    },
+    {
+      "label": "xô",
+      "score": 0.5
+    }
+  ],
+  "Xe buýt": [
+    {
+      "label": "trạm xe buýt",
+      "score": 0.7368
+    },
+    {
+      "label": "xe lu",
+      "score": 0.6667
+    },
+    {
+      "label": "xe tải",
+      "score": 0.6154
+    },
+    {
+      "label": "xe cẩu",
+      "score": 0.6154
+    },
+    {
+      "label": "xe ben",
+      "score": 0.6154
+    }
+  ],
+  "Xin": [
+    {
+      "label": "xinh",
+      "score": 0.8571
+    },
+    {
+      "label": "ăn xin",
+      "score": 0.6667
+    },
+    {
+      "label": "xôi",
+      "score": 0.6667
+    },
+    {
+      "label": "xen",
+      "score": 0.6667
+    },
+    {
+      "label": "xin lỗi",
+      "score": 0.6
+    }
+  ],
+  "Xuất viện": [
+    {
+      "label": "xuất hiện",
+      "score": 0.8889
+    },
+    {
+      "label": "xuyên Việt",
+      "score": 0.6316
+    },
+    {
+      "label": "cột điện",
+      "score": 0.5882
+    },
+    {
+      "label": "bốt điện",
+      "score": 0.5882
+    },
+    {
+      "label": "Trà Vinh",
+      "score": 0.5882
+    }
+  ],
+  "Xúc động": [
+    {
+      "label": "cử động",
+      "score": 0.8
+    },
+    {
+      "label": "tác động",
+      "score": 0.75
+    },
+    {
+      "label": "chủ động",
+      "score": 0.75
+    },
+    {
+      "label": "ác mộng",
+      "score": 0.6667
+    },
+    {
+      "label": "bị động",
+      "score": 0.6667
+    }
+  ],
+  "Xấu (người)": [
+    {
+      "label": "cao (người)",
+      "score": 0.7273
+    },
+    {
+      "label": "chú ( người)",
+      "score": 0.6957
+    },
+    {
+      "label": "xu (tiền)",
+      "score": 0.6
+    },
+    {
+      "label": "con người",
+      "score": 0.6
+    },
+    {
+      "label": "lầu (tầng)",
+      "score": 0.5714
+    }
+  ],
+  "Xấu (vật)": [
+    {
+      "label": "đấu vật",
+      "score": 0.75
+    },
+    {
+      "label": "xu (tiền)",
+      "score": 0.6667
+    },
+    {
+      "label": "cao (vật)",
+      "score": 0.6667
+    },
+    {
+      "label": "lễ vật",
+      "score": 0.5333
+    },
+    {
+      "label": "xuyên Việt",
+      "score": 0.5263
+    }
+  ],
+  "Y tá": [
+    {
+      "label": "y tế",
+      "score": 0.75
+    },
+    {
+      "label": "tay trái",
+      "score": 0.6667
+    },
+    {
+      "label": "đầy tớ",
+      "score": 0.6
+    },
+    {
+      "label": "đại tá",
+      "score": 0.6
+    },
+    {
+      "label": "yếu tố",
+      "score": 0.6
+    }
+  ],
+  "Yên tĩnh": [
+    {
+      "label": "yên bình",
+      "score": 0.75
+    },
+    {
+      "label": "yên tâm",
+      "score": 0.6667
+    },
+    {
+      "label": "nguyên nhân",
+      "score": 0.6316
+    },
+    {
+      "label": "yên ngựa",
+      "score": 0.625
+    },
+    {
+      "label": "yên lòng",
+      "score": 0.625
+    }
+  ],
+  "Yêu thương": [
+    {
+      "label": "dễ thương",
+      "score": 0.7368
+    },
+    {
+      "label": "vết thương",
+      "score": 0.7
+    },
+    {
+      "label": "xe cứu thương",
+      "score": 0.6957
+    },
+    {
+      "label": "huân chương",
+      "score": 0.6667
+    },
+    {
+      "label": "tỏa hương",
+      "score": 0.6316
+    }
+  ],
+  "Áo sơ mi": [
+    {
+      "label": "sơ mi",
+      "score": 0.7692
+    },
+    {
+      "label": "áo ấm",
+      "score": 0.6154
+    },
+    {
+      "label": "son môi",
+      "score": 0.5333
+    },
+    {
+      "label": "máy bơm",
+      "score": 0.5333
+    },
+    {
+      "label": "hoa mai",
+      "score": 0.5333
+    }
+  ],
+  "Áo thun": [
+    {
+      "label": "báo thù",
+      "score": 0.7143
+    },
+    {
+      "label": "ảo thuật",
+      "score": 0.6667
+    },
+    {
+      "label": "áo phông",
+      "score": 0.6667
+    },
+    {
+      "label": "chèo thuyền",
+      "score": 0.6667
+    },
+    {
+      "label": "tạo thành",
+      "score": 0.625
+    }
+  ],
+  "Áo đầm": [
+    {
+      "label": "áo ấm",
+      "score": 0.7273
+    },
+    {
+      "label": "xoa đầu",
+      "score": 0.6154
+    },
+    {
+      "label": "bảo đảm",
+      "score": 0.6154
+    },
+    {
+      "label": "pháo đài",
+      "score": 0.5714
+    },
+    {
+      "label": "báo động",
+      "score": 0.5714
+    }
+  ],
+  "Áp dụng": [
+    {
+      "label": "tác dụng",
+      "score": 0.8
+    },
+    {
+      "label": "cấp dưỡng",
+      "score": 0.625
+    },
+    {
+      "label": "đá bóng",
+      "score": 0.5714
+    },
+    {
+      "label": "ăn vụng",
+      "score": 0.5714
+    },
+    {
+      "label": "ác mộng",
+      "score": 0.5714
+    }
+  ],
+  "Ăn": [
+    {
+      "label": "văn",
+      "score": 0.8
+    },
+    {
+      "label": "ă",
+      "score": 0.6667
+    },
+    {
+      "label": "xăng",
+      "score": 0.6667
+    },
+    {
+      "label": "răng",
+      "score": 0.6667
+    },
+    {
+      "label": "n",
+      "score": 0.6667
+    }
+  ],
+  "Ăn mừng": [
+    {
+      "label": "ăn vụng",
+      "score": 0.7143
+    },
+    {
+      "label": "ăn uống",
+      "score": 0.7143
+    },
+    {
+      "label": "văn nghệ",
+      "score": 0.6667
+    },
+    {
+      "label": "vui mừng",
+      "score": 0.6667
+    },
+    {
+      "label": "mênh mông",
+      "score": 0.625
+    }
+  ],
+  "Đau": [
+    {
+      "label": "ốm đau",
+      "score": 0.6667
+    },
+    {
+      "label": "đũa",
+      "score": 0.6667
+    },
+    {
+      "label": "đĩa",
+      "score": 0.6667
+    },
+    {
+      "label": "đùa",
+      "score": 0.6667
+    },
+    {
+      "label": "đan",
+      "score": 0.6667
+    }
+  ],
+  "Điền kinh": [
+    {
+      "label": "điều kiện",
+      "score": 0.7778
+    },
+    {
+      "label": "điều khiển",
+      "score": 0.7368
+    },
+    {
+      "label": "đàn kiến",
+      "score": 0.7059
+    },
+    {
+      "label": "thần kinh",
+      "score": 0.6667
+    },
+    {
+      "label": "Điện Biên Phủ",
+      "score": 0.6364
+    }
+  ],
+  "Đá cầu": [
+    {
+      "label": "địa cầu",
+      "score": 0.7692
+    },
+    {
+      "label": "đánh cầu lông",
+      "score": 0.6316
+    },
+    {
+      "label": "đàn bầu",
+      "score": 0.6154
+    },
+    {
+      "label": "yêu cầu",
+      "score": 0.6154
+    },
+    {
+      "label": "nhu cầu",
+      "score": 0.6154
+    }
+  ],
+  "Đúng": [
+    {
+      "label": "đựng",
+      "score": 0.75
+    },
+    {
+      "label": "Đảng",
+      "score": 0.75
+    },
+    {
+      "label": "ủng",
+      "score": 0.5714
+    },
+    {
+      "label": "đền",
+      "score": 0.5714
+    },
+    {
+      "label": "đạn",
+      "score": 0.5714
+    }
+  ],
+  "Đầu bếp": [
+    {
+      "label": "đầu tư",
+      "score": 0.6154
+    },
+    {
+      "label": "sổ đầu bài",
+      "score": 0.5882
+    },
+    {
+      "label": "đầu tàu",
+      "score": 0.5714
+    },
+    {
+      "label": "đầu gối",
+      "score": 0.5714
+    },
+    {
+      "label": "góc bếp",
+      "score": 0.5714
+    }
+  ],
+  "Đậm": [
+    {
+      "label": "đệm",
+      "score": 0.6667
+    },
+    {
+      "label": "đếm",
+      "score": 0.6667
+    },
+    {
+      "label": "đập",
+      "score": 0.6667
+    },
+    {
+      "label": "đ",
+      "score": 0.5
+    },
+    {
+      "label": "m",
+      "score": 0.5
+    }
+  ],
+  "Đắng": [
+    {
+      "label": "đựng",
+      "score": 0.75
+    },
+    {
+      "label": "Đảng",
+      "score": 0.75
+    },
+    {
+      "label": "vắng",
+      "score": 0.75
+    },
+    {
+      "label": "mắng",
+      "score": 0.75
+    },
+    {
+      "label": "ủng",
+      "score": 0.5714
+    }
+  ],
+  "Đắt": [
+    {
+      "label": "đặt",
+      "score": 0.6667
+    },
+    {
+      "label": "đắt đỏ",
+      "score": 0.6667
+    },
+    {
+      "label": "đất",
+      "score": 0.6667
+    },
+    {
+      "label": "sắt",
+      "score": 0.6667
+    },
+    {
+      "label": "dắt",
+      "score": 0.6667
+    }
+  ],
+  "Đẹp (người)": [
+    {
+      "label": "đẹp không? (người)",
+      "score": 0.7586
+    },
+    {
+      "label": "cao (người)",
+      "score": 0.7273
+    },
+    {
+      "label": "chú ( người)",
+      "score": 0.6957
+    },
+    {
+      "label": "con người",
+      "score": 0.6
+    },
+    {
+      "label": "đẹp đẽ (như đẹp)",
+      "score": 0.5926
+    }
+  ],
+  "Đẹp (vật)": [
+    {
+      "label": "cao (vật)",
+      "score": 0.6667
+    },
+    {
+      "label": "đấu vật",
+      "score": 0.625
+    },
+    {
+      "label": "để (đặt)",
+      "score": 0.5882
+    },
+    {
+      "label": "lễ vật",
+      "score": 0.5333
+    },
+    {
+      "label": "vật",
+      "score": 0.5
+    }
+  ],
+  "Đọc": [
+    {
+      "label": "đi học",
+      "score": 0.6667
+    },
+    {
+      "label": "dọc",
+      "score": 0.6667
+    },
+    {
+      "label": "đùm bọc",
+      "score": 0.6
+    },
+    {
+      "label": "đích",
+      "score": 0.5714
+    },
+    {
+      "label": "đuốc",
+      "score": 0.5714
+    }
+  ],
+  "Đồ buộc tóc": [
+    {
+      "label": "buộc tóc",
+      "score": 0.8421
+    },
+    {
+      "label": "dây buộc tóc",
+      "score": 0.7826
+    },
+    {
+      "label": "uốn tóc",
+      "score": 0.5556
+    },
+    {
+      "label": "mọc tóc",
+      "score": 0.5556
+    },
+    {
+      "label": "cặp tóc",
+      "score": 0.5556
+    }
+  ],
+  "Đồ dùng": [
+    {
+      "label": "đồ uống",
+      "score": 0.7143
+    },
+    {
+      "label": "đồ ăn",
+      "score": 0.6667
+    },
+    {
+      "label": "Đền Hùng",
+      "score": 0.6667
+    },
+    {
+      "label": "đồ dùng học tập",
+      "score": 0.6364
+    },
+    {
+      "label": "đồ dùng dạy học",
+      "score": 0.6364
+    }
+  ],
+  "Đồng hồ đeo tay": [
+    {
+      "label": "vòng đeo tay",
+      "score": 0.7407
+    },
+    {
+      "label": "đường chỉ tay",
+      "score": 0.6429
+    },
+    {
+      "label": "đồng hồ",
+      "score": 0.6364
+    },
+    {
+      "label": "ngoắc tay",
+      "score": 0.5833
+    },
+    {
+      "label": "đàn ghi ta",
+      "score": 0.56
+    }
+  ],
+  "Đồng ý": [
+    {
+      "label": "đồng hồ",
+      "score": 0.7692
+    },
+    {
+      "label": "đăng ký",
+      "score": 0.7692
+    },
+    {
+      "label": "đồng lúa",
+      "score": 0.7143
+    },
+    {
+      "label": "đồng bào",
+      "score": 0.7143
+    },
+    {
+      "label": "đáng quý",
+      "score": 0.7143
+    }
+  ],
+  "Ướt": [
+    {
+      "label": "ẩm ướt",
+      "score": 0.6667
+    },
+    {
+      "label": "vớt",
+      "score": 0.6667
+    },
+    {
+      "label": "bớt",
+      "score": 0.6667
+    },
+    {
+      "label": "lưới",
+      "score": 0.5714
+    },
+    {
+      "label": "cướp",
+      "score": 0.5714
+    }
+  ],
+  "Ấm": [
+    {
+      "label": "nấm",
+      "score": 0.8
+    },
+    {
+      "label": "m",
+      "score": 0.6667
+    },
+    {
+      "label": "ấm áp",
+      "score": 0.5714
+    },
+    {
+      "label": "ấm no",
+      "score": 0.5714
+    },
+    {
+      "label": "áo ấm",
+      "score": 0.5714
+    }
+  ],
+  "Ốm": [
+    {
+      "label": "cốm",
+      "score": 0.8
+    },
+    {
+      "label": "m",
+      "score": 0.6667
+    },
+    {
+      "label": "bố mẹ",
+      "score": 0.5714
+    },
+    {
+      "label": "ốm đau",
+      "score": 0.5
+    },
+    {
+      "label": "ôm",
+      "score": 0.5
+    }
+  ],
+  "Ồn ào": [
+    {
+      "label": "đồng bào",
+      "score": 0.7692
+    },
+    {
+      "label": "bồn hoa",
+      "score": 0.6667
+    },
+    {
+      "label": "lồng bàn",
+      "score": 0.6154
+    },
+    {
+      "label": "no",
+      "score": 0.5714
+    },
+    {
+      "label": "ông bà",
+      "score": 0.5455
+    }
+  ]
+}

@@ -29,6 +29,7 @@ from pathlib import Path
 from models import MODEL_NAMES, SWEEP_NAMES
 from preprocess.dataset import CROP_MODES
 from training.config import DEVICES, OPTIMIZERS, PARALLEL_MODES, SELECTION_METRICS, TrainConfig
+from training.distributed import apply_cpu_fallback
 from training.engine import fit
 
 logger = logging.getLogger("training")
@@ -74,7 +75,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--device",
         default="auto",
         choices=DEVICES,
-        help="auto prefers CUDA, then MPS, then CPU",
+        help="auto prefers CUDA, then MPS, then CPU. cuda falls back to CPU when no GPU is present",
     )
     parser.add_argument("--no-amp", action="store_true", help="keep float32 on CUDA")
     parser.add_argument("--workers", type=int, default=4)
@@ -143,6 +144,8 @@ def main(argv: list[str] | None = None) -> int:
     if not args.root.is_dir():
         logger.error("Dataset root %s does not exist", args.root)
         return 2
+    if not apply_cpu_fallback(args):
+        return 0
 
     names = SWEEP_NAMES if args.model == "all" else (args.model,)
     results = []

@@ -1,0 +1,837 @@
+{
+  "clips": 252,
+  "keypoints": "/Users/huynq/Projects/sign-language/data/signconnect/keypoints",
+  "eval_labels": "/Users/huynq/Projects/sign-language/labels/signconnect_j76_common.json",
+  "eval_glosses": 147,
+  "skipped": 0,
+  "label_smoothing": 0.1,
+  "models": [
+    {
+      "model": "AAGCN",
+      "id": "j76_AAGCN",
+      "checkpoint": "/Users/huynq/Projects/sign-language/checkpoints/AAGCN/j76_AAGCN_best.pth",
+      "epoch": 40,
+      "params": 3950705,
+      "is_leg": true,
+      "max_frames": 64,
+      "num_classes": 422,
+      "scored": 252,
+      "correct": 153,
+      "outside": 60,
+      "normalize_fail": 0,
+      "loss": 3.111941,
+      "accuracy": 0.607143,
+      "top5": 0.714286,
+      "macro_f1": 0.665468,
+      "classes": 147,
+      "f1_one": 64,
+      "f1_bins": {
+        "<0.50": 33,
+        "0.50-0.80": 29,
+        "0.80-0.90": 21,
+        "0.90-0.95": 0,
+        ">=0.95": 64
+      },
+      "confusion_pairs": [
+        {
+          "true": "Chị",
+          "pred": "Giỏi",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Dỗi",
+          "pred": "Ngọt",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Hy vọng",
+          "pred": "Mưa",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Không cho",
+          "pred": "Thông minh",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Không nghe lời",
+          "pred": "Không cho",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Kẹo",
+          "pred": "Nói",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Rượu",
+          "pred": "Nếm",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Sữa",
+          "pred": "Chị",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Tiếp tục",
+          "pred": "Rửa tay",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Trung Quốc",
+          "pred": "Khám bệnh",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Tàu hỏa",
+          "pred": "Gần",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Ông ngoại",
+          "pred": "Viết",
+          "n": 2,
+          "support": 3
+        }
+      ]
+    },
+    {
+      "model": "CTR-GCN",
+      "id": "j76_CTR-GCN",
+      "checkpoint": "/Users/huynq/Projects/sign-language/checkpoints/CTR-GCN/j76_CTR-GCN_best.pth",
+      "epoch": 43,
+      "params": 1672145,
+      "is_leg": true,
+      "max_frames": 64,
+      "num_classes": 422,
+      "scored": 252,
+      "correct": 156,
+      "outside": 56,
+      "normalize_fail": 0,
+      "loss": 3.007592,
+      "accuracy": 0.619048,
+      "top5": 0.734127,
+      "macro_f1": 0.670554,
+      "classes": 147,
+      "f1_one": 66,
+      "f1_bins": {
+        "<0.50": 35,
+        "0.50-0.80": 25,
+        "0.80-0.90": 21,
+        "0.90-0.95": 0,
+        ">=0.95": 66
+      },
+      "confusion_pairs": [
+        {
+          "true": "Màu xanh da trời",
+          "pred": "Cao (người)",
+          "n": 3,
+          "support": 3
+        },
+        {
+          "true": "Chị",
+          "pred": "Mì gói",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Dỗi",
+          "pred": "Cái kéo",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Không cho",
+          "pred": "Thứ ba",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Không quen",
+          "pred": "Ốm",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Kẹo",
+          "pred": "Nói",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Quả đu đủ",
+          "pred": "Báo cáo",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Rượu",
+          "pred": "Nếm",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Sữa",
+          "pred": "Màu nâu",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Tiếp tục",
+          "pred": "Rửa tay",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Trung Quốc",
+          "pred": "Khám bệnh",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Tàu hỏa",
+          "pred": "Giáng sinh",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Từ chối",
+          "pred": "Quạt (đứng)",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Ông ngoại",
+          "pred": "Viết",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Ông nội",
+          "pred": "Viết",
+          "n": 2,
+          "support": 3
+        }
+      ]
+    },
+    {
+      "model": "MS-TCN",
+      "id": "j68_MS-TCN",
+      "checkpoint": "/Users/huynq/Projects/sign-language/checkpoints/MS-TCN/j68_MS-TCN_best.pth",
+      "epoch": 67,
+      "params": 690742,
+      "is_leg": false,
+      "max_frames": 64,
+      "num_classes": 422,
+      "scored": 252,
+      "correct": 149,
+      "outside": 63,
+      "normalize_fail": 0,
+      "loss": 3.159527,
+      "accuracy": 0.59127,
+      "top5": 0.714286,
+      "macro_f1": 0.632459,
+      "classes": 147,
+      "f1_one": 61,
+      "f1_bins": {
+        "<0.50": 41,
+        "0.50-0.80": 23,
+        "0.80-0.90": 22,
+        "0.90-0.95": 0,
+        ">=0.95": 61
+      },
+      "confusion_pairs": [
+        {
+          "true": "Chị",
+          "pred": "Giỏi",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Dỗi",
+          "pred": "Ngọt",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Hy vọng",
+          "pred": "Mưa",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Không nghe lời",
+          "pred": "Nghe",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Không nên",
+          "pred": "Nên",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Không quen",
+          "pred": "Thứ sáu",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Kẹo",
+          "pred": "Nói",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Màu trắng",
+          "pred": "Nói xấu",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Rượu",
+          "pred": "Nếm",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Sữa",
+          "pred": "Màu nâu",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Tiếp tục",
+          "pred": "Rửa tay",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Trung Quốc",
+          "pred": "Khám bệnh",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Tàu hỏa",
+          "pred": "Xe buýt",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Ông ngoại",
+          "pred": "Đi",
+          "n": 2,
+          "support": 3
+        }
+      ]
+    },
+    {
+      "model": "MS-TCN",
+      "id": "j76_MS-TCN",
+      "checkpoint": "/Users/huynq/Projects/sign-language/checkpoints/MS-TCN/j76_MS-TCN_best.pth",
+      "epoch": 59,
+      "params": 707254,
+      "is_leg": true,
+      "max_frames": 64,
+      "num_classes": 422,
+      "scored": 252,
+      "correct": 137,
+      "outside": 63,
+      "normalize_fail": 0,
+      "loss": 3.272495,
+      "accuracy": 0.543651,
+      "top5": 0.714286,
+      "macro_f1": 0.564334,
+      "classes": 147,
+      "f1_one": 53,
+      "f1_bins": {
+        "<0.50": 54,
+        "0.50-0.80": 21,
+        "0.80-0.90": 19,
+        "0.90-0.95": 0,
+        ">=0.95": 53
+      },
+      "confusion_pairs": [
+        {
+          "true": "Không nghe lời",
+          "pred": "Nghe",
+          "n": 3,
+          "support": 3
+        },
+        {
+          "true": "Dỗi",
+          "pred": "Khó",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Hy vọng",
+          "pred": "Mát mẻ",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Không cho",
+          "pred": "Cảm ơn",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Không quen",
+          "pred": "Mạnh",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Kẹo",
+          "pred": "Nói",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Màu trắng",
+          "pred": "Nói xấu",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Màu xanh lá cây",
+          "pred": "Vợ",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Mùa xuân",
+          "pred": "Cầu lông",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Sữa",
+          "pred": "Màu nâu",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Tiếp tục",
+          "pred": "Rửa tay",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Trung Quốc",
+          "pred": "Khám bệnh",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Ông ngoại",
+          "pred": "Đi",
+          "n": 2,
+          "support": 3
+        }
+      ]
+    },
+    {
+      "model": "ST-GCN",
+      "id": "j68_ST-GCN",
+      "checkpoint": "/Users/huynq/Projects/sign-language/checkpoints/ST-GCN/j68_ST-GCN_best.pth",
+      "epoch": 59,
+      "params": 3265046,
+      "is_leg": false,
+      "max_frames": 64,
+      "num_classes": 422,
+      "scored": 252,
+      "correct": 153,
+      "outside": 66,
+      "normalize_fail": 0,
+      "loss": 3.215345,
+      "accuracy": 0.607143,
+      "top5": 0.710317,
+      "macro_f1": 0.665241,
+      "classes": 147,
+      "f1_one": 67,
+      "f1_bins": {
+        "<0.50": 37,
+        "0.50-0.80": 22,
+        "0.80-0.90": 21,
+        "0.90-0.95": 0,
+        ">=0.95": 67
+      },
+      "confusion_pairs": [
+        {
+          "true": "Chị",
+          "pred": "Giỏi",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Dỗi",
+          "pred": "Ngọt",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Hy vọng",
+          "pred": "Mát mẻ",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Không cho",
+          "pred": "Nói xấu",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Kẹo",
+          "pred": "Nói",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Rượu",
+          "pred": "Nếm",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Sữa",
+          "pred": "Cô",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Trung Quốc",
+          "pred": "Khám bệnh",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Tàu hỏa",
+          "pred": "Giáng sinh",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Từ chối",
+          "pred": "Băn khoăn",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Ông ngoại",
+          "pred": "Viết",
+          "n": 2,
+          "support": 3
+        }
+      ]
+    },
+    {
+      "model": "ST-GCN",
+      "id": "j76_ST-GCN",
+      "checkpoint": "/Users/huynq/Projects/sign-language/checkpoints/ST-GCN/j76_ST-GCN_best.pth",
+      "epoch": 59,
+      "params": 3296662,
+      "is_leg": true,
+      "max_frames": 64,
+      "num_classes": 422,
+      "scored": 252,
+      "correct": 150,
+      "outside": 62,
+      "normalize_fail": 0,
+      "loss": 3.148461,
+      "accuracy": 0.595238,
+      "top5": 0.718254,
+      "macro_f1": 0.650259,
+      "classes": 147,
+      "f1_one": 64,
+      "f1_bins": {
+        "<0.50": 37,
+        "0.50-0.80": 27,
+        "0.80-0.90": 19,
+        "0.90-0.95": 0,
+        ">=0.95": 64
+      },
+      "confusion_pairs": [
+        {
+          "true": "Chị",
+          "pred": "Giỏi",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Dỗi",
+          "pred": "Hiền",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Hy vọng",
+          "pred": "Mát mẻ",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Hứa",
+          "pred": "Bà nội",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Không cho",
+          "pred": "Ngày Quốc tế Phụ nữ",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Không nghe lời",
+          "pred": "Nghe",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Không quen",
+          "pred": "Nhớ",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Kẹo",
+          "pred": "Nói",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Màu xanh da trời",
+          "pred": "Cao (người)",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Rượu",
+          "pred": "Nếm",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Sữa",
+          "pred": "Chị",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Thông minh",
+          "pred": "Cảm ơn",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Tiếp tục",
+          "pred": "Rửa tay",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Trung Quốc",
+          "pred": "Khám bệnh",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Tàu hỏa",
+          "pred": "Giáng sinh",
+          "n": 2,
+          "support": 3
+        },
+        {
+          "true": "Ông ngoại",
+          "pred": "Viết",
+          "n": 2,
+          "support": 3
+        }
+      ]
+    }
+  ],
+  "agreement": [
+    {
+      "left": "j76_AAGCN",
+      "right": "j76_CTR-GCN",
+      "shared": 252,
+      "same_top1": 193,
+      "same_top1_rate": 0.765873,
+      "both_correct": 146,
+      "only_left": 7,
+      "only_right": 10,
+      "both_wrong": 89
+    },
+    {
+      "left": "j76_AAGCN",
+      "right": "j68_MS-TCN",
+      "shared": 252,
+      "same_top1": 185,
+      "same_top1_rate": 0.734127,
+      "both_correct": 139,
+      "only_left": 14,
+      "only_right": 10,
+      "both_wrong": 89
+    },
+    {
+      "left": "j76_AAGCN",
+      "right": "j76_MS-TCN",
+      "shared": 252,
+      "same_top1": 168,
+      "same_top1_rate": 0.666667,
+      "both_correct": 130,
+      "only_left": 23,
+      "only_right": 7,
+      "both_wrong": 92
+    },
+    {
+      "left": "j76_AAGCN",
+      "right": "j68_ST-GCN",
+      "shared": 252,
+      "same_top1": 187,
+      "same_top1_rate": 0.742063,
+      "both_correct": 142,
+      "only_left": 11,
+      "only_right": 11,
+      "both_wrong": 88
+    },
+    {
+      "left": "j76_AAGCN",
+      "right": "j76_ST-GCN",
+      "shared": 252,
+      "same_top1": 181,
+      "same_top1_rate": 0.718254,
+      "both_correct": 140,
+      "only_left": 13,
+      "only_right": 10,
+      "both_wrong": 89
+    },
+    {
+      "left": "j76_CTR-GCN",
+      "right": "j68_MS-TCN",
+      "shared": 252,
+      "same_top1": 183,
+      "same_top1_rate": 0.72619,
+      "both_correct": 138,
+      "only_left": 18,
+      "only_right": 11,
+      "both_wrong": 85
+    },
+    {
+      "left": "j76_CTR-GCN",
+      "right": "j76_MS-TCN",
+      "shared": 252,
+      "same_top1": 175,
+      "same_top1_rate": 0.694444,
+      "both_correct": 133,
+      "only_left": 23,
+      "only_right": 4,
+      "both_wrong": 92
+    },
+    {
+      "left": "j76_CTR-GCN",
+      "right": "j68_ST-GCN",
+      "shared": 252,
+      "same_top1": 190,
+      "same_top1_rate": 0.753968,
+      "both_correct": 148,
+      "only_left": 8,
+      "only_right": 5,
+      "both_wrong": 91
+    },
+    {
+      "left": "j76_CTR-GCN",
+      "right": "j76_ST-GCN",
+      "shared": 252,
+      "same_top1": 183,
+      "same_top1_rate": 0.72619,
+      "both_correct": 144,
+      "only_left": 12,
+      "only_right": 6,
+      "both_wrong": 90
+    },
+    {
+      "left": "j68_MS-TCN",
+      "right": "j76_MS-TCN",
+      "shared": 252,
+      "same_top1": 181,
+      "same_top1_rate": 0.718254,
+      "both_correct": 126,
+      "only_left": 23,
+      "only_right": 11,
+      "both_wrong": 92
+    },
+    {
+      "left": "j68_MS-TCN",
+      "right": "j68_ST-GCN",
+      "shared": 252,
+      "same_top1": 179,
+      "same_top1_rate": 0.710317,
+      "both_correct": 136,
+      "only_left": 13,
+      "only_right": 17,
+      "both_wrong": 86
+    },
+    {
+      "left": "j68_MS-TCN",
+      "right": "j76_ST-GCN",
+      "shared": 252,
+      "same_top1": 178,
+      "same_top1_rate": 0.706349,
+      "both_correct": 135,
+      "only_left": 14,
+      "only_right": 15,
+      "both_wrong": 88
+    },
+    {
+      "left": "j76_MS-TCN",
+      "right": "j68_ST-GCN",
+      "shared": 252,
+      "same_top1": 169,
+      "same_top1_rate": 0.670635,
+      "both_correct": 131,
+      "only_left": 6,
+      "only_right": 22,
+      "both_wrong": 93
+    },
+    {
+      "left": "j76_MS-TCN",
+      "right": "j76_ST-GCN",
+      "shared": 252,
+      "same_top1": 166,
+      "same_top1_rate": 0.65873,
+      "both_correct": 128,
+      "only_left": 9,
+      "only_right": 22,
+      "both_wrong": 93
+    },
+    {
+      "left": "j68_ST-GCN",
+      "right": "j76_ST-GCN",
+      "shared": 252,
+      "same_top1": 198,
+      "same_top1_rate": 0.785714,
+      "both_correct": 144,
+      "only_left": 9,
+      "only_right": 6,
+      "both_wrong": 93
+    }
+  ]
+}

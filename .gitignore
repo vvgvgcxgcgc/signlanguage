@@ -25,3 +25,5 @@ vsl400-keypoint/
 
 # test files
 test.ipynb
+
+*.npy

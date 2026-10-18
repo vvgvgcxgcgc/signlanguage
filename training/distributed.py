@@ -96,13 +96,46 @@ def _mps_available() -> bool:
     return backend is not None and torch.backends.mps.is_available()
 
 
+def apply_cpu_fallback(config) -> bool:
+    """Train on one CPU process when the config asks for CUDA and none exists.
+
+    The bash launchers pin ``--device cuda`` and ``--parallel ddp``. Without a
+    GPU that used to raise. Rank 0 rewrites the config to CPU and
+    ``parallel=none``. Other torchrun ranks return False so they exit instead
+    of training the same run twice.
+    """
+    if torch.cuda.is_available():
+        return True
+    gpu_requested = config.device == "cuda" or config.parallel in {"dp", "ddp"}
+    if not gpu_requested:
+        return True
+    rank = int(os.environ.get("RANK", "0"))
+    if rank != 0:
+        logger.warning(
+            "No CUDA device (requested device=%s parallel=%s). Rank %d exiting; rank 0 trains on CPU.",
+            config.device,
+            config.parallel,
+            rank,
+        )
+        return False
+    logger.warning(
+        "No CUDA device (requested device=%s parallel=%s). Falling back to CPU with parallel=none.",
+        config.device,
+        config.parallel,
+    )
+    config.device = "cpu"
+    config.parallel = "none"
+    return True
+
+
 def resolve_device(topology: Topology, parallel: str, device: str = "auto") -> torch.device:
     """Pick the compute device for this process.
 
     `auto` prefers CUDA, then Apple MPS, then CPU. An explicit `cpu` skips
-    both accelerators. `dp` and `ddp` stay CUDA-only: a T4 session with the
-    accelerator off, or a CPU torch wheel, has to fail here instead of
-    training for hours on the host.
+    both accelerators. `fit` calls `apply_cpu_fallback` first, so a bash
+    config that says CUDA still reaches this function as CPU when the machine
+    has no GPU. A raw `cuda` / `dp` / `ddp` request with no GPU still fails
+    here.
     """
     if parallel in {"dp", "ddp"} and device in {"cpu", "mps"}:
         raise RuntimeError(f"parallel={parallel!r} needs CUDA, got device={device!r}.")
