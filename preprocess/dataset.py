@@ -34,9 +34,6 @@ N_CHANNELS = 4
 BODY_COUNT = 34
 LEFT_SHOULDER = 11
 RIGHT_SHOULDER = 12
-# Pose wrists sit before the leg joints, so the index holds for 68 and 76.
-LEFT_WRIST = 15
-RIGHT_WRIST = 16
 MIN_VALID_FRAMES = 3
 # One hand is 21 joints. A one-handed sign may hide a whole hand. Losing more
 # than that means both hands failed, so the frame is not a sign frame.
@@ -47,7 +44,9 @@ MAX_DROPPED_FRACTION = 0.5
 # nearer 60 and keep the rest pose at both ends, so inference repeats the
 # opening rest and the closing rest this many times on each side.
 PREPARE_PAD = 5
-CROP_MODES = ("random", "rest")
+# Training keeps one contiguous span of 85-95% of the clip, so about a tenth
+# is cut. Wider cuts reach into the signing span of short signs.
+CROP_RANGE = (0.85, 0.95)
 LEG_INDICES = (25, 26, 27, 28, 29, 30, 31, 32)
 _KEEP_JOINTS = np.array([index for index in range(N_JOINTS) if index not in LEG_INDICES], dtype=np.int64)
 
@@ -326,47 +325,6 @@ def _temporal_crop(
     return np.ascontiguousarray(clip[start:start + span])
 
 
-def active_span(clip: np.ndarray, rise: float = 0.3, min_lift: float = 0.1) -> Optional[tuple[int, int]]:
-    """First and last frame where the higher pose wrist is lifted off its rest height.
-
-    `clip` is a normalized (T, J, 4) clip, where y grows downward in shoulder
-    widths. Rest is the lower of the mean heights over the first three and
-    the last three frames. A frame is active once the wrist has risen `rise`
-    of the way from rest to its highest point. Returns None when the wrist
-    never rises `min_lift` above rest, so there is no phase to protect.
-    """
-    wrists = (LEFT_WRIST, RIGHT_WRIST)
-    seen = clip[:, wrists, N_COORDS] > 0
-    top = np.where(seen, clip[:, wrists, 1], np.inf).min(axis=1)
-    observed = np.isfinite(top)
-    if int(observed.sum()) < MIN_VALID_FRAMES:
-        return None
-    head = top[:3][observed[:3]]
-    tail = top[-3:][observed[-3:]]
-    if head.size == 0 and tail.size == 0:
-        return None
-    rest = max(head.mean() if head.size else -np.inf, tail.mean() if tail.size else -np.inf)
-    peak = float(top[observed].min())
-    if rest - peak < min_lift:
-        return None
-    active = np.flatnonzero(observed & (top < rest - rise * (rest - peak)))
-    if active.size == 0:
-        return None
-    return int(active[0]), int(active[-1])
-
-
-def _rest_crop_bounds(clip: np.ndarray, rng: np.random.Generator) -> tuple[int, int]:
-    """Random [start, end) that only ever cuts frames before or after the active span."""
-    frames = int(clip.shape[0])
-    span = active_span(clip)
-    if span is None or frames <= 1:
-        return 0, frames
-    first, last = span
-    start = int(rng.integers(0, first + 1))
-    end = int(rng.integers(last + 1, frames + 1))
-    return start, end
-
-
 def _aligned_temporal_crop(
     clip: np.ndarray,
     fraction: float,
@@ -455,11 +413,8 @@ class KeypointDataset(Dataset):
         scale_range: tuple[float, float] = (0.5, 1.5),
         rotate_deg: float = 15.0,
         noise_std: float = 0.01,
-        crop_range: tuple[float, float] = (0.5, 1.0),
-        crop_mode: str = "random",
+        crop_range: tuple[float, float] = CROP_RANGE,
     ) -> None:
-        if crop_mode not in CROP_MODES:
-            raise ValueError(f"crop_mode must be one of {CROP_MODES}, got {crop_mode!r}")
         if scale_range[0] <= 0 or scale_range[0] > scale_range[1]:
             raise ValueError(f"scale_range must be positive and ordered, got {scale_range}")
         if rotate_deg < 0:
@@ -487,10 +442,6 @@ class KeypointDataset(Dataset):
         self.rotate_deg = float(rotate_deg)
         self.noise_std = float(noise_std)
         self.crop_range = (float(crop_range[0]), float(crop_range[1]))
-        # "random" keeps any 50-100% span. "rest" only trims the idle and
-        # raise or lower frames outside active_span, so a sign whose evidence
-        # sits in a few middle frames never loses them.
-        self.crop_mode = crop_mode
         self.epoch = 0
 
     @property
@@ -520,20 +471,7 @@ class KeypointDataset(Dataset):
             return tuple(branch[index] for branch in self.features), label
         rng = _sample_rng(self.seed, self.epoch, index)
         cropped: list[np.ndarray] = []
-        if self.crop_mode == "rest":
-            reference = self.features[0][index].numpy()
-            start, end = _rest_crop_bounds(reference, rng)
-            frames = int(reference.shape[0])
-            for branch in self.features:
-                clip = branch[index].numpy()
-                length = int(clip.shape[0])
-                low = int(round(start * length / frames))
-                high = max(low + 1, int(round(end * length / frames)))
-                span = np.ascontiguousarray(clip[low:high])
-                if span.shape[0] != length:
-                    span = interpolate_clip(span, length)
-                cropped.append(span)
-        elif len(self.features) == 1:
+        if len(self.features) == 1:
             clip = self.features[0][index].numpy()
             span = _temporal_crop(clip, rng, self.crop_range)
             if span.shape[0] != clip.shape[0]:
@@ -775,8 +713,7 @@ def build_datasets(
     scale_range: tuple[float, float] = (0.5, 1.5),
     rotate_deg: float = 15.0,
     noise_std: float = 0.01,
-    crop_range: tuple[float, float] = (0.5, 1.0),
-    crop_mode: str = "random",
+    crop_range: tuple[float, float] = CROP_RANGE,
 ) -> tuple[KeypointDataset, KeypointDataset, list[str]]:
     """Filter glosses on the train split, write the label list, and build both datasets.
 
@@ -853,7 +790,6 @@ def build_datasets(
         "rotate_deg": rotate_deg,
         "noise_std": noise_std,
         "crop_range": crop_range,
-        "crop_mode": crop_mode,
     }
     train_dataset = KeypointDataset(train_features, train_labels, train=True, **shared)
     test_dataset = KeypointDataset(test_features, test_labels, train=False, **shared)

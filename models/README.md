@@ -43,6 +43,7 @@ Every model takes one tensor and returns logits.
 | `MS-TCN` | 690,742 | 707,254 | cheap temporal-only floor every graph model must beat |
 | `ST-GCN` | 3,265,046 | 3,296,662 | honest graph baseline, the number to compare against |
 | `CTR-GCN` | 1,640,529 | 1,672,145 | best accuracy per parameter in this family; start here |
+| `CTR-GCN-BT` | 2,227,903 | 2,259,519 | CTR-GCN with temporal capacity moved back from spatial; opt-in, not in the sweep |
 | `AAGCN` | 3,919,089 | 3,950,705 | learns its own topology, survives a wrong declared graph |
 | `Transformer` | 5,144,502 | 5,177,398 | different failure modes, worth it only in an ensemble |
 
@@ -76,6 +77,26 @@ where the arm is. Temporally, one 9x1 convolution becomes four parallel views
 wide. That temporal swap is where most of the saving against ST-GCN comes
 from. `alpha` starts at zero, so at initialization this is a plain graph
 convolution on the declared skeleton.
+
+### CTR-GCN-BT — `ctrgcn.py`
+
+CTR-GCN puts 65% of its parameters in the spatial half and 25% in the
+temporal half, the opposite of ST-GCN. `BalancedCTRGCN` moves part of that
+back without reaching either ST-GCN or AAGCN, which overfits.
+
+- Spatial: the three partitions keep their own value projection and learnable
+  topology, but share one query, key, and expand, so the per-channel
+  refinement is built once per block instead of once per partition.
+- Temporal: two views, each `out_channels // 2` wide, a 9x1 convolution and
+  a 5x1 at dilation 2, both covering 9 frames, followed by dropout 0.2.
+
+| part (J=76) | ST-GCN | CTR-GCN-BT | CTR-GCN |
+|---|---:|---:|---:|
+| spatial | 813,936 | 933,977 | 1,089,835 |
+| temporal | 2,326,464 | 1,169,280 | 426,048 |
+
+ST-GCN counts its two batch norms with the half they follow. AnchorGCN still
+builds on the original `CTRGCNBlock`.
 
 ### AAGCN — `aagcn.py`
 
@@ -138,9 +159,9 @@ head can tell rest from signing without any frame being cut; Nhẹ/Bây giờ
 differ inside the raise. `model.frame_weights` holds the attention over
 positions from the last forward.
 
-Train them with `--crop-mode rest`. The default random crop keeps a 50-100%
-span and cuts into the active signing span in 53% of draws; `rest` only trims
-frames before and after it (`preprocess.dataset.active_span`).
+Training keeps one contiguous span of 85-95% of every clip
+(`preprocess.dataset.CROP_RANGE`), so about a tenth of the frames is cut. The
+earlier 50-100% crop cut into the active signing span in 53% of draws.
 
 ## The skeleton graph — `graph.py`
 

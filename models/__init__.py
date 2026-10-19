@@ -15,7 +15,7 @@ from models.classifiers import (
     predict_gloss,
     save_checkpoint,
 )
-from models.ctrgcn import CTRGCN
+from models.ctrgcn import CTRGCN, BalancedCTRGCN
 from models.embed import MaskedSkeletonEmbed, SkeletonFeatures, masked_global_pool
 from models.factory import MODEL_NAMES, SWEEP_NAMES, build_model, count_parameters, pick_device
 from models.graph import SkeletonGraph, build_graph, verify_joint_names
@@ -28,6 +28,7 @@ from models.transformer import SignTransformer
 __all__ = [
     "AAGCN",
     "AnchorGCN",
+    "BalancedCTRGCN",
     "CTRGCN",
     "MODEL_NAMES",
     "SWEEP_NAMES",

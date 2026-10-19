@@ -30,7 +30,6 @@ torchrun --standalone --nproc_per_node=2 -m training.run \
   --select-by macro_f1 \
   --checkpoint-dir checkpoints \
   --min-train-samples 20 \
-  --crop-mode rest \
   --optimizer sgd \
   --lr 0.1 \
   --momentum 0.9 \

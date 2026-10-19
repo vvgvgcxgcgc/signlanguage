@@ -18,7 +18,7 @@ import torch.nn as nn
 
 from models.aagcn import AAGCN
 from models.anchorgcn import BLOCKS_T32, AnchorGCN
-from models.ctrgcn import CTRGCN
+from models.ctrgcn import CTRGCN, BalancedCTRGCN
 from models.graph import SkeletonGraph, build_graph
 from models.mstcn import MSTCN
 from models.multirate_stgcn import MultiRateAttentionSTGCN
@@ -28,11 +28,12 @@ from models.transformer import SignTransformer
 logger = logging.getLogger(__name__)
 
 # The original five stay the `--model all` sweep so old batch jobs do not
-# suddenly grow a sixth run. MultiRate and AnchorGCN are opt-in by name.
+# suddenly grow a sixth run. MultiRate, CTR-GCN-BT, and AnchorGCN are opt-in by name.
 SWEEP_NAMES = ("MS-TCN", "ST-GCN", "CTR-GCN", "AAGCN", "Transformer")
 MODEL_NAMES = (
     *SWEEP_NAMES,
     "MultiRate-Attn-STGCN",
+    "CTR-GCN-BT",
     "AnchorGCN-A",
     "AnchorGCN",
     "AnchorGCN-AS",
@@ -45,6 +46,7 @@ _BUILDERS: dict[str, Callable[..., nn.Module]] = {
     "ST-GCN": STGCN,
     "MultiRate-Attn-STGCN": MultiRateAttentionSTGCN,
     "CTR-GCN": CTRGCN,
+    "CTR-GCN-BT": BalancedCTRGCN,
     "AAGCN": AAGCN,
     "Transformer": SignTransformer,
     # Anchor features on the input only, the cheapest step of the ablation.

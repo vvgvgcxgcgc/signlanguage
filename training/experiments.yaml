@@ -61,9 +61,11 @@ runs:
   # Hand-to-anchor ablation against CTR-GCN j76, scripts 13-18 in training/runs.
   - { <<: [*shared, *sgd], model: AnchorGCN-A, is_leg: true, tag: j76 }
   - { <<: [*shared, *sgd], model: AnchorGCN, is_leg: true, tag: j76 }
-  # Over-pooling ablation, one change per step. crop_mode rest only trims the
-  # frames outside the active signing span; random cuts into it 53% of the time.
-  - { <<: [*shared, *sgd], model: AnchorGCN, is_leg: true, crop_mode: rest, tag: j76rest }
-  - { <<: [*shared, *sgd], model: AnchorGCN-AS, is_leg: true, crop_mode: rest, tag: j76rest }
-  - { <<: [*shared, *sgd], model: AnchorGCN-T, is_leg: true, crop_mode: rest, tag: j76rest }
-  - { <<: [*shared, *sgd], model: AnchorGCN-T32, is_leg: true, crop_mode: rest, tag: j76rest }
+  # Over-pooling ablation, one change per step. The tag predates the 85-95%
+  # crop and is kept so resume paths stay valid.
+  - { <<: [*shared, *sgd], model: AnchorGCN, is_leg: true, tag: j76rest }
+  - { <<: [*shared, *sgd], model: AnchorGCN-AS, is_leg: true, tag: j76rest }
+  - { <<: [*shared, *sgd], model: AnchorGCN-T, is_leg: true, tag: j76rest }
+  - { <<: [*shared, *sgd], model: AnchorGCN-T32, is_leg: true, tag: j76rest }
+  # More temporal and less spatial than CTR-GCN, script 19 in training/runs.
+  - { <<: [*shared, *sgd], model: CTR-GCN-BT, is_leg: true, tag: j76 }
