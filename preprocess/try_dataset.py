@@ -17,8 +17,6 @@ from pathlib import Path
 from typing import Optional, Sequence
 
 import numpy as np
-import torch
-from torch.utils.data import DataLoader, SequentialSampler
 
 from preprocess.dataset import (
     N_JOINTS,
@@ -26,7 +24,6 @@ from preprocess.dataset import (
     SINGLE_MODES,
     TemporalMode,
     build_datasets,
-    loader_kwargs,
     make_loader,
 )
 
@@ -93,22 +90,13 @@ def _log_shape(name: str, dataset) -> None:
     if len(dataset) == 0:
         logger.info("%s loader is empty", name)
         return
-    dataset.set_epoch(0)
-    loader = make_loader(dataset, BATCH_SIZE, SEED, num_workers=WORKERS)
-    iterator = iter(loader)
-    try:
-        branches, labels = next(iterator)
-    finally:
-        shutdown = getattr(iterator, "_shutdown_workers", None)
-        if shutdown is not None:
-            shutdown()
-        del iterator
-        del loader
+    loader = make_loader(dataset, BATCH_SIZE, SEED, num_workers=0)
+    branches, labels = next(iter(loader))
     shapes = ", ".join(f"{mode.name}={tuple(branch.shape)}" for mode, branch in zip(dataset.modes, branches))
     logger.info("%s %s labels=%s", name, shapes, tuple(labels.shape))
 
 
-def _run(root: Path, metadata_path: Path) -> None:
+def _run(root: Path, metadata_path: Path) -> Optional[int]:
     try:
         train_set, test_set, _names = build_datasets(
             root,
@@ -126,49 +114,19 @@ def _run(root: Path, metadata_path: Path) -> None:
         )
     except (FileNotFoundError, RuntimeError, ValueError) as exc:
         logger.error("build_datasets stopped: %s", exc)
-        return
+        return None
     _log_shape("train", train_set)
     _log_shape("test", test_set)
-    _check_epoch(train_set)
+    return len(train_set)
 
 
-def _check_epoch(dataset) -> None:
-    """Workers must see set_epoch, or every epoch repeats the first crop."""
-    dataset.set_epoch(1)
-    held = dataset[0][0][0].clone()
-    loader = DataLoader(
-        dataset,
-        batch_size=1,
-        sampler=SequentialSampler(dataset),
-        **loader_kwargs(WORKERS),
-    )
-    iterator = iter(loader)
-    try:
-        dataset.set_epoch(2)
-        branched = next(iterator)[0][0][0]
-        fresh = dataset[0][0][0]
-    finally:
-        shutdown = getattr(iterator, "_shutdown_workers", None)
-        if shutdown is not None:
-            shutdown()
-        del iterator
-        del loader
-    if torch.equal(held, fresh):
-        logger.error("epoch change left the train sample unchanged")
-        return
-    if not torch.equal(branched, fresh):
-        logger.error("loader workers kept a stale epoch")
-        return
-    logger.info("workers follow set_epoch")
-
-
-def _check_labels_stick(root: Path, metadata_path: Path) -> None:
-    """A second build must keep the existing label list and stay off the files."""
+def _check_labels_stick(root: Path, metadata_path: Path, train_count: int) -> None:
+    """A second build must keep the existing label list and ignore new glosses."""
     original = metadata_path.read_text(encoding="utf-8")
     decoy = root / "train" / "gamma"
     decoy.mkdir(parents=True, exist_ok=True)
     np.save(decoy / "00.npy", _raw_clip())
-    _train, _test, names = build_datasets(
+    train_set, _test, names = build_datasets(
         root,
         min_train_samples=MIN_TRAIN_SAMPLES,
         modes=_selected_modes(),
@@ -176,6 +134,7 @@ def _check_labels_stick(root: Path, metadata_path: Path) -> None:
         seed=SEED,
         min_shoulder=MIN_SHOULDER,
         metadata_path=metadata_path,
+        workers=WORKERS,
         scale_range=SCALE_RANGE,
         rotate_deg=ROTATE_DEG,
         noise_std=NOISE_STD,
@@ -184,8 +143,8 @@ def _check_labels_stick(root: Path, metadata_path: Path) -> None:
     if names != ["alpha", "beta"] or metadata_path.read_text(encoding="utf-8") != original:
         logger.error("existing labels file was rebuilt")
         return
-    if any("gamma" in path for path in _train.paths):
-        logger.error("labels file did not limit the indexed glosses")
+    if "gamma" in names or len(train_set) != train_count:
+        logger.error("labels file did not limit the loaded glosses")
         return
     logger.info("existing labels file left unchanged")
 
@@ -197,8 +156,9 @@ def main() -> None:
             root = Path(folder)
             _write_synthetic(root)
             metadata_path = root / "labels.json"
-            _run(root, metadata_path)
-            _check_labels_stick(root, metadata_path)
+            train_count = _run(root, metadata_path)
+            if train_count is not None:
+                _check_labels_stick(root, metadata_path, train_count)
         return
     root = Path(ROOT)
     with tempfile.TemporaryDirectory(prefix="try-labels-") as folder:

@@ -24,7 +24,6 @@ from preprocess.dataset import (
     MULTIRATE_MODES,
     TemporalMode,
     build_datasets,
-    loader_kwargs,
 )
 from training.config import TrainConfig
 from training.distributed import Topology, barrier
@@ -52,7 +51,7 @@ class Splits:
 
 
 def build_splits(config: TrainConfig, topology: Topology) -> Splits:
-    """Index the label list once per rank and wire up both loaders."""
+    """Load the label list and the cached clips once per rank."""
     modes = (
         MULTIRATE_MODES
         if config.model == "MultiRate-Attn-STGCN"
@@ -85,23 +84,21 @@ def build_splits(config: TrainConfig, topology: Topology) -> Splits:
         raise RuntimeError(f"no usable test clips under {config.root}")
 
     # Each rank draws its own balanced batch, so the effective batch is
-    # micro_batch * world_size per optimizer micro-step. Clips stay on disk;
-    # workers read one sample at a time and spawn so they miss the CUDA context.
+    # micro_batch * world_size per optimizer micro-step.
     sampler = BalancedBatchSampler(
         train_dataset.labels,
         config.micro_batch,
         config.seed + 1000 * topology.rank,
     )
-    runtime = {
-        **loader_kwargs(config.workers),
-        "pin_memory": torch.cuda.is_available(),
-        "drop_last": False,
-    }
+    # Clips already sit in RAM. Extra workers would fork that tensor and the
+    # CUDA context, which is what was filling host memory.
     train_loader = DataLoader(
         train_dataset,
         batch_size=config.micro_batch,
         sampler=sampler,
-        **runtime,
+        num_workers=0,
+        pin_memory=torch.cuda.is_available(),
+        drop_last=False,
     )
 
     val_sampler = (
@@ -114,11 +111,9 @@ def build_splits(config: TrainConfig, topology: Topology) -> Splits:
         batch_size=config.micro_batch,
         sampler=val_sampler,
         shuffle=False,
-        **{
-            **loader_kwargs(config.workers),
-            "pin_memory": torch.cuda.is_available(),
-            "drop_last": False,
-        },
+        num_workers=0,
+        pin_memory=torch.cuda.is_available(),
+        drop_last=False,
     )
 
     if topology.is_main:

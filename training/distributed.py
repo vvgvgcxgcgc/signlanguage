@@ -4,9 +4,10 @@ Launch with torchrun, which sets RANK, LOCAL_RANK, and WORLD_SIZE:
 
     torchrun --nproc_per_node=2 -m training.run --parallel ddp --root DATA
 
-Every rank indexes its own dataset. Rank 0 goes first so only one process
-writes the class list when that JSON is missing. `--labels` points at the
-file; otherwise it is labels/<tag>_<model>.json in the working directory.
+Every rank loads its clips into RAM. Rank 0 goes first so only one process
+writes the class list when that JSON is missing. An existing file is used
+as-is. `--labels` points at the file; otherwise it is
+labels/<tag>_<model>.json in the working directory.
 """
 
 from __future__ import annotations
