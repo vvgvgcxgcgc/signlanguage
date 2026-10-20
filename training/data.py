@@ -13,7 +13,10 @@ so no clip is scored twice.
 from __future__ import annotations
 
 import logging
+import os
+import time
 from dataclasses import dataclass
+from pathlib import Path
 
 import torch
 from torch.utils.data import DataLoader, DistributedSampler
@@ -26,9 +29,12 @@ from preprocess.dataset import (
     build_datasets,
 )
 from training.config import TrainConfig
-from training.distributed import Topology, barrier
+from training.distributed import Topology
 
 logger = logging.getLogger(__name__)
+
+_POLL_SECONDS = 2.0
+_LOG_EVERY_SECONDS = 60.0
 
 
 @dataclass
@@ -50,16 +56,67 @@ class Splits:
         return self.train_dataset.num_joints
 
 
+def _ready_path(config: TrainConfig, rank: int) -> Path:
+    run_id = os.environ.get("TORCHELASTIC_RUN_ID", "local")
+    return config.checkpoint_dir / f".dataset-ready-{run_id}-rank{rank}"
+
+
+def _publish_ready(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(path.name + ".tmp")
+    temporary.write_text("ready\n", encoding="utf-8")
+    os.replace(temporary, path)
+
+
+def _wait_ready(path: Path, rank: int) -> None:
+    """Poll a sentinel. This must not be an NCCL collective.
+
+    ``dist.barrier`` is an allreduce, and the NCCL watchdog aborts it after
+    600s. Loading clips takes longer than that on the full set.
+    """
+    logger.info("Waiting for rank %d to finish loading clips", rank)
+    started = time.monotonic()
+    next_log = started
+    while not path.is_file():
+        now = time.monotonic()
+        if now - next_log >= _LOG_EVERY_SECONDS:
+            logger.info(
+                "Still waiting for rank %d, %.0f min elapsed",
+                rank,
+                (now - started) / 60.0,
+            )
+            next_log = now
+        time.sleep(_POLL_SECONDS)
+
+
+def _wait_for_earlier_ranks(config: TrainConfig, topology: Topology) -> None:
+    if not topology.distributed:
+        return
+    for earlier in range(topology.rank):
+        _wait_ready(_ready_path(config, earlier), earlier)
+
+
+def _publish_and_wait_for_later_ranks(config: TrainConfig, topology: Topology) -> None:
+    if not topology.distributed:
+        return
+    _publish_ready(_ready_path(config, topology.rank))
+    for later in range(topology.rank + 1, topology.world_size):
+        _wait_ready(_ready_path(config, later), later)
+
+
 def build_splits(config: TrainConfig, topology: Topology) -> Splits:
-    """Load the label list and the cached clips once per rank."""
+    """Load the label list and the cached clips once per rank.
+
+    Ranks load one at a time and wait on sentinel files. The NCCL watchdog
+    stays idle until every rank has its clips in RAM and training actually
+    starts.
+    """
     modes = (
         MULTIRATE_MODES
         if config.model == "MultiRate-Attn-STGCN"
         else (TemporalMode("main", config.frames),)
     )
-    # Rank 0 goes first so only one process writes labels.json.
-    if not topology.is_main:
-        barrier(topology)
+    _wait_for_earlier_ranks(config, topology)
     train_dataset, val_dataset, class_names = build_datasets(
         config.root,
         min_train_samples=config.min_train_samples,
@@ -75,8 +132,7 @@ def build_splits(config: TrainConfig, topology: Topology) -> Splits:
         name=f"{config.tag}_{config.model}",
         metadata_path=config.labels,
     )
-    if topology.is_main:
-        barrier(topology)
+    _publish_and_wait_for_later_ranks(config, topology)
 
     if len(train_dataset) == 0:
         raise RuntimeError(f"no usable train clips under {config.root}")
