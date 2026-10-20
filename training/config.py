@@ -58,6 +58,8 @@ class TrainConfig:
     checkpoint_dir: Path = Path("checkpoints")
     # Full training state to continue from. None trains from scratch.
     resume: Path | None = None
+    # Class list JSON. None keeps labels/{tag}_{model}.json in the working directory.
+    labels: Path | None = None
     tag: str = "vsl"
     # Macro F1 is the default selector because accuracy on hundreds of skewed
     # classes can climb while most of the tail stays unlearned.
@@ -73,6 +75,8 @@ class TrainConfig:
         self.checkpoint_dir = Path(self.checkpoint_dir)
         if self.resume is not None:
             self.resume = Path(self.resume)
+        if self.labels is not None:
+            self.labels = Path(self.labels)
         if self.optimizer not in OPTIMIZERS:
             raise ValueError(f"optimizer must be one of {OPTIMIZERS}, got {self.optimizer!r}")
         if self.parallel not in PARALLEL_MODES:

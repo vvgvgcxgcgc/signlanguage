@@ -11,6 +11,7 @@ export NCCL_NVLS_ENABLE=0
 export NCCL_CUMEM_ENABLE=0
 # Empty trains from scratch. Example: checkpoints/j68_MS-TCN_last.pth
 RESUME="/kaggle/input/datasets/lngmnht/multirate-attn-stgcn-checkpoints/j76_MultiRate-Attn-STGCN_last"
+LABELS="labels/j76_CTR-GCN.json"
 torchrun --standalone --nproc_per_node=2 -m training.run \
   --root "/kaggle/input/datasets/huynguang/vsl400-keypoints-final/vsl400-keypoint" \
   --model MS-TCN \
@@ -33,5 +34,6 @@ torchrun --standalone --nproc_per_node=2 -m training.run \
   --lr 0.1 \
   --momentum 0.9 \
   --weight-decay 0.0004 \
+  --labels "$LABELS" \
   --tag j68 \
   ${RESUME:+--resume "$RESUME"}

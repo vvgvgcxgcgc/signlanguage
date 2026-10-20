@@ -4,9 +4,9 @@ Launch with torchrun, which sets RANK, LOCAL_RANK, and WORLD_SIZE:
 
     torchrun --nproc_per_node=2 -m training.run --parallel ddp --root DATA
 
-Every rank builds its own dataset, including the shoulder-scale scan, so that
-cost is paid once per process. Rank 0 goes first so only one process writes
-labels/<tag>_<model>.json in the working directory.
+Every rank indexes its own dataset. Rank 0 goes first so only one process
+writes the class list when that JSON is missing. `--labels` points at the
+file; otherwise it is labels/<tag>_<model>.json in the working directory.
 """
 
 from __future__ import annotations

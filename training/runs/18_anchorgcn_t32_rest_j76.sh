@@ -12,6 +12,7 @@ export NCCL_CUMEM_ENABLE=0
 # Empty trains from scratch. Example: checkpoints/j76rest_AnchorGCN-T32_last.pth
 RESUME="/kaggle/input/datasets/huynguang/checkpoints/signlanguage/checkpoints/j76rest_AnchorGCN-T32_last.pth"
         
+LABELS="labels/j76_CTR-GCN.json"
 torchrun --standalone --nproc_per_node=2 -m training.run \
   --root "/kaggle/input/datasets/huynguang/vsl400-keypoints-final/vsl400-keypoint" \
   --model AnchorGCN-T32 \
@@ -35,5 +36,6 @@ torchrun --standalone --nproc_per_node=2 -m training.run \
   --lr 0.1 \
   --momentum 0.9 \
   --weight-decay 0.0004 \
+  --labels "$LABELS" \
   --tag j76rest \
   ${RESUME:+--resume "$RESUME"}

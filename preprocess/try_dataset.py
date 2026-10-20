@@ -17,6 +17,8 @@ from pathlib import Path
 from typing import Optional, Sequence
 
 import numpy as np
+import torch
+from torch.utils.data import DataLoader, SequentialSampler
 
 from preprocess.dataset import (
     N_JOINTS,
@@ -24,6 +26,7 @@ from preprocess.dataset import (
     SINGLE_MODES,
     TemporalMode,
     build_datasets,
+    loader_kwargs,
     make_loader,
 )
 
@@ -90,8 +93,17 @@ def _log_shape(name: str, dataset) -> None:
     if len(dataset) == 0:
         logger.info("%s loader is empty", name)
         return
-    loader = make_loader(dataset, BATCH_SIZE, SEED, num_workers=0)
-    branches, labels = next(iter(loader))
+    dataset.set_epoch(0)
+    loader = make_loader(dataset, BATCH_SIZE, SEED, num_workers=WORKERS)
+    iterator = iter(loader)
+    try:
+        branches, labels = next(iterator)
+    finally:
+        shutdown = getattr(iterator, "_shutdown_workers", None)
+        if shutdown is not None:
+            shutdown()
+        del iterator
+        del loader
     shapes = ", ".join(f"{mode.name}={tuple(branch.shape)}" for mode, branch in zip(dataset.modes, branches))
     logger.info("%s %s labels=%s", name, shapes, tuple(labels.shape))
 
@@ -117,6 +129,65 @@ def _run(root: Path, metadata_path: Path) -> None:
         return
     _log_shape("train", train_set)
     _log_shape("test", test_set)
+    _check_epoch(train_set)
+
+
+def _check_epoch(dataset) -> None:
+    """Workers must see set_epoch, or every epoch repeats the first crop."""
+    dataset.set_epoch(1)
+    held = dataset[0][0][0].clone()
+    loader = DataLoader(
+        dataset,
+        batch_size=1,
+        sampler=SequentialSampler(dataset),
+        **loader_kwargs(WORKERS),
+    )
+    iterator = iter(loader)
+    try:
+        dataset.set_epoch(2)
+        branched = next(iterator)[0][0][0]
+        fresh = dataset[0][0][0]
+    finally:
+        shutdown = getattr(iterator, "_shutdown_workers", None)
+        if shutdown is not None:
+            shutdown()
+        del iterator
+        del loader
+    if torch.equal(held, fresh):
+        logger.error("epoch change left the train sample unchanged")
+        return
+    if not torch.equal(branched, fresh):
+        logger.error("loader workers kept a stale epoch")
+        return
+    logger.info("workers follow set_epoch")
+
+
+def _check_labels_stick(root: Path, metadata_path: Path) -> None:
+    """A second build must keep the existing label list and stay off the files."""
+    original = metadata_path.read_text(encoding="utf-8")
+    decoy = root / "train" / "gamma"
+    decoy.mkdir(parents=True, exist_ok=True)
+    np.save(decoy / "00.npy", _raw_clip())
+    _train, _test, names = build_datasets(
+        root,
+        min_train_samples=MIN_TRAIN_SAMPLES,
+        modes=_selected_modes(),
+        is_leg=IS_LEG,
+        seed=SEED,
+        min_shoulder=MIN_SHOULDER,
+        metadata_path=metadata_path,
+        scale_range=SCALE_RANGE,
+        rotate_deg=ROTATE_DEG,
+        noise_std=NOISE_STD,
+        crop_range=CROP_RANGE,
+    )
+    if names != ["alpha", "beta"] or metadata_path.read_text(encoding="utf-8") != original:
+        logger.error("existing labels file was rebuilt")
+        return
+    if any("gamma" in path for path in _train.paths):
+        logger.error("labels file did not limit the indexed glosses")
+        return
+    logger.info("existing labels file left unchanged")
 
 
 def main() -> None:
@@ -125,7 +196,9 @@ def main() -> None:
         with tempfile.TemporaryDirectory(prefix="try-dataset-") as folder:
             root = Path(folder)
             _write_synthetic(root)
-            _run(root, root / "labels.json")
+            metadata_path = root / "labels.json"
+            _run(root, metadata_path)
+            _check_labels_stick(root, metadata_path)
         return
     root = Path(ROOT)
     with tempfile.TemporaryDirectory(prefix="try-labels-") as folder:

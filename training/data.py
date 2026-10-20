@@ -24,6 +24,7 @@ from preprocess.dataset import (
     MULTIRATE_MODES,
     TemporalMode,
     build_datasets,
+    loader_kwargs,
 )
 from training.config import TrainConfig
 from training.distributed import Topology, barrier
@@ -51,7 +52,7 @@ class Splits:
 
 
 def build_splits(config: TrainConfig, topology: Topology) -> Splits:
-    """Scan the dataset once per rank and wire up both loaders."""
+    """Index the label list once per rank and wire up both loaders."""
     modes = (
         MULTIRATE_MODES
         if config.model == "MultiRate-Attn-STGCN"
@@ -73,6 +74,7 @@ def build_splits(config: TrainConfig, topology: Topology) -> Splits:
         noise_std=config.noise_std,
         crop_range=config.crop_range,
         name=f"{config.tag}_{config.model}",
+        metadata_path=config.labels,
     )
     if topology.is_main:
         barrier(topology)
@@ -83,21 +85,23 @@ def build_splits(config: TrainConfig, topology: Topology) -> Splits:
         raise RuntimeError(f"no usable test clips under {config.root}")
 
     # Each rank draws its own balanced batch, so the effective batch is
-    # micro_batch * world_size per optimizer micro-step.
+    # micro_batch * world_size per optimizer micro-step. Clips stay on disk;
+    # workers read one sample at a time and spawn so they miss the CUDA context.
     sampler = BalancedBatchSampler(
         train_dataset.labels,
         config.micro_batch,
         config.seed + 1000 * topology.rank,
     )
-    # Clips already sit in RAM. Extra workers would fork that tensor and the
-    # CUDA context, which is what was filling host memory.
+    runtime = {
+        **loader_kwargs(config.workers),
+        "pin_memory": torch.cuda.is_available(),
+        "drop_last": False,
+    }
     train_loader = DataLoader(
         train_dataset,
         batch_size=config.micro_batch,
         sampler=sampler,
-        num_workers=0,
-        pin_memory=torch.cuda.is_available(),
-        drop_last=False,
+        **runtime,
     )
 
     val_sampler = (
@@ -110,9 +114,11 @@ def build_splits(config: TrainConfig, topology: Topology) -> Splits:
         batch_size=config.micro_batch,
         sampler=val_sampler,
         shuffle=False,
-        num_workers=0,
-        pin_memory=torch.cuda.is_available(),
-        drop_last=False,
+        **{
+            **loader_kwargs(config.workers),
+            "pin_memory": torch.cuda.is_available(),
+            "drop_last": False,
+        },
     )
 
     if topology.is_main:

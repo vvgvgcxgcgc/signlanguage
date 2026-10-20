@@ -89,6 +89,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="checkpoint to continue from, usually {tag}_{model}_last.pth",
     )
     parser.add_argument("--tag", default="vsl", help="checkpoint filename prefix")
+    parser.add_argument(
+        "--labels",
+        type=Path,
+        default=None,
+        help="class list JSON. An existing file is used as-is. Default is labels/{tag}_{model}.json",
+    )
     parser.add_argument("--select-by", default="macro_f1", choices=SELECTION_METRICS)
     parser.add_argument(
         "--mask-only",
@@ -124,6 +130,7 @@ def config_from_args(args: argparse.Namespace, model: str) -> TrainConfig:
         min_train_samples=args.min_train_samples,
         checkpoint_dir=args.checkpoint_dir,
         resume=args.resume,
+        labels=args.labels,
         tag=args.tag,
         select_by=args.select_by,
         mask_only=args.mask_only,

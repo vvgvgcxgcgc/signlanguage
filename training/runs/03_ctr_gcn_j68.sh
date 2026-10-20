@@ -12,6 +12,7 @@ export NCCL_NVLS_ENABLE=0
 export NCCL_CUMEM_ENABLE=0
 # Empty trains from scratch. Example: checkpoints/j68_CTR-GCN_last.pth
 RESUME=""
+LABELS="labels/j76_CTR-GCN.json"
 torchrun --standalone --nproc_per_node=2 -m training.run \
   --root "/Users/huynq/Projects/sign-language/vsl400-keypoint" \
   --model CTR-GCN \
@@ -34,5 +35,6 @@ torchrun --standalone --nproc_per_node=2 -m training.run \
   --lr 0.1 \
   --momentum 0.9 \
   --weight-decay 0.0004 \
+  --labels "$LABELS" \
   --tag j68 \
   ${RESUME:+--resume "$RESUME"}
