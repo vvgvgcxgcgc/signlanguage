@@ -29,3 +29,18 @@ test.ipynb
 *.npy
 *.json
 *.csv
+
+# tải bằng python assets.py (Kaggle: huynguang/vsl-sign-checkpoints)
+/assets/
+demo-video/
+
+# đầu ra của run_eval.py
+*.npz
+
+# số liệu báo cáo (reproduce.sh --figures cần)
+!reports/ket-qua-2026-11-21/*.json
+
+# mẫu .docx của dự án khác, chỉ dùng tham khảo định dạng
+docs/trinh-bay-y-tuong/in.docx
+mau trinh bay y tuong.docx
+.env

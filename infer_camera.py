@@ -11,13 +11,9 @@ own T. A frame that lost the shoulder pair, or more than one hand of points,
 never enters the queue. If half or more of the gesture was rejected, the sign
 is not scored and the window says to perform it again.
 
-    python infer_camera.py \\
-        --checkpoint checkpoints/MS-TCN/j68_MS-TCN_best.pth \\
-        --pose-checkpoint checkpoints/pose_state_mlp_best.pth
-
-    python infer_camera.py \\
-        --checkpoint checkpoints/ST-GCN/j68_ST-GCN_best.pth \\
-        --pose-checkpoint checkpoints/pose_state_mlp_best.pth
+    python infer_camera.py                          # j76_CTR-GCN, tải từ Kaggle
+    python infer_camera.py --model j68_ST-GCN
+    python infer_camera.py --checkpoint assets/checkpoints/j68_MS-TCN_best.pth
 
 One `--checkpoint` file. The architecture comes from `model_name` inside it,
 so an ST-GCN file is the same call as an MS-TCN file. j76 keeps the leg joints
@@ -355,8 +351,9 @@ def run_camera(
 
 def _parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Infer glosses from a webcam.")
-    parser.add_argument("--checkpoint", type=Path, required=True, help="Sign model .pth. Its max_frames is T.")
-    parser.add_argument("--pose-checkpoint", type=Path, required=True, help="PoseStateMLP .pth.")
+    parser.add_argument("--checkpoint", type=Path, default=None, help="Sign model .pth. Its max_frames is T.")
+    parser.add_argument("--model", default=None, help="Experiment name in assets/manifest.json, used without --checkpoint.")
+    parser.add_argument("--pose-checkpoint", type=Path, default=None, help="PoseStateMLP .pth. Default comes from Kaggle.")
     parser.add_argument("--labels", type=Path, default=None, help="JSON label list. Default is the checkpoint's class_names.")
     parser.add_argument("--camera", type=int, default=None, help="Index. Default is the built-in Mac camera.")
     parser.add_argument("--width", type=int, default=0)
@@ -377,6 +374,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         stream=sys.stdout,
         force=True,
     )
+    import assets
+
+    if args.checkpoint is None:
+        args.checkpoint = assets.checkpoint(args.model or assets.DEFAULT_MODEL)
+    if args.pose_checkpoint is None:
+        args.pose_checkpoint = assets.pose_checkpoint()
     if not args.checkpoint.is_file():
         logger.error("Missing sign checkpoint %s", args.checkpoint)
         return 2

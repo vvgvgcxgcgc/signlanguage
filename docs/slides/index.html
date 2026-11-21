@@ -1,0 +1,1095 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nhận diện ngôn ngữ ký hiệu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Noto+Serif:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#16324f; --ink:#1f2933; --muted:#5b6672; --faint:#8a94a0;
+  --line:#d9dee4; --soft:#f3f5f7; --paper:#ffffff; --backdrop:#e6e9ed;
+  --blue:#2a7bd5; --orange:#e8643b; --green:#1ba97a; --teal:#1f9fb0; --amber:#e0a100; --red:#d64545;
+  --sans:"Be Vietnam Pro","Helvetica Neue",Arial,sans-serif;
+  --serif:"Noto Serif",Georgia,"Times New Roman",serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{height:100%;background:var(--backdrop);overflow:hidden;font-family:var(--sans);color:var(--ink)}
+#viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#deck{width:1600px;height:900px;position:relative;transform-origin:center center;flex:none}
+.slide{position:absolute;inset:0;background:var(--paper);display:none;padding:56px 80px 0;box-shadow:0 2px 24px rgba(22,50,79,.10)}
+.slide.active{display:block}
+
+/* Khung chung */
+.slide>header{height:118px;border-bottom:1px solid var(--line);margin-bottom:34px}
+.sec{font-size:15px;font-weight:600;letter-spacing:.14em;color:var(--orange);text-transform:uppercase}
+.slide h2{font-family:var(--serif);font-weight:700;font-size:44px;line-height:1.15;color:var(--navy);margin-top:10px}
+.foot{position:absolute;left:80px;right:80px;bottom:0;height:56px;display:flex;align-items:center;justify-content:space-between;font-size:14px;color:var(--faint);border-top:1px solid var(--line)}
+.foot b{font-weight:600;color:var(--muted)}
+.body{position:absolute;left:80px;right:80px;top:208px;bottom:84px}
+.row{display:flex;gap:40px;height:100%}
+.col{display:flex;flex-direction:column;min-width:0}
+figure{display:flex;flex-direction:column;min-height:0}
+figure img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+figure .frame{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+figcaption{font-size:14px;color:var(--faint);margin-top:10px;line-height:1.4}
+figcaption b{color:var(--muted);font-weight:600}
+
+/* Số lớn và nhận xét */
+.stat{border-left:4px solid var(--navy);padding:4px 0 4px 22px}
+.stat .n{font-family:var(--serif);font-size:64px;font-weight:700;line-height:1;color:var(--navy);font-variant-numeric:tabular-nums}
+.stat .n small{font-size:30px;margin-left:2px}
+.stat .l{font-size:18px;color:var(--muted);margin-top:8px;line-height:1.4}
+.stat.o{border-color:var(--orange)} .stat.o .n{color:var(--orange)}
+.stat.b{border-color:var(--blue)} .stat.b .n{color:var(--blue)}
+.stat.g{border-color:var(--green)} .stat.g .n{color:var(--green)}
+.insight{background:var(--soft);border-radius:4px;padding:20px 24px;font-size:21px;line-height:1.45;color:var(--ink)}
+.insight .k{display:block;font-size:13px;font-weight:700;letter-spacing:.14em;color:var(--orange);text-transform:uppercase;margin-bottom:6px}
+.insight strong{color:var(--navy)}
+.points{list-style:none;display:flex;flex-direction:column;gap:22px}
+.points li{font-size:22px;line-height:1.4;padding-left:30px;position:relative}
+.points li::before{content:"";position:absolute;left:0;top:13px;width:14px;height:3px;background:var(--orange)}
+.points li small{display:block;font-size:16px;color:var(--muted);margin-top:2px}
+.big-points .points{gap:30px}
+.big-points .points li{font-size:26px}
+.daily{position:absolute;left:0;right:0;top:250px;display:flex;align-items:center;gap:56px;color:var(--navy)}
+.daily>div{display:flex;flex-direction:column;align-items:center;gap:12px;font-size:18px}
+.daily svg{width:76px;height:76px;color:var(--muted)}
+.daily b{font-weight:600}
+.daily .arrowtxt{flex-direction:row;font-size:24px;color:var(--muted);margin-left:16px}
+.daily .arrowtxt b{color:var(--orange);margin:0 6px}
+.tag{display:inline-block;font-size:14px;font-weight:600;padding:5px 12px;border:1px solid var(--line);border-radius:3px;color:var(--muted);margin:0 8px 8px 0}
+.tag.new{border-color:var(--orange);color:var(--orange)}
+.tag.base{border-style:dashed}
+
+/* Cắt một phần ảnh: --x --y --w --h theo pixel của ảnh gốc */
+.crop{position:relative;overflow:hidden;aspect-ratio:calc(var(--w)/var(--h));border-radius:3px;background:#eee}
+.crop img{position:absolute;width:calc(var(--iw)/var(--w)*100%);left:calc(-100%*var(--x)/var(--w));top:calc(-100%*var(--y)/var(--h));max-width:none;max-height:none}
+
+/* Trang bìa */
+.cover{padding:0}
+.cover .left{position:absolute;left:96px;top:64px;bottom:64px;width:820px;display:flex;flex-direction:column}
+.cover .org{font-size:16px;font-weight:600;letter-spacing:.08em;color:var(--muted);line-height:1.6;text-transform:uppercase}
+.cover .kind{margin-top:auto;font-size:16px;font-weight:700;letter-spacing:.18em;color:var(--orange)}
+.cover h1{font-family:var(--serif);font-size:58px;line-height:1.18;color:var(--navy);margin:18px 0 28px;font-weight:700}
+.cover .by{font-size:19px;line-height:1.8;color:var(--ink)}
+.cover .by span{color:var(--faint);display:inline-block;width:230px}
+.cover .date{margin-top:auto;font-size:16px;color:var(--faint)}
+.cover .right{position:absolute;right:0;top:0;bottom:0;width:600px;background:var(--navy);display:flex;flex-direction:column;justify-content:center;padding:0 72px}
+.cover .right .crop{width:100%;border-radius:2px}
+.cover .right p{color:#c9d4e0;font-size:15px;margin-top:14px;line-height:1.5}
+.cover .bar{position:absolute;left:96px;top:0;width:120px;height:8px;background:var(--orange)}
+
+/* Mục lục kiểu phần */
+.part.active{display:flex}
+.part{flex-direction:column;justify-content:center;padding:0 140px;background:var(--navy);color:#fff}
+.part .no{font-family:var(--serif);font-size:140px;line-height:1;color:var(--orange);font-weight:700}
+.part h2{color:#fff;font-size:60px;margin-top:18px}
+.part p{font-size:22px;color:#c9d4e0;margin-top:18px;max-width:900px;line-height:1.5}
+
+/* Sơ đồ luồng */
+.flow{display:flex;align-items:flex-start;gap:0;margin-top:6px}
+.step{width:232px;flex:none;text-align:center}
+.step .pic{height:232px;border:1px solid var(--line);border-radius:4px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--soft)}
+.step .pic .crop{width:100%;border-radius:0}
+.step .num{display:inline-flex;width:30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;font-weight:700;font-size:15px;align-items:center;justify-content:center;margin-top:18px}
+.step h4{font-size:20px;font-weight:600;color:var(--navy);margin-top:10px}
+.step p{font-size:15px;color:var(--muted);margin-top:6px;line-height:1.4}
+.arrow{flex:1;height:232px;display:flex;align-items:center;justify-content:center;color:var(--faint)}
+
+/* Bảng giải pháp */
+.opts{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;height:100%}
+.opt{border:1px solid var(--line);border-radius:4px;padding:30px 28px;display:flex;flex-direction:column}
+.opt h4{font-size:24px;color:var(--navy);font-weight:700;min-height:64px;line-height:1.3}
+.opt .glyph{flex:1;min-height:150px;display:flex;align-items:center;justify-content:center;margin:6px 0 18px}
+.opt ul{list-style:none;font-size:18px;line-height:1.5;display:flex;flex-direction:column;gap:10px}
+.opt li{padding-left:26px;position:relative}
+.opt li.p::before{content:"+";position:absolute;left:0;color:var(--green);font-weight:700}
+.opt li.m::before{content:"−";position:absolute;left:0;color:var(--red);font-weight:700}
+.opt.pick{border:2px solid var(--navy);background:#f6f9fc;position:relative}
+.opt.pick .badge{position:absolute;top:-15px;left:26px;background:var(--navy);color:#fff;font-size:13px;font-weight:700;letter-spacing:.1em;padding:6px 12px;border-radius:2px}
+
+/* Câu hỏi nghiên cứu */
+.qs{display:grid;grid-template-columns:1fr 1fr;gap:28px 40px;margin-top:40px}
+.q{display:flex;gap:22px;align-items:flex-start}
+.q .id{font-family:var(--serif);font-size:30px;font-weight:700;color:var(--orange);width:76px;flex:none}
+.q p{font-size:25px;line-height:1.35;color:var(--ink)}
+.q small{display:block;font-size:16px;color:var(--muted);margin-top:4px}
+
+/* Thang ngưỡng */
+.ladder{margin-top:8px}
+.ladder .scale{display:flex;height:46px;border-radius:3px;overflow:hidden}
+.ladder .scale div{display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px}
+.ladder .ticks{position:relative;height:26px;font-size:15px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ladder .ticks span{position:absolute;transform:translateX(-50%);top:6px}
+.ladder .acts{display:flex;margin-top:4px}
+.ladder .acts div{font-size:15px;line-height:1.35;color:var(--muted);padding-right:10px}
+.ladder .acts b{display:block;color:var(--ink);font-size:16px}
+
+/* Demo */
+.demo-screen{position:relative;background:#0e1016;border-radius:6px;overflow:hidden;aspect-ratio:16/9}
+.demo-screen video,.demo-screen img{width:100%;height:100%;object-fit:contain;display:block}
+.demo-screen .live{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;color:#e8ecf2;background:rgba(14,16,22,.82);text-align:center;gap:10px}
+.demo-screen .live.on{display:flex}
+.demo-screen .live .dot{width:14px;height:14px;border-radius:50%;background:var(--green);animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.btn{font-family:var(--sans);font-size:20px;font-weight:600;border-radius:4px;padding:16px 28px;cursor:pointer;border:2px solid var(--navy);background:var(--navy);color:#fff;display:inline-flex;align-items:center;gap:12px}
+.btn:hover{background:#0f2540}
+.btn.ghost{background:#fff;color:var(--navy)}
+.btn.ghost:hover{background:var(--soft)}
+.btn.stop{background:#fff;color:var(--red);border-color:var(--red)}
+.btn[disabled]{opacity:.5;cursor:default}
+.btn svg{width:20px;height:20px}
+#demo-msg{font-size:16px;color:var(--muted);min-height:24px;margin-top:14px;line-height:1.45}
+
+/* Kết luận */
+.answers{display:flex;flex-direction:column;gap:34px;margin-top:20px}
+.answer{display:grid;grid-template-columns:90px 1fr 280px;gap:24px;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:22px}
+.answer .id{font-family:var(--serif);font-size:28px;font-weight:700;color:var(--orange)}
+.answer p{font-size:27px;line-height:1.35}
+.answer .v{font-family:var(--serif);font-size:36px;font-weight:700;color:var(--navy);text-align:right}
+.answer .v small{display:block;font-family:var(--sans);font-size:14px;font-weight:400;color:var(--faint)}
+
+/* Hình động */
+.animbox{background:#fbfcfd;border:1px solid var(--line);border-radius:6px;height:100%;display:flex;align-items:center;justify-content:center;padding:8px 10px;min-width:0}
+.animbox svg{width:100%;height:100%;display:block}
+.mside{flex:1;display:flex;flex-direction:column;justify-content:center;gap:22px;min-width:0}
+.mside .mline{font-size:19px}
+.mnav{display:flex;flex-wrap:wrap;gap:6px}
+.mnav span{font-size:12.5px;font-weight:600;padding:4px 9px;border-radius:3px;background:var(--soft);color:var(--faint)}
+.mnav span.on{background:var(--navy);color:#fff}
+.mnav span.new{box-shadow:inset 0 0 0 1px var(--orange)}
+.mrole{font-size:14px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.mline{font-size:21px;line-height:1.45;color:var(--ink)}
+.mline b{display:block;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:4px}
+.mstats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;border-top:1px solid var(--line);padding-top:20px}
+.mstats div{font-size:14px;color:var(--muted)}
+.mstats span{display:block;font-family:var(--serif);font-size:32px;font-weight:700;color:var(--navy);line-height:1.1}
+.mgrid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:1fr 1fr;gap:18px;height:100%}
+.mcard{border:1px solid var(--line);border-radius:6px;padding:10px 12px 12px;display:flex;flex-direction:column;min-height:0}
+.mcard svg{width:100%;flex:1;min-height:0}
+.mcard h5{font-size:17px;color:var(--navy);font-weight:700;display:flex;justify-content:space-between;align-items:baseline;margin-top:4px}
+.mcard h5 em{font-style:normal;font-family:var(--serif);font-size:20px}
+.mcard p{font-size:13.5px;color:var(--muted);line-height:1.35;margin-top:2px}
+.mcard.new{border-color:var(--orange)}
+.mcard.note{background:var(--soft);border:none;justify-content:center;padding:22px}
+.mcard.note p{font-size:19px;color:var(--ink);line-height:1.45}
+.slide.active .rise{animation:rise .7s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--d,0) * 110ms + 80ms)}
+@keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+.slide.active .ladder .scale div{animation:grow .9s cubic-bezier(.2,.7,.2,1) both;transform-origin:left center}
+.slide.active .ladder .scale div:nth-child(2){animation-delay:.15s}.slide.active .ladder .scale div:nth-child(3){animation-delay:.3s}.slide.active .ladder .scale div:nth-child(4){animation-delay:.45s}
+@keyframes grow{from{transform:scaleX(0)}to{transform:none}}
+.slide.active>header h2{animation:rise .6s cubic-bezier(.2,.7,.2,1) both}
+body.still .rise,body.still header h2,body.still .hbar .fill,body.still .ladder .scale div{animation:none!important}
+/* Thiết kế thực nghiệm */
+.exp{display:grid;grid-template-columns:200px 1.35fr 1fr 1.15fr;gap:0;height:100%;align-content:start}
+.exp>div{padding:26px 18px;border-bottom:1px solid var(--line);font-size:20px;line-height:1.4;display:flex;flex-direction:column;justify-content:center}
+.exp .h{font-size:13px;font-weight:700;letter-spacing:.12em;color:var(--faint);text-transform:uppercase;padding-top:0;border-bottom:2px solid var(--navy)}
+.exp .id{font-family:var(--serif);font-size:32px;font-weight:700;color:var(--orange);line-height:1}
+.exp .id small{display:block;font-family:var(--sans);font-size:15px;font-weight:600;color:var(--ink);margin-top:6px;line-height:1.3}
+.chip{display:inline-block;font-size:15px;font-weight:600;padding:4px 10px;border-radius:3px;margin:3px 6px 3px 0;line-height:1.3}
+.chip.d{background:#e8f1fb;color:#1d5fa8}
+.chip.m{background:#fdeee8;color:#b4471f}
+.levels{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;position:relative}
+.level{display:flex;flex-direction:column;gap:12px}
+.level .crop{border-radius:4px}
+.level .lv{font-size:13px;font-weight:700;letter-spacing:.14em;color:var(--faint)}
+.level h4{font-size:26px;color:var(--navy);font-weight:700}
+.level .n{font-family:var(--serif);font-size:20px;color:var(--ink)}
+.level p{font-size:17px;color:var(--muted);line-height:1.4}
+.level .ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(22,50,79,.55);color:#fff;font-size:44px;font-weight:700;font-family:var(--serif)}
+.harder{position:absolute;left:0;right:0;top:-30px;height:4px;background:linear-gradient(90deg,var(--line),var(--orange));border-radius:2px}
+.harder span{position:absolute;right:0;top:-24px;font-size:13px;font-weight:700;letter-spacing:.12em;color:var(--orange)}
+.cfg{display:grid;grid-template-columns:1fr 1fr;gap:18px 28px}
+.cfg div{border-left:3px solid var(--line);padding-left:14px;font-size:14px;color:var(--muted)}
+.cfg b{display:block;font-family:var(--serif);font-size:25px;color:var(--navy);font-weight:700;line-height:1.2}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:1fr 1fr;gap:22px;height:100%}
+.metric{border:1px solid var(--line);border-radius:6px;padding:18px 22px;display:flex;flex-direction:column;gap:10px;min-height:0}
+.metric h4{font-size:20px;color:var(--navy);font-weight:700;display:flex;justify-content:space-between;align-items:baseline}
+.metric h4 span{font-size:13px;font-weight:700;color:var(--orange);letter-spacing:.08em}
+.metric .f{flex:1;display:flex;align-items:center;justify-content:center;min-height:0}
+.metric .f .crop{width:100%;background:none}
+.metric p{font-size:15.5px;color:var(--muted);line-height:1.4}
+.metric.main{border:2px solid var(--navy)}
+/* Biểu đồ cột có hiệu ứng */
+.hbars{display:flex;flex-direction:column;gap:11px}
+.hbar{display:grid;grid-template-columns:150px 1fr 190px;align-items:center;gap:14px;font-size:17px;color:var(--ink)}
+.hbar .nm{text-align:right;font-weight:500}
+.hbar .track{height:24px;background:var(--soft);border-radius:3px;overflow:hidden}
+.hbar .fill{height:100%;width:var(--w);background:#6da7ec;border-radius:3px;transform-origin:left center}
+.hbar.p .fill{background:var(--orange)}
+.hbar.p .nm{color:var(--orange);font-weight:700}
+.hbar .v{font-size:15px;color:var(--muted)}
+.hbar .v b{font-family:var(--serif);font-size:20px;color:var(--navy);margin-right:8px}
+.slide.active .hbar .fill{animation:grow 1.1s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i) * 90ms + 250ms)}
+.axisnote{font-size:13px;color:var(--faint);margin-left:164px;margin-top:6px}
+.mini-legend{display:flex;gap:22px;font-size:14px;color:var(--muted);margin-bottom:14px;margin-left:164px}
+.mini-legend i{display:inline-block;width:14px;height:14px;border-radius:2px;vertical-align:-2px;margin-right:6px}
+#progress{position:absolute;left:0;bottom:0;height:3px;background:var(--orange);transition:width .25s}
+#hint{position:fixed;right:14px;top:10px;transition:opacity .6s;font-size:12px;color:#8a94a0;font-family:var(--sans)}
+@media print{#hint{display:none}}
+</style>
+</head>
+<body>
+<div id="viewport"><div id="deck">
+
+<!-- 1. Bìa -->
+<section class="slide cover" data-title="Bìa">
+  <div class="bar"></div>
+  <div class="left">
+    <div class="org">Sở Giáo dục và Đào tạo [Tỉnh/Thành phố]<br>Trường [Tên trường]</div>
+    <div class="kind">DỰ ÁN STEM · BÁO CÁO KẾT QUẢ</div>
+    <h1>Nhận diện ngôn ngữ ký hiệu tiếng Việt bằng mạng nơ-ron, hỗ trợ giao tiếp cho người Điếc</h1>
+    <div class="by">
+      <div><span>Học sinh thực hiện</span>[Họ và tên – Lớp] · [Họ và tên – Lớp]</div>
+      <div><span>Giáo viên hướng dẫn</span>[Họ và tên]</div>
+    </div>
+    <div class="date">[Địa danh], tháng … năm 2026</div>
+  </div>
+  <div class="right">
+    <div class="crop" style="--iw:1385;--ih:582;--x:472;--y:60;--w:443;--h:442"><img src="../bao-cao-ket-qua/bieu-do/hinh-kn-khung-xuong-that.png" alt="Khung xương 76 điểm trên một khung hình VSL400"></div>
+    <p>Một khung hình ký hiệu và 76 điểm khung xương mà mô hình nhìn thấy. Ảnh từ VSL400, vùng mặt đã làm mờ.</p>
+  </div>
+</section>
+
+<!-- 2. Vấn đề -->
+<section class="slide" data-title="Vấn đề">
+  <header><div class="sec">A · Xác định vấn đề</div><h2>Người Điếc và người nghe vẫn thiếu một “cầu nối”</h2></header>
+  <div class="body">
+    <div class="row" style="gap:64px;height:auto;align-items:flex-start;margin-top:40px">
+      <div class="stat b" style="flex:1"><div class="n">2,5 <small>tỷ</small></div><div class="l">người sẽ suy giảm thính lực vào năm 2050<br><span style="color:var(--faint);font-size:15px">WHO [1]</span></div></div>
+      <div class="stat o" style="flex:1"><div class="n">116.000</div><div class="l">trẻ em Điếc ở Việt Nam, phần lớn chỉ dựa vào đọc khẩu hình<br><span style="color:var(--faint);font-size:15px">Ngân hàng Thế giới [3]</span></div></div>
+      <div class="stat" style="flex:1"><div class="n">~4.000</div><div class="l">ký hiệu trong kho QIPEDC: để <b>tra cứu</b>, chưa giúp hai bên <b>trò chuyện</b><br><span style="color:var(--faint);font-size:15px">QIPEDC [3]</span></div></div>
+    </div>
+    <div class="daily">
+      <div><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="10" y="14" width="44" height="40" rx="3"/><path d="M32 24v20M22 34h20"/><path d="M24 14V8h16v6"/></svg><b>Đi khám bệnh</b></div>
+      <div><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 24 32 10l24 14z"/><path d="M14 28v20M26 28v20M38 28v20M50 28v20M8 54h48"/></svg><b>Ngân hàng</b></div>
+      <div><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="14" y="8" width="36" height="48" rx="3"/><path d="M22 20h20M22 30h20M22 40h12"/></svg><b>Thủ tục hành chính</b></div>
+      <div class="arrowtxt">→ thường phải có <b>phiên dịch</b> hoặc người thân đi cùng</div>
+    </div>
+    <div class="insight" style="position:absolute;left:0;right:0;bottom:0">
+      <span class="k">Bài toán</span>
+      Chỉ với <strong>một webcam và máy tính thường</strong>, nhận ra ký hiệu cấp từ và hiện thành chữ, để người nghe hiểu người Điếc trong các trao đổi ngắn hằng ngày.
+    </div>
+  </div>
+</section>
+
+<!-- 3. Giải pháp -->
+<section class="slide" data-title="Giải pháp">
+  <header><div class="sec">B · Đề xuất giải pháp</div><h2>Bốn hướng tiếp cận và lựa chọn của nhóm</h2></header>
+  <div class="body">
+    <div class="opts">
+      <div class="opt">
+        <h4>Phiên dịch viên</h4>
+        <div class="glyph"><svg width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="#8a94a0" stroke-width="4"><circle cx="40" cy="38" r="14"/><path d="M14 98c2-24 14-36 26-36s24 12 26 36"/><circle cx="84" cy="38" r="14"/><path d="M58 98c2-24 14-36 26-36s24 12 26 36"/></svg></div>
+        <ul><li class="p">Chính xác nhất</li><li class="m">Ít người, chi phí cao</li><li class="m">Không phải lúc nào cũng có</li></ul>
+      </div>
+      <div class="opt">
+        <h4>Găng tay cảm biến</h4>
+        <div class="glyph"><svg width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="#8a94a0" stroke-width="4"><path d="M38 108V62l-8-16c-3-6 4-10 8-5l8 12V22c0-7 10-7 10 0v32V16c0-7 10-7 10 0v38V22c0-7 10-7 10 0v34V34c0-7 10-7 10 0v46c0 16-10 28-26 28z"/><circle cx="61" cy="80" r="6"/></svg></div>
+        <ul><li class="p">Đo được ngón tay</li><li class="m">Cần phần cứng riêng</li><li class="m">Không biết tay ở đâu so với mặt</li></ul>
+      </div>
+      <div class="opt">
+        <h4>Mô hình trên video RGB</h4>
+        <div class="glyph"><svg width="140" height="120" viewBox="0 0 140 120" fill="none" stroke="#8a94a0" stroke-width="4"><rect x="10" y="24" width="120" height="76" rx="4"/><path d="M58 46v32l26-16z"/></svg></div>
+        <ul><li class="p">Đủ thông tin hình ảnh</li><li class="m">Mô hình nặng, cần GPU</li><li class="m">Nhạy với phông nền, quần áo</li></ul>
+      </div>
+      <div class="opt pick">
+        <span class="badge">LỰA CHỌN</span>
+        <h4>Khung xương + mạng đồ thị</h4>
+        <div class="glyph"><svg width="120" height="130" viewBox="0 0 120 130" fill="none" stroke="#16324f" stroke-width="4" stroke-linecap="round"><circle cx="60" cy="20" r="11"/><path d="M60 31v46M30 44h60M30 44l-10 32M90 44l12-26M60 77l-16 44M60 77l16 44"/><g fill="#e8643b" stroke="none"><circle cx="60" cy="44" r="5"/><circle cx="30" cy="44" r="5"/><circle cx="90" cy="44" r="5"/><circle cx="20" cy="76" r="5"/><circle cx="102" cy="18" r="5"/><circle cx="60" cy="77" r="5"/></g></svg></div>
+        <ul><li class="p">Chỉ cần webcam, chạy trên CPU</li><li class="p">Không lưu ảnh mặt: chỉ toạ độ</li><li class="m">Phụ thuộc chất lượng MediaPipe</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. Câu hỏi nghiên cứu -->
+<section class="slide" data-title="Câu hỏi">
+  <header><div class="sec">B · Mục tiêu nghiên cứu</div><h2>Bốn câu hỏi nhóm đặt ra</h2></header>
+  <div class="body">
+    <p style="font-size:24px;color:var(--muted);line-height:1.5;max-width:1200px">So sánh <b style="color:var(--navy)">14 mô hình</b> trên cùng dữ liệu, cùng cấu hình huấn luyện, rồi đưa mô hình phù hợp nhất vào một sản phẩm chạy bằng webcam.</p>
+    <div class="qs">
+      <div class="q"><div class="id">CH1</div><p>Mô hình đồ thị có thật sự tốt hơn mô hình thời gian thông thường?<small>So với mốc MS-TCN</small></p></div>
+      <div class="q"><div class="id">CH2</div><p>Có cần giữ các điểm ở chân?<small>76 điểm so với 68 điểm</small></p></div>
+      <div class="q"><div class="id">CH3</div><p>Vì sao một số cặp ký hiệu hay bị nhầm?<small>Xem lại video và quỹ đạo tay</small></p></div>
+      <div class="q"><div class="id">CH4</div><p>Mô hình có dùng được với người ký và video mới?<small>Kiểm tra trên video QIPEDC</small></p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Tổng quan hệ thống -->
+<section class="slide" data-title="Tổng quan">
+  <header><div class="sec">C · Thiết kế</div><h2>Sơ đồ tổng quan hệ thống</h2></header>
+  <div class="body"><div class="animbox" style="border:none;background:none;padding:0"><svg class="anim" data-kind="overview"></svg></div></div>
+</section>
+
+<!-- 5. Hệ thống -->
+<section class="slide" data-title="Hệ thống">
+  <header><div class="sec">C · Thiết kế</div><h2>Từ webcam đến chữ trong năm bước</h2></header>
+  <div class="body">
+    <div class="flow">
+      <div class="step">
+        <div class="pic"><div class="crop" style="--iw:1385;--ih:582;--x:7;--y:60;--w:443;--h:442"><img src="../bao-cao-ket-qua/bieu-do/hinh-kn-khung-xuong-that.png" alt=""></div></div>
+        <div class="num">1</div><h4>Webcam</h4><p>25 khung/giây, cắt vuông 224×224</p>
+      </div>
+      <div class="arrow"><svg width="40" height="20"><path d="M0 10h32M24 3l8 7-8 7" stroke="currentColor" stroke-width="2.5" fill="none"/></svg></div>
+      <div class="step">
+        <div class="pic"><div class="crop" style="--iw:1385;--ih:582;--x:472;--y:60;--w:443;--h:442"><img src="../bao-cao-ket-qua/bieu-do/hinh-kn-khung-xuong-that.png" alt=""></div></div>
+        <div class="num">2</div><h4>Khung xương</h4><p>MediaPipe: 76 điểm thân và hai bàn tay</p>
+      </div>
+      <div class="arrow"><svg width="40" height="20"><path d="M0 10h32M24 3l8 7-8 7" stroke="currentColor" stroke-width="2.5" fill="none"/></svg></div>
+      <div class="step">
+        <div class="pic"><svg width="200" height="150" viewBox="0 0 200 150"><line x1="10" y1="100" x2="190" y2="100" stroke="#d64545" stroke-dasharray="5 4" stroke-width="1.5"/><rect x="58" y="12" width="76" height="126" fill="#1ba97a" opacity=".12"/><path d="M10 128 C40 128 44 128 58 100 C70 70 70 22 96 22 C122 22 122 70 134 100 C146 128 160 128 190 128" fill="none" stroke="#2a7bd5" stroke-width="3"/><text x="192" y="96" font-size="12" text-anchor="end" fill="#d64545" font-family="Be Vietnam Pro, sans-serif">0,3</text><text x="96" y="122" font-size="13" text-anchor="middle" fill="#1ba97a" font-family="Be Vietnam Pro, sans-serif" font-weight="600">ký hiệu</text></svg></div>
+        <div class="num">3</div><h4>Tách ký hiệu</h4><p>Bắt đầu khi tay rời tư thế nghỉ, kết thúc khi hạ tay</p>
+      </div>
+      <div class="arrow"><svg width="40" height="20"><path d="M0 10h32M24 3l8 7-8 7" stroke="currentColor" stroke-width="2.5" fill="none"/></svg></div>
+      <div class="step">
+        <div class="pic"><svg width="170" height="170" viewBox="0 0 170 170" fill="none" stroke-linecap="round"><g stroke="#b9c2cc" stroke-width="3"><path d="M85 30v60M45 50h80M45 50l-14 40M125 50l14 40M85 90l-20 56M85 90l20 56"/></g><g stroke="#2a7bd5" stroke-width="3"><path d="M31 90l-10 6M31 90l-4 12M31 90l4 12"/></g><circle cx="85" cy="20" r="11" stroke="#b9c2cc" stroke-width="3"/><g fill="#2a7bd5"><circle cx="45" cy="50" r="6"/><circle cx="21" cy="96" r="5"/><circle cx="27" cy="102" r="5"/><circle cx="35" cy="102" r="5"/></g><circle cx="31" cy="90" r="9" fill="#e8643b"/><g fill="#8a94a0"><circle cx="85" cy="50" r="5"/><circle cx="125" cy="50" r="5"/><circle cx="139" cy="90" r="5"/><circle cx="85" cy="90" r="5"/></g></svg></div>
+        <div class="num">4</div><h4>Mạng đồ thị</h4><p>CTR-GCN: mỗi khớp gom thông tin khớp lân cận</p>
+      </div>
+      <div class="arrow"><svg width="40" height="20"><path d="M0 10h32M24 3l8 7-8 7" stroke="currentColor" stroke-width="2.5" fill="none"/></svg></div>
+      <div class="step">
+        <div class="pic" style="background:#181b24;flex-direction:column;align-items:flex-start;padding:0 24px;justify-content:center">
+          <div style="font-size:12px;font-weight:700;color:#34d399;letter-spacing:.1em">CHẮC CHẮN</div>
+          <div style="font-size:40px;font-weight:700;color:#eef1f6;margin-top:6px">Cảm ơn</div>
+          <div style="width:100%;height:8px;background:#2c3140;border-radius:4px;margin-top:12px"><div style="width:98%;height:8px;background:#34d399;border-radius:4px"></div></div>
+          <div style="font-size:14px;color:#8c94a8;margin-top:8px">98% · 31 ms</div>
+        </div>
+        <div class="num">5</div><h4>Hiện chữ</h4><p>Từ nhận được, độ tin cậy và 5 từ gợi ý</p>
+      </div>
+    </div>
+    <div style="position:absolute;bottom:0;left:0;right:0;display:flex;gap:16px">
+      <span class="tag">1 webcam</span><span class="tag">chạy trên CPU</span><span class="tag">không lưu ảnh người dùng</span><span class="tag">~31 ms cho mỗi ký hiệu</span>
+    </div>
+  </div>
+</section>
+
+<!-- 6. Dữ liệu -->
+<section class="slide" data-title="Dữ liệu">
+  <header><div class="sec">C · Dữ liệu</div><h2>Bộ dữ liệu VSL400, góc quay chính diện</h2></header>
+  <div class="body">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:40px">
+      <div class="stat"><div class="n">422</div><div class="l">từ (gloss) sau khi lọc</div></div>
+      <div class="stat b"><div class="n">20.698</div><div class="l">clip huấn luyện</div></div>
+      <div class="stat o"><div class="n">5.163</div><div class="l">clip kiểm tra</div></div>
+      <div class="stat g"><div class="n">28</div><div class="l">người ký, có người Điếc</div></div>
+    </div>
+    <figure style="position:absolute;left:0;right:0;bottom:0;top:170px">
+      <div class="frame"><img src="../bao-cao-ket-qua/bieu-do/hinh-kn-chuoi-khung-hinh.png" alt="Chuỗi khung hình của một ký hiệu"></div>
+      <figcaption><b>Một clip</b> là chuỗi khung hình. Mỗi khung được trích thành 76 điểm (x, y, z). Ảnh từ VSL400 [19].</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 7. Chuẩn hoá -->
+<section class="slide" data-title="Chuẩn hoá">
+  <header><div class="sec">C · Tiền xử lý</div><h2>Đo vị trí tay bằng “độ rộng vai”</h2></header>
+  <div class="body">
+    <figure style="height:70%">
+      <div class="frame"><img src="../bao-cao-ket-qua/bieu-do/hinh-kn-chuan-hoa.png" alt="Chuẩn hoá theo vai và nội suy thời gian"></div>
+      <figcaption>Quỹ đạo cổ tay của clip “Con heo”: toạ độ ảnh → sau chuẩn hoá theo vai → nội suy về 64 khung.</figcaption>
+    </figure>
+    <div class="insight" style="position:absolute;left:0;right:0;bottom:0">
+      <span class="k">Ý nghĩa</span>
+      Người cao hay thấp, đứng gần hay xa camera đều cho <strong>cùng một hình dạng chuyển động</strong>. Không lật trái phải, vì tay thuận là một phần của ký hiệu.
+    </div>
+  </div>
+</section>
+
+<!-- Tách ký hiệu -->
+<section class="slide" data-title="Tách ký hiệu">
+  <header><div class="sec">C · Tách ký hiệu thời gian thực</div><h2>Khi nào một ký hiệu bắt đầu và kết thúc?</h2></header>
+  <div class="body"><div class="animbox" style="border:none;background:none;padding:0"><svg class="anim" data-kind="segment"></svg></div></div>
+</section>
+
+<!-- Nguyên lý GCN -->
+<section class="slide" data-title="Nguyên lý GCN">
+  <header><div class="sec">C · Mô hình</div><h2>Mạng nơ-ron đồ thị hoạt động thế nào?</h2></header>
+  <div class="body"><div class="row">
+    <div class="animbox" style="flex:2.3"><svg class="anim" data-kind="gcn"></svg></div>
+    <div class="mside">
+      <p class="mline"><b>Ý tưởng</b>Khung xương là một đồ thị: khớp là đỉnh, xương là cạnh.</p>
+      <p class="mline"><b>Một lớp</b>Mỗi khớp cộng đặc trưng của chính nó với các khớp nối trực tiếp.</p>
+      <p class="mline"><b>Nhiều lớp + thời gian</b>Xếp lớp để nhìn xa hơn, rồi tích chập theo các khung liền nhau.</p>
+      <div class="insight" style="font-size:18px"><span class="k">Các mạng khác nhau ở</span><strong>cách nối các khớp</strong> và <strong>cách nhìn theo thời gian</strong>.</div>
+    </div>
+  </div></div>
+</section>
+
+<!-- Mô hình 1: MS-TCN -->
+<section class="slide" data-title="MS-TCN">
+  <header><div class="sec">C · Mô hình 1/7</div><h2>MS-TCN: không có đồ thị, chỉ nhìn theo thời gian</h2></header>
+  <div class="body"><div class="row">
+    <div class="animbox" style="flex:2.3"><svg class="anim" data-kind="mstcn"></svg></div>
+    <div class="mside">
+      <div class="mnav"><span class="on">MS-TCN</span><span class="">ST-GCN</span><span class="">CTR-GCN</span><span class="">AAGCN</span><span class="">Transformer</span><span class=" new">MultiRate</span><span class=" new">AnchorGCN</span></div>
+      <div class="mrole" style="color:var(--faint)">Mốc so sánh</div>
+      <p class="mline"><b>Cách làm</b>Gộp 76 khớp thành một vector mỗi khung, rồi tích chập giãn 1, 2, 4, 8, 16 theo thời gian.</p>
+      <p class="mline"><b>Khác ở chỗ</b>Không biết khớp nào nối với khớp nào. Rất nhanh, là mốc mà mô hình đồ thị phải vượt.</p>
+      <div class="mstats"><div><span>93,20</span>Macro-F1 (%)</div><div><span>0,71 M</span>tham số</div><div><span>1,4 ms</span>CPU / clip</div></div>
+    </div>
+  </div></div>
+</section>
+
+<!-- Mô hình 2: ST-GCN -->
+<section class="slide" data-title="ST-GCN">
+  <header><div class="sec">C · Mô hình 2/7</div><h2>ST-GCN: thông tin chỉ đi dọc theo xương</h2></header>
+  <div class="body"><div class="row">
+    <div class="animbox" style="flex:2.3"><svg class="anim" data-kind="stgcn"></svg></div>
+    <div class="mside">
+      <div class="mnav"><span class="">MS-TCN</span><span class="on">ST-GCN</span><span class="">CTR-GCN</span><span class="">AAGCN</span><span class="">Transformer</span><span class=" new">MultiRate</span><span class=" new">AnchorGCN</span></div>
+      <div class="mrole" style="color:var(--blue)">Đồ thị cố định</div>
+      <p class="mline"><b>Cách làm</b>Mỗi lớp, một khớp gom thông tin từ các khớp nối trực tiếp với nó, rồi tích chập 9 khung theo thời gian.</p>
+      <p class="mline"><b>Khác ở chỗ</b>Đồ thị không đổi. Đầu ngón tay cách miệng khoảng 10 bước, phải qua nhiều lớp mới “thấy” nhau.</p>
+      <div class="mstats"><div><span>94,72</span>Macro-F1 (%)</div><div><span>3,30 M</span>tham số</div><div><span>20,6 ms</span>CPU / clip</div></div>
+    </div>
+  </div></div>
+</section>
+
+<!-- Mô hình 3: CTR-GCN -->
+<section class="slide" data-title="CTR-GCN">
+  <header><div class="sec">C · Mô hình 3/7</div><h2>CTR-GCN: mỗi kênh đặc trưng một cách nối riêng</h2></header>
+  <div class="body"><div class="row">
+    <div class="animbox" style="flex:2.3"><svg class="anim" data-kind="ctrgcn"></svg></div>
+    <div class="mside">
+      <div class="mnav"><span class="">MS-TCN</span><span class="">ST-GCN</span><span class="on">CTR-GCN</span><span class="">AAGCN</span><span class="">Transformer</span><span class=" new">MultiRate</span><span class=" new">AnchorGCN</span></div>
+      <div class="mrole" style="color:var(--green)">Đồ thị học theo kênh</div>
+      <p class="mline"><b>Cách làm</b>Giữ đồ thị chung, học thêm cạnh mới riêng cho từng kênh; phần thời gian dùng nhiều nhánh giãn.</p>
+      <p class="mline"><b>Khác ở chỗ</b>Kênh về hình dạng tay nối các ngón, kênh về vị trí nối tay với mặt. Ít tham số nhất trong nhóm đồ thị.</p>
+      <div class="mstats"><div><span>94,68</span>Macro-F1 (%)</div><div><span>1,67 M</span>tham số</div><div><span>31,2 ms</span>CPU / clip</div></div>
+    </div>
+  </div></div>
+</section>
+
+<!-- Mô hình 4: AAGCN -->
+<section class="slide" data-title="AAGCN">
+  <header><div class="sec">C · Mô hình 4/7</div><h2>AAGCN: đồ thị thay đổi theo từng clip</h2></header>
+  <div class="body"><div class="row">
+    <div class="animbox" style="flex:2.3"><svg class="anim" data-kind="aagcn"></svg></div>
+    <div class="mside">
+      <div class="mnav"><span class="">MS-TCN</span><span class="">ST-GCN</span><span class="">CTR-GCN</span><span class="on">AAGCN</span><span class="">Transformer</span><span class=" new">MultiRate</span><span class=" new">AnchorGCN</span></div>
+      <div class="mrole" style="color:#7c5cc4">Đồ thị thích nghi</div>
+      <p class="mline"><b>Cách làm</b>Đồ thị = cố định + học được + suy ra từ chính clip; thêm chú ý theo khớp, khung và kênh.</p>
+      <p class="mline"><b>Khác ở chỗ</b>Linh hoạt nhất nhưng gần gấp đôi tham số CTR-GCN. Trên VSL400 chỉ hơn mốc 0,3 điểm, trên video lạ lại tổng quát tốt nhất.</p>
+      <div class="mstats"><div><span>93,50</span>Macro-F1 (%)</div><div><span>3,95 M</span>tham số</div><div><span>24,2 ms</span>CPU / clip</div></div>
+    </div>
+  </div></div>
+</section>
+
+<!-- Mô hình 5: Transformer -->
+<section class="slide" data-title="Transformer">
+  <header><div class="sec">C · Mô hình 5/7</div><h2>Transformer: mọi khung nhìn mọi khung</h2></header>
+  <div class="body"><div class="row">
+    <div class="animbox" style="flex:2.3"><svg class="anim" data-kind="transformer"></svg></div>
+    <div class="mside">
+      <div class="mnav"><span class="">MS-TCN</span><span class="">ST-GCN</span><span class="">CTR-GCN</span><span class="">AAGCN</span><span class="on">Transformer</span><span class=" new">MultiRate</span><span class=" new">AnchorGCN</span></div>
+      <div class="mrole" style="color:var(--orange)">Khác họ</div>
+      <p class="mline"><b>Cách làm</b>Mỗi khung thành một token; chú ý cho mỗi khung tự chọn khung nào để nhìn; token CLS tổng hợp.</p>
+      <p class="mline"><b>Khác ở chỗ</b>Không dùng cấu trúc cơ thể, phải tự học mọi quan hệ nên cần nhiều dữ liệu: thấp nhất (91,3%).</p>
+      <div class="mstats"><div><span>91,33</span>Macro-F1 (%)</div><div><span>5,18 M</span>tham số</div><div><span>2,7 ms</span>CPU / clip</div></div>
+    </div>
+  </div></div>
+</section>
+
+<!-- Mô hình 6: MultiRate -->
+<section class="slide" data-title="MultiRate">
+  <header><div class="sec">C · Mô hình 6/7</div><h2>MultiRate-Attn-STGCN: xem ở ba tốc độ</h2></header>
+  <div class="body"><div class="row">
+    <div class="animbox" style="flex:2.3"><svg class="anim" data-kind="multirate"></svg></div>
+    <div class="mside">
+      <div class="mnav"><span class="">MS-TCN</span><span class="">ST-GCN</span><span class="">CTR-GCN</span><span class="">AAGCN</span><span class="">Transformer</span><span class="on new">MultiRate</span><span class=" new">AnchorGCN</span></div>
+      <div class="mrole" style="color:var(--orange)">Đề xuất của nhóm</div>
+      <p class="mline"><b>Cách làm</b>Ba nhánh ST-GCN nhận 32, 64 và 96 khung; chú ý quyết định tin nhánh nào cho từng clip.</p>
+      <p class="mline"><b>Khác ở chỗ</b>Bắt được cả động tác nhanh lẫn chậm: “Bánh tét → Bánh chưng” nhầm 6/14 ở MS-TCN, còn 0/14.</p>
+      <div class="mstats"><div><span>93,78</span>Macro-F1 (%)</div><div><span>5,21 M</span>tham số</div><div><span>17,9 ms</span>CPU / clip</div></div>
+    </div>
+  </div></div>
+</section>
+
+<!-- Mô hình 7: AnchorGCN -->
+<section class="slide" data-title="AnchorGCN">
+  <header><div class="sec">C · Mô hình 7/7</div><h2>AnchorGCN: tay đang ở đâu trên mặt?</h2></header>
+  <div class="body"><div class="row">
+    <div class="animbox" style="flex:2.3"><svg class="anim" data-kind="anchor"></svg></div>
+    <div class="mside">
+      <div class="mnav"><span class="">MS-TCN</span><span class="">ST-GCN</span><span class="">CTR-GCN</span><span class="">AAGCN</span><span class="">Transformer</span><span class=" new">MultiRate</span><span class="on new">AnchorGCN</span></div>
+      <div class="mrole" style="color:var(--orange)">Đề xuất của nhóm</div>
+      <p class="mline"><b>Cách làm</b>Đo trực tiếp vị trí bàn tay so với 8 mốc: hai tai, mắt, miệng, đầu, cổ và hai vai.</p>
+      <p class="mline"><b>Khác ở chỗ</b>Nhắm vào các cặp khác nhau ở điểm chạm trên mặt, như “Chị – Cô” (thái dương hay má).</p>
+      <div class="mstats"><div><span>94,20</span>Macro-F1 (%)</div><div><span>1,68 M</span>tham số</div><div><span>—</span>CPU / clip</div></div>
+    </div>
+  </div></div>
+</section>
+
+<!-- So sánh các mạng -->
+<section class="slide" data-title="So sánh mạng">
+  <header><div class="sec">C · Mô hình</div><h2>Bảy cách nhìn cùng một ký hiệu</h2></header>
+  <div class="body"><div class="mgrid">
+      <div class="mcard"><svg class="anim" data-kind="mstcn"></svg><h5>MS-TCN<em>93,20</em></h5><p>Không đồ thị, tích chập giãn theo thời gian</p></div>
+      <div class="mcard"><svg class="anim" data-kind="stgcn"></svg><h5>ST-GCN<em>94,72</em></h5><p>Đồ thị cố định theo xương</p></div>
+      <div class="mcard"><svg class="anim" data-kind="ctrgcn"></svg><h5>CTR-GCN<em>94,68</em></h5><p>Mỗi kênh học cạnh riêng</p></div>
+      <div class="mcard"><svg class="anim" data-kind="aagcn"></svg><h5>AAGCN<em>93,50</em></h5><p>Đồ thị suy ra từ clip + chú ý</p></div>
+      <div class="mcard"><svg class="anim" data-kind="transformer"></svg><h5>Transformer<em>91,33</em></h5><p>Mọi khung nhìn mọi khung</p></div>
+      <div class="mcard new"><svg class="anim" data-kind="multirate"></svg><h5>MultiRate<em>93,78</em></h5><p>Ba tốc độ, gộp bằng chú ý</p></div>
+      <div class="mcard new"><svg class="anim" data-kind="anchor"></svg><h5>AnchorGCN<em>94,20</em></h5><p>Tay so với 8 mốc trên mặt</p></div>
+      <div class="mcard note"><p>Cùng dữ liệu, cùng cấu hình huấn luyện: chênh lệch đo được là do <b>kiến trúc</b>.</p><p style="font-size:15px;color:var(--muted);margin-top:12px">Số bên phải: Macro-F1 (%) trên VSL400. Viền cam: đề xuất của nhóm.</p></div>
+  </div></div>
+</section>
+
+<!-- Thiết kế thực nghiệm 1 -->
+<section class="slide" data-title="Thí nghiệm">
+  <header><div class="sec">C · Thiết kế thực nghiệm</div><h2>Mỗi câu hỏi nghiên cứu, một thí nghiệm</h2></header>
+  <div class="body">
+    <div class="exp">
+      <div class="h">Câu hỏi</div><div class="h">Thí nghiệm</div><div class="h">Dữ liệu</div><div class="h">Đo bằng</div>
+      <div class="id rise">CH1<small>Đồ thị có hơn mốc?</small></div>
+      <div class="rise"><span>Huấn luyện 14 mô hình trên cùng dữ liệu, cùng cấu hình; MS-TCN không dùng đồ thị làm mốc.</span></div>
+      <div class="rise"><span><span class="chip d">VSL400 test · 5.163 clip</span></span></div>
+      <div class="rise"><span><span class="chip m">Macro-F1</span><span class="chip m">khoảng tin cậy 95%</span><span class="chip m">bootstrap 1.000 lần</span></span></div>
+      <div class="id rise">CH2<small>Có cần điểm chân?</small></div>
+      <div class="rise"><span>Mỗi họ mô hình chạy hai lần: <b>76 điểm</b> và <b>68 điểm</b> (bỏ 8 điểm chân), còn lại giữ nguyên.</span></div>
+      <div class="rise"><span><span class="chip d">VSL400</span><span class="chip d">QIPEDC</span></span></div>
+      <div class="rise"><span><span class="chip m">chênh Macro-F1 J76 − J68</span></span></div>
+      <div class="id rise">CH3<small>Vì sao nhầm?</small></div>
+      <div class="rise"><span>Lấy các cặp nhầm nhiều nhất từ ma trận nhầm lẫn, đối chiếu với video gốc và quỹ đạo cổ tay.</span></div>
+      <div class="rise"><span><span class="chip d">VSL400 test</span></span></div>
+      <div class="rise"><span><span class="chip m">tỷ lệ nhầm a → b</span><span class="chip m">tỷ lệ mất bàn tay</span></span></div>
+      <div class="id rise" style="border:none">CH4<small>Dùng được với video mới?</small></div>
+      <div class="rise" style="border:none"><span>Chạy mô hình trên video <b>khác nguồn</b> và trên <b>từ chưa học</b>; thử các ngưỡng từ chối τ.</span></div>
+      <div class="rise" style="border:none"><span><span class="chip d">QIPEDC · 252 clip</span><span class="chip d">124 clip từ chưa học</span></span></div>
+      <div class="rise" style="border:none"><span><span class="chip m">suy giảm Top-1</span><span class="chip m">ECE</span><span class="chip m">độ phủ theo τ</span><span class="chip m">chấp nhận nhầm</span></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Thiết kế thực nghiệm 2 -->
+<section class="slide" data-title="Ba mức kiểm tra">
+  <header><div class="sec">C · Thiết kế thực nghiệm</div><h2>Ba mức kiểm tra, khó dần</h2></header>
+  <div class="body" style="top:244px">
+    <div class="levels">
+      <div class="harder"><span>KHÓ DẦN →</span></div>
+      <div class="level">
+        <div style="position:relative"><div class="crop" style="--iw:1385;--ih:1358;--x:409;--y:40;--w:316;--h:230;"><img src="../bao-cao-ket-qua/bieu-do/hinh-pl-hai-nguon.png" alt=""></div></div>
+        <div class="lv">MỨC 1</div><h4>Cùng miền</h4>
+        <div class="n">VSL400 test · 5.163 clip · 422 từ</div>
+        <p>Người ký, phông nền, cách quay giống lúc huấn luyện.</p>
+      </div>
+      <div class="level">
+        <div style="position:relative"><div class="crop" style="--iw:1385;--ih:1358;--x:409;--y:720;--w:316;--h:230;"><img src="../bao-cao-ket-qua/bieu-do/hinh-pl-hai-nguon.png" alt=""></div><div class="ov">?</div></div>
+        <div class="lv">MỨC 2</div><h4>Từ chưa học</h4>
+        <div class="n">124 clip · 50 từ bị lọc</div>
+        <p>Mô hình có biết “không chắc” thay vì đoán bừa?</p>
+      </div>
+      <div class="level">
+        <div style="position:relative"><div class="crop" style="--iw:1385;--ih:1358;--x:409;--y:380;--w:316;--h:230;"><img src="../bao-cao-ket-qua/bieu-do/hinh-pl-hai-nguon.png" alt=""></div></div>
+        <div class="lv">MỨC 3</div><h4>Khác miền</h4>
+        <div class="n">QIPEDC · 252 clip · 147 từ chung</div>
+        <p>Người ký khác, phông xanh dương, đứng xa hơn.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Thiết kế thực nghiệm 3 -->
+<section class="slide" data-title="Huấn luyện">
+  <header><div class="sec">C · Thiết kế thực nghiệm</div><h2>Huấn luyện công bằng cho mọi mô hình</h2></header>
+  <div class="body">
+    <div class="row">
+      <figure style="flex:1.25;height:100%">
+        <div class="frame"><img src="../bao-cao-ket-qua/bieu-do/hinh-19-thoi-gian-huan-luyen.png" alt="Thời gian huấn luyện mỗi epoch"></div>
+        <figcaption>Thời gian một epoch trên 2 × T4: CTR-GCN mất 50–63 giờ cho 70 epoch.</figcaption>
+      </figure>
+      <div class="col" style="flex:1;gap:26px;justify-content:center">
+        <div class="cfg">
+          <div class="rise"><b>64 khung</b>mỗi clip</div>
+          <div class="rise"><b>70 epoch</b>5 epoch khởi động</div>
+          <div class="rise"><b>SGD · lr 0,1</b>Transformer: AdamW</div>
+          <div class="rise"><b>batch 128</b>2 × T4, phân tán DDP</div>
+          <div class="rise"><b>EMA · AMP</b>làm mượt trọng số, nửa độ chính xác</div>
+          <div class="rise"><b>Macro-F1</b>tiêu chí chọn checkpoint</div>
+        </div>
+        <div class="insight" style="font-size:18px"><span class="k">Kiểm tra lại</span>5 tài khoản Kaggle chạy song song, chạy tiếp từ checkpoint. Chấm lại trên máy cá nhân: lệch <strong>≤ 0,05 điểm</strong>.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Thiết kế thực nghiệm 4 -->
+<section class="slide" data-title="Chỉ số">
+  <header><div class="sec">C · Thiết kế thực nghiệm</div><h2>Đo bằng những chỉ số nào?</h2></header>
+  <div class="body">
+    <div class="metrics">
+      <div class="metric"><h4>Top-1 · Top-5<span>CH1</span></h4><div class="f"><div class="crop" style="--iw:1889;--ih:185;--x:574;--y:18;--w:591;--h:149;"><img src="../trinh-bay-y-tuong/cong-thuc/cong-thuc-06.png" alt=""></div></div><p>Từ đúng có nằm trong 1 (hoặc 5) dự đoán đầu?</p></div>
+      <div class="metric main"><h4>Macro-F1<span>CHỈ SỐ CHÍNH</span></h4><div class="f"><div class="crop" style="--iw:1889;--ih:185;--x:588;--y:16;--w:564;--h:152;"><img src="../trinh-bay-y-tuong/cong-thuc/cong-thuc-08.png" alt=""></div></div><p>Mọi từ có trọng số như nhau, từ ít mẫu không bị lấn át.</p></div>
+      <div class="metric"><h4>Tỷ lệ nhầm theo cặp<span>CH3</span></h4><div class="f"><div class="crop" style="--iw:1889;--ih:151;--x:709;--y:16;--w:326;--h:121;"><img src="../trinh-bay-y-tuong/cong-thuc/cong-thuc-09.png" alt=""></div></div><p>Từ a bị đoán thành từ b bao nhiêu phần.</p></div>
+      <div class="metric"><h4>Sai số hiệu chuẩn ECE<span>CH4</span></h4><div class="f"><div class="crop" style="--iw:1889;--ih:187;--x:490;--y:16;--w:760;--h:154;"><img src="../trinh-bay-y-tuong/cong-thuc/cong-thuc-11.png" alt=""></div></div><p>Độ tin cậy mô hình báo có khớp với độ đúng thật?</p></div>
+      <div class="metric"><h4>Độ phủ theo ngưỡng τ<span>CH4</span></h4><div class="f"><div class="crop" style="--iw:1889;--ih:185;--x:550;--y:18;--w:641;--h:149;"><img src="../trinh-bay-y-tuong/cong-thuc/cong-thuc-12.png" alt=""></div></div><p>Bao nhiêu phần được trả lời khi chỉ trả lời lúc độ tin cậy ≥ τ.</p></div>
+      <div class="metric"><h4>Suy giảm khác miền<span>CH4</span></h4><div class="f"><div style="font-family:var(--serif);font-size:24px;color:var(--ink);text-align:center;line-height:1.6">Δ = <span style="display:inline-block;vertical-align:middle;text-align:center"><span style="display:block;border-bottom:1.5px solid var(--ink);padding:0 6px">Top-1<sub>VSL400</sub> − Top-1<sub>QIPEDC</sub></span><span style="display:block">Top-1<sub>VSL400</sub></span></span></div></div><p>Tính trên cùng 147 từ chung; đoán ra ngoài 147 từ tính là sai.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 9. Phần D -->
+<section class="slide part" data-title="Kết quả">
+  <div class="no">D</div>
+  <h2>Kết quả thực nghiệm</h2>
+  <p>14 mô hình · 70 epoch · 2 GPU T4 · đánh giá trên 5.163 clip VSL400 và 252 clip QIPEDC khác nguồn</p>
+</section>
+
+<!-- 10. CH1 -->
+<section class="slide" data-title="CH1">
+  <header><div class="sec">CH1 · Độ chính xác</div><h2>Mô hình đồ thị vượt mốc rõ ràng</h2></header>
+  <div class="body">
+    <div class="row">
+      <figure style="flex:1.15;height:100%">
+        <div class="frame"><img src="../bao-cao-ket-qua/bieu-do/hinh-08-macro-f1-ci.png" alt="Macro-F1 kèm khoảng tin cậy"></div>
+        <figcaption>Macro-F1 trên VSL400, đoạn ngang là khoảng tin cậy 95% (bootstrap 1.000 lần).</figcaption>
+      </figure>
+      <div class="col" style="flex:1;gap:36px;justify-content:center">
+        <div class="stat"><div class="n">94,3<small>%</small></div><div class="l">Top-1 của CTR-GCN trên 422 từ<br><span style="font-size:15px;color:var(--faint)">đoán ngẫu nhiên chỉ đúng 0,24%</span></div></div>
+        <div class="stat b"><div class="n">98,5<small>%</small></div><div class="l">có từ đúng trong 5 gợi ý (Top-5)</div></div>
+        <div class="insight"><span class="k">Nhận xét</span>ST-GCN và CTR-GCN hơn mốc MS-TCN <strong>~1,5 điểm</strong>, khoảng tin cậy <strong>không chồng lấn</strong>. Transformer thấp nhất: cần nhiều dữ liệu hơn.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 11. CH2 -->
+<section class="slide" data-title="CH2">
+  <header><div class="sec">CH2 · Điểm chân</div><h2>Điểm chân không giúp, còn gây nhiễu ở video lạ</h2></header>
+  <div class="body">
+    <figure style="height:66%">
+      <div class="frame"><img src="../bao-cao-ket-qua/bieu-do/hinh-14-diem-chan.png" alt="J68 so với J76"></div>
+      <figcaption>Macro-F1 khi bỏ chân (68 điểm) và khi giữ chân (76 điểm).</figcaption>
+    </figure>
+    <div style="position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:40px;align-items:end">
+      <div class="stat"><div class="n">&lt;0,35</div><div class="l">điểm chênh trên VSL400</div></div>
+      <div class="stat o"><div class="n">63→56</div><div class="l">MS-TCN trên QIPEDC khi giữ chân</div></div>
+      <div class="insight"><span class="k">Vì sao</span>Ký hiệu nằm ở tay, mặt, thân trên. Ở video khác nguồn, chân thường bị khuất hoặc ra ngoài khung.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 12. CH3 cặp nhầm -->
+<section class="slide" data-title="CH3">
+  <header><div class="sec">CH3 · Cặp dễ nhầm</div><h2>“Dơ” và “Con heo”: cùng một đường đi của tay</h2></header>
+  <div class="body">
+    <figure style="height:64%">
+      <div class="frame"><img src="../bao-cao-ket-qua/bieu-do/hinh-cap-1.png" alt="Dơ và Con heo"></div>
+      <figcaption>“Dơ” (trên) và “Con heo” (dưới). Ảnh từ VSL400 [19], vùng mặt đã làm mờ.</figcaption>
+    </figure>
+    <div style="position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:1fr 1fr 1.5fr;gap:40px;align-items:end">
+      <div class="stat o"><div class="n">7<small>/15</small></div><div class="l">clip bị nhầm theo mỗi chiều</div></div>
+      <div class="stat"><div class="n">29<small>%</small></div><div class="l">khung mất bàn tay khi tay cao hơn vai</div></div>
+      <div class="insight"><span class="k">Nguyên nhân</span>Chỉ khác ở <strong>hình dạng bàn tay</strong> trước mũi, đúng lúc MediaPipe hay mất bàn tay.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 13. Quỹ đạo -->
+<section class="slide" data-title="Quỹ đạo">
+  <header><div class="sec">CH3 · Cặp dễ nhầm</div><h2>Sáu cặp, sáu quỹ đạo gần như trùng nhau</h2></header>
+  <div class="body">
+    <div class="row">
+      <figure style="flex:1.2;height:100%">
+        <div class="frame"><img src="../bao-cao-ket-qua/bieu-do/hinh-cap-quy-dao.png" alt="Quỹ đạo cổ tay các cặp dễ nhầm"></div>
+        <figcaption>Quỹ đạo cổ tay theo toạ độ vai: từ thứ nhất xanh, từ thứ hai cam.</figcaption>
+      </figure>
+      <div class="col" style="flex:1;justify-content:center">
+        <div style="font-size:15px;font-weight:700;letter-spacing:.12em;color:var(--faint);margin-bottom:18px">CHỈ KHÁC Ở</div>
+        <ul class="points">
+          <li>Hình dạng bàn tay<small>Dơ – Con heo · Bánh tét – Bánh chưng</small></li>
+          <li>Điểm chạm trên mặt<small>Chị – Cô · Xôi – Ướt</small></li>
+          <li>Nhịp chuyển động<small>Nhẹ – Bây giờ</small></li>
+          <li>Khẩu hình miệng<small>Không cần – Đắng</small></li>
+        </ul>
+        <div class="insight" style="margin-top:34px"><span class="k">Hướng sửa</span>Thêm điểm mặt và môi. Mô hình đa tốc độ đã giảm lỗi do khác nhịp.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 14. Nhận đúng -->
+<section class="slide" data-title="Nhận đúng">
+  <header><div class="sec">Kết quả · Nhận đúng</div><h2>Ký hiệu có nét riêng được nhận rất chắc chắn</h2></header>
+  <div class="body">
+    <div class="row">
+      <figure style="flex:1.6;height:100%">
+        <div class="frame"><img src="../bao-cao-ket-qua/bieu-do/hinh-dung-1.png" alt="Ví dụ nhận đúng"></div>
+        <figcaption>Ba ví dụ nhận đúng kèm 3 ứng viên đầu. Ảnh từ VSL400 [19].</figcaption>
+      </figure>
+      <div class="col" style="flex:1;gap:34px;justify-content:center">
+        <div class="stat g"><div class="n">290<small>/422</small></div><div class="l">từ đạt F1 ≥ 0,95 với CTR-GCN</div></div>
+        <div class="insight"><span class="k">Đặc điểm chung</span>Hai tay đối xứng, vị trí đặc trưng trước ngực hoặc trên đầu, chuyển động biên độ lớn.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 15. CH4 -->
+<section class="slide" data-title="CH4">
+  <header><div class="sec">CH4 · Video khác nguồn</div><h2>Đổi người ký và cách quay: mất khoảng một phần ba</h2></header>
+  <div class="body">
+    <div class="row">
+      <figure style="flex:1.35;height:100%">
+        <div class="frame"><img src="../bao-cao-ket-qua/bieu-do/hinh-15-suy-giam-khac-mien.png" alt="Suy giảm khác miền"></div>
+        <figcaption>Top-1 trên 147 từ chung: VSL400 (xanh) và QIPEDC (cam).</figcaption>
+      </figure>
+      <div class="col" style="flex:1;gap:34px;justify-content:center">
+        <div class="stat o"><div class="n">94→60<small>%</small></div><div class="l">Top-1 của CTR-GCN khi đổi sang video QIPEDC</div></div>
+        <div class="stat"><div class="n">151<small>/252</small></div><div class="l">clip QIPEDC vẫn nhận đúng, dù khác phông, khác người, khác khung hình</div></div>
+        <div class="insight"><span class="k">Phát hiện quan trọng nhất</span>Chính xác cao trên dữ liệu huấn luyện <strong>chưa đủ</strong>. Sản phẩm cần biết khi nào nên hỏi lại.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 16. Ngưỡng -->
+<section class="slide" data-title="Ngưỡng">
+  <header><div class="sec">Độ tin cậy</div><h2>Biết khi nào nên hỏi lại thay vì đoán bừa</h2></header>
+  <div class="body">
+    <figure style="height:52%">
+      <div class="frame"><img src="../bao-cao-ket-qua/bieu-do/hinh-18-nguong-tu-choi.png" alt="Ảnh hưởng của ngưỡng"></div>
+    </figure>
+    <div style="position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:2.1fr 1fr;gap:48px;align-items:end">
+      <div class="ladder">
+        <div style="font-size:15px;font-weight:700;letter-spacing:.12em;color:var(--faint);margin-bottom:12px">NGƯỠNG DÙNG TRONG SẢN PHẨM</div>
+        <div class="scale"><div style="width:40%;background:var(--red)">Không nhận ra</div><div style="width:30%;background:var(--amber)">Lưỡng lự</div><div style="width:10%;background:var(--teal)">Nhận</div><div style="width:20%;background:var(--green)">Chắc chắn</div></div>
+        <div class="ticks"><span style="left:0">0</span><span style="left:40%">0,4</span><span style="left:70%">0,7</span><span style="left:80%">0,8</span><span style="left:100%">1</span></div>
+        <div class="acts"><div style="width:40%"><b>Yêu cầu ký lại</b>thường là từ chưa học</div><div style="width:30%"><b>Hiện 5 gợi ý</b>ký lại hoặc chọn 1–5</div><div style="width:30%"><b>Thêm vào câu</b>đúng 96,8% trên VSL400</div></div>
+      </div>
+      <div class="stat g"><div class="n">60→87<small>%</small></div><div class="l">độ chính xác trên video lạ khi chỉ trả lời từ τ = 0,7</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Đề xuất 1: cặp khó -->
+<section class="slide" data-title="Đề xuất: cặp khó">
+  <header><div class="sec">Kết quả · Mô hình đề xuất</div><h2>Thua nhẹ trung bình, nhưng thắng ở đúng chỗ nhắm tới</h2></header>
+  <div class="body">
+    <div class="row" style="gap:56px">
+      <div class="col" style="flex:1.55;justify-content:center">
+        <div class="mini-legend"><span><i style="background:#6da7ec"></i>mô hình mốc</span><span><i style="background:var(--orange)"></i>đề xuất của nhóm</span></div>
+        <div class="hbars">
+          <div class="hbar p" style="--i:0;--w:79.0%"><span class="nm">MultiRate</span><div class="track"><div class="fill"></div></div><span class="v"><b>70,8</b>41 lần nhầm</span></div>
+          <div class="hbar p" style="--i:1;--w:71.5%"><span class="nm">CTR-GCN-BT</span><div class="track"><div class="fill"></div></div><span class="v"><b>69,3</b>50 lần nhầm</span></div>
+          <div class="hbar" style="--i:2;--w:69.0%"><span class="nm">CTR-GCN</span><div class="track"><div class="fill"></div></div><span class="v"><b>68,8</b>55 lần nhầm</span></div>
+          <div class="hbar p" style="--i:3;--w:64.0%"><span class="nm">AnchorGCN-A</span><div class="track"><div class="fill"></div></div><span class="v"><b>67,8</b>55 lần nhầm</span></div>
+          <div class="hbar" style="--i:4;--w:56.5%"><span class="nm">ST-GCN</span><div class="track"><div class="fill"></div></div><span class="v"><b>66,3</b>55 lần nhầm</span></div>
+          <div class="hbar p" style="--i:5;--w:49.5%"><span class="nm">AnchorGCN-AS</span><div class="track"><div class="fill"></div></div><span class="v"><b>64,9</b>56 lần nhầm</span></div>
+          <div class="hbar p" style="--i:6;--w:44.5%"><span class="nm">AnchorGCN-T32</span><div class="track"><div class="fill"></div></div><span class="v"><b>63,9</b>60 lần nhầm</span></div>
+          <div class="hbar" style="--i:7;--w:39.5%"><span class="nm">MS-TCN</span><div class="track"><div class="fill"></div></div><span class="v"><b>62,9</b>60 lần nhầm</span></div>
+          <div class="hbar" style="--i:8;--w:37.0%"><span class="nm">Transformer</span><div class="track"><div class="fill"></div></div><span class="v"><b>62,4</b>59 lần nhầm</span></div>
+          <div class="hbar" style="--i:9;--w:37.0%"><span class="nm">AAGCN</span><div class="track"><div class="fill"></div></div><span class="v"><b>62,4</b>62 lần nhầm</span></div>
+        </div>
+        <div class="axisnote">Top-1 (%) trên 202 clip thuộc 14 chiều nhầm · trục bắt đầu từ 55%</div>
+      </div>
+      <div class="col" style="flex:1;gap:28px;justify-content:center">
+        <div class="stat o"><div class="n">41<small> vs 55</small></div><div class="l">lần nhầm của MultiRate so với ST-GCN, CTR-GCN: <b>giảm 25%</b></div></div>
+        <div class="stat o"><div class="n">86,7<small>%</small></div><div class="l">MultiRate ở các cặp khác nhịp (Nhẹ, Bánh tét, Bánh chưng); ST-GCN, CTR-GCN 80,0%</div></div>
+        <div class="insight" style="font-size:18px"><span class="k">Trên toàn bộ 422 từ</span>MultiRate 93,78 so với ST-GCN 94,72 Macro-F1. Lợi ích nằm ở <strong>các cặp khó</strong>, nơi trung bình không thấy được.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Đề xuất: ví dụ video gốc 1 -->
+<section class="slide" data-title="Đề xuất: ví dụ 1">
+  <header><div class="sec">Kết quả · Mô hình đề xuất</div><h2>Video gốc: MultiRate đúng, cả ST-GCN và CTR-GCN sai</h2></header>
+  <div class="body">
+    <div class="row" style="gap:44px">
+      <figure style="flex:2.1;height:100%">
+        <div class="frame"><img src="../bao-cao-ket-qua/bieu-do/hinh-de-xuat-dung-1.png" alt="MultiRate đúng, mô hình gốc sai"></div>
+        <figcaption>Clip VSL400 test, vùng mặt đã làm mờ. Bên phải: từ mỗi mô hình đoán ra và độ tin cậy.</figcaption>
+      </figure>
+      <div class="col" style="flex:1;gap:26px;justify-content:center">
+        <div class="stat o"><div class="n">39<small>%</small></div><div class="l">lần thắng của MultiRate nằm ở <b>các cặp khó</b>, dù các từ này chỉ chiếm 5,5% số clip</div></div>
+        <div class="insight" style="font-size:17px"><span class="k">Đáng chú ý</span>Mô hình gốc <strong>sai mà rất tự tin</strong> (CTR-GCN 86–96%). MultiRate đúng nhưng dưới 0,7, nên sản phẩm sẽ hiện 5 gợi ý thay vì đoán bừa.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Đề xuất: ví dụ video gốc 2 -->
+<section class="slide" data-title="Đề xuất: ví dụ 2">
+  <header><div class="sec">Kết quả · Mô hình đề xuất</div><h2>Video gốc: AnchorGCN-A và CTR-GCN-BT đúng, mô hình gốc sai</h2></header>
+  <div class="body">
+    <div class="row" style="gap:44px">
+      <figure style="flex:2.1;height:100%">
+        <div class="frame"><img src="../bao-cao-ket-qua/bieu-do/hinh-de-xuat-dung-2.png" alt="AnchorGCN-A và CTR-GCN-BT đúng, mô hình gốc sai"></div>
+        <figcaption>“Ướt” – “Xôi” là cặp khác nhau ở điểm chạm trên mặt, đúng loại lỗi AnchorGCN nhắm tới.</figcaption>
+      </figure>
+      <div class="col" style="flex:1;gap:24px;justify-content:center">
+        <div class="stat o"><div class="n">72<small>%</small></div><div class="l">AnchorGCN-A đoán đúng “Ướt”, trong khi ST-GCN nói “Xôi” 83%</div></div>
+        <div class="stat o"><div class="n">42<small>%</small></div><div class="l">lần thắng của CTR-GCN-BT nằm ở các cặp khó (AnchorGCN-A: 28%)</div></div>
+        <div class="insight" style="font-size:16px"><span class="k">Trung thực</span>Đây là ví dụ chọn lọc. Tính chung, MultiRate thắng 36 clip nhưng thua 90 clip so với mô hình gốc, nên phù hợp nhất khi <strong>kết hợp trong tổ hợp</strong>.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Đề xuất 2: bổ sung cho mô hình mốc -->
+<section class="slide" data-title="Đề xuất: bổ sung">
+  <header><div class="sec">Kết quả · Mô hình đề xuất</div><h2>Sai khác kiểu mô hình mốc, nên tổ hợp mạnh hơn</h2></header>
+  <div class="body">
+    <div class="row">
+      <figure style="flex:1.5;height:100%">
+        <div class="frame"><img src="../bao-cao-ket-qua/bieu-do/hinh-21-de-xuat-bo-sung.png" alt="Khả năng sửa lỗi của mô hình mốc"></div>
+        <figcaption>Tỷ lệ clip mà mô hình mốc đoán sai nhưng mô hình khác đoán đúng.</figcaption>
+      </figure>
+      <div class="col" style="flex:1;gap:30px;justify-content:center">
+        <div class="stat o"><div class="n">32,8<small>%</small></div><div class="l">lỗi của CTR-GCN được <b>MultiRate</b> sửa, nhiều nhất trong mọi mô hình</div></div>
+        <div class="stat o"><div class="n">30,2<small>%</small></div><div class="l">lỗi của ST-GCN được <b>AnchorGCN-A</b> sửa, nhiều nhất trong mọi mô hình</div></div>
+        <div class="stat g"><div class="n">95,4<small>%</small></div><div class="l">Macro-F1 của tổ hợp có MultiRate và CTR-GCN-BT, cao nhất</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Đề xuất 3: tin cậy trên video lạ -->
+<section class="slide" data-title="Đề xuất: video lạ">
+  <header><div class="sec">Kết quả · Mô hình đề xuất</div><h2>Trên video lạ, MultiRate là mô hình đơn đáng tin nhất</h2></header>
+  <div class="body">
+    <div class="row">
+      <figure style="flex:1.35;height:100%">
+        <div class="frame"><img src="../bao-cao-ket-qua/bieu-do/hinh-22-de-xuat-tin-cay.png" alt="Độ tin cậy trên video khác nguồn"></div>
+        <figcaption>QIPEDC, ngưỡng τ = 0,7. Kích thước điểm: tỷ lệ chấp nhận nhầm từ chưa học.</figcaption>
+      </figure>
+      <div class="col" style="flex:1;gap:24px;justify-content:center">
+        <div class="stat o"><div class="n">90,1<small>%</small></div><div class="l">đúng khi trả lời (CTR-GCN 86,9%, ST-GCN 85,2%)</div></div>
+        <div class="stat o"><div class="n">8,9<small>%</small></div><div class="l">nhận nhầm từ chưa học (CTR-GCN 15,3%, ST-GCN 18,5%) · ECE 7,0%, thấp nhất</div></div>
+        <div class="insight" style="font-size:17px"><span class="k">Kiểm tra trung thực</span>Trên các tập con rộng (ký rất nhanh, rất chậm, tay gần mặt) các đề xuất <strong>chưa hơn</strong> mô hình gốc. Ưu thế nằm ở các cặp cụ thể và độ tin cậy.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 17. Hiệu năng -->
+<section class="slide" data-title="Hiệu năng">
+  <header><div class="sec">Triển khai</div><h2>Nhẹ, nhanh, không cần GPU</h2></header>
+  <div class="body">
+    <div class="row">
+      <figure style="flex:1.4;height:100%">
+        <div class="frame"><img src="../bao-cao-ket-qua/bieu-do/hinh-11-chi-phi-do-chinh-xac.png" alt="Chi phí và độ chính xác"></div>
+        <figcaption>Macro-F1 so với thời gian phân loại một clip trên CPU Apple M4.</figcaption>
+      </figure>
+      <div class="col" style="flex:1;gap:30px;justify-content:center">
+        <div class="stat"><div class="n">31<small> ms</small></div><div class="l">phân loại một ký hiệu, trong khi một ký hiệu dài ~2,6 giây</div></div>
+        <div class="stat b"><div class="n">6,7<small> MB</small></div><div class="l">1,7 triệu tham số (CTR-GCN)</div></div>
+        <div class="insight"><span class="k">Chọn cho sản phẩm</span><strong>CTR-GCN</strong>: Top-1 cao nhất, độ tin cậy hiển thị khá sát thực tế cả trên video lạ (ECE 8,4%).</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 18. Demo -->
+<section class="slide" data-title="Demo" id="demo-slide">
+  <header><div class="sec">Sản phẩm</div><h2>Demo trực tiếp</h2></header>
+  <div class="body">
+    <div class="row" style="gap:56px">
+      <div style="flex:1.75;display:flex;flex-direction:column;justify-content:center">
+        <div class="demo-screen">
+          <video id="demo-video" src="assets/demo.mp4" poster="assets/demo-poster.jpg" muted playsinline preload="metadata"></video>
+          <div class="live" id="demo-live"><div class="dot"></div><div style="font-size:26px;font-weight:600">Demo đang chạy trong cửa sổ riêng</div><div style="font-size:16px;color:#9aa3b5">Bấm Q trong cửa sổ demo để thoát</div></div>
+        </div>
+      </div>
+      <div class="col" style="flex:1;justify-content:center;gap:18px">
+        <button class="btn" id="btn-camera"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12-7.5z"/></svg>Bắt đầu demo</button>
+        <button class="btn ghost" id="btn-video">Chạy trên video mẫu</button>
+        <button class="btn stop" id="btn-stop" hidden>Dừng demo</button>
+        <div id="demo-msg"></div>
+        <ol style="list-style:none;display:flex;flex-direction:column;gap:14px;margin-top:10px;font-size:18px;color:var(--ink);counter-reset:s">
+          <li><b style="color:var(--orange)">1</b>&nbsp; Đứng cách 1–1,5 m, thấy từ đầu đến hông</li>
+          <li><b style="color:var(--orange)">2</b>&nbsp; Thực hiện ký hiệu</li>
+          <li><b style="color:var(--orange)">3</b>&nbsp; Hạ tay để kết thúc, từ hiện ngay</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 19. Kết luận -->
+<section class="slide" data-title="Kết luận">
+  <header><div class="sec">E · Kết luận</div><h2>Trả lời bốn câu hỏi nghiên cứu</h2></header>
+  <div class="body">
+    <div class="answers">
+      <div class="answer"><div class="id">CH1</div><p>Mô hình đồ thị vượt mốc MS-TCN, chênh lệch có ý nghĩa thống kê.</p><div class="v">+1,5 điểm<small>Macro-F1</small></div></div>
+      <div class="answer"><div class="id">CH2</div><p>Bỏ điểm chân: không giúp, còn gây nhiễu ở video lạ.</p><div class="v">&lt;0,35 điểm<small>chênh lệch trên VSL400</small></div></div>
+      <div class="answer"><div class="id">CH3</div><p>Cặp dễ nhầm trùng quỹ đạo, chỉ khác hình dạng tay, điểm chạm, nhịp, khẩu hình.</p><div class="v">29%<small>khung mất bàn tay khi tay cao</small></div></div>
+      <div class="answer" style="border:none"><div class="id">CH4</div><p>Đổi nguồn video mất khoảng một phần ba; ngưỡng và 5 gợi ý giữ sản phẩm hữu ích.</p><div class="v">60→87%<small>khi trả lời từ τ = 0,7</small></div></div>
+    </div>
+    <div class="insight" style="position:absolute;left:0;right:0;bottom:0"><span class="k">Sản phẩm</span>Chạy bằng <strong>một webcam trên CPU</strong>, nhận 422 từ, biết <strong>hỏi lại</strong> khi chưa chắc chắn.</div>
+  </div>
+</section>
+
+<!-- 20. Hạn chế và hướng phát triển -->
+<section class="slide" data-title="Hướng phát triển">
+  <header><div class="sec">E · Hạn chế và hướng phát triển</div><h2>Những việc tiếp theo</h2></header>
+  <div class="body big-points">
+    <div class="row" style="gap:80px;height:auto">
+      <div class="col" style="flex:1">
+        <div style="font-size:15px;font-weight:700;letter-spacing:.12em;color:var(--red);margin-bottom:24px">HẠN CHẾ</div>
+        <ul class="points">
+          <li>Giảm mạnh khi đổi nguồn video</li>
+          <li>Chưa có tập kiểm tra tách theo người ký</li>
+          <li>Chưa phân biệt được cặp khác ở khẩu hình</li>
+          <li>422 từ, vẫn có thể nhận nhầm từ chưa học</li>
+        </ul>
+      </div>
+      <div class="col" style="flex:1">
+        <div style="font-size:15px;font-weight:700;letter-spacing:.12em;color:var(--green);margin-bottom:24px">HƯỚNG PHÁT TRIỂN</div>
+        <ul class="points">
+          <li>Tăng cường dữ liệu mô phỏng điều kiện webcam</li>
+          <li>Thêm điểm mặt, môi; bộ tìm bàn tay tốt hơn</li>
+          <li>Thử nghiệm cùng người Điếc ngay từ khâu chọn từ</li>
+          <li>Mở rộng từ vựng, hướng tới dịch câu liên tục</li>
+        </ul>
+      </div>
+    </div>
+    <div class="insight" style="position:absolute;left:0;right:0;bottom:0"><span class="k">Mục tiêu gần nhất</span>Thu hẹp khoảng cách <strong>94% → 60%</strong> khi gặp người ký mới, trước khi đưa vào sử dụng rộng rãi.</div>
+  </div>
+</section>
+
+<!-- 21. Cảm ơn -->
+<section class="slide part" data-title="Cảm ơn">
+  <h2 style="font-size:84px;margin:0">Cảm ơn thầy cô<br>và các bạn đã lắng nghe</h2>
+  <p>Rất mong nhận được câu hỏi và góp ý.</p>
+</section>
+
+<div id="progress"></div>
+</div></div>
+<div id="hint">← → chuyển slide · F toàn màn hình</div>
+
+<script src="anim.js"></script>
+<script>
+(() => {
+  const deck = document.getElementById('deck');
+  const slides = [...deck.querySelectorAll('.slide')];
+  const total = slides.length;
+  const progress = document.getElementById('progress');
+
+  // Chân trang cho mọi slide trừ bìa và trang phần
+  slides.forEach((s, i) => {
+    if (s.classList.contains('cover') || s.classList.contains('part')) return;
+    const f = document.createElement('div');
+    f.className = 'foot';
+    f.innerHTML = `<span>Nhận diện ngôn ngữ ký hiệu tiếng Việt · <b>Dự án STEM 2026</b></span><span>${i + 1} / ${total}</span>`;
+    s.appendChild(f);
+  });
+
+  // Thành phần hiện dần theo thứ tự khi vào slide
+  const RISE = '.stat, .insight, figure, .opt, .q, .step, .answer, .points li, .daily>div, .ladder, .demo-screen, .btn, .mnav, .mrole, .mline, .mstats, .mcard, .animbox, .tag, .level, .metric, .cfg>div, .exp>div:not(.h), .cover .left>*, .cover .right, .part>*';
+  if (new URLSearchParams(location.search).has('still')) document.body.classList.add('still');
+  slides.forEach(s => s.querySelectorAll(RISE).forEach((e, i) => { e.classList.add('rise'); e.style.setProperty('--d', Math.min(i, 12)); }));
+
+  function fit() {
+    const k = Math.min(window.innerWidth / 1600, window.innerHeight / 900);
+    deck.style.transform = `scale(${k})`;
+  }
+  window.addEventListener('resize', fit);
+  fit();
+
+  let current = 0;
+  function show(n) {
+    current = Math.max(0, Math.min(total - 1, n));
+    slides.forEach((s, i) => s.classList.toggle('active', i === current));
+    progress.style.width = `${((current + 1) / total) * 100}%`;
+    if (location.hash !== `#${current + 1}`) history.replaceState(null, '', `#${current + 1}`);
+    if (window.SlideAnim) window.SlideAnim.activate(slides[current]);
+    const onDemo = slides[current].id === 'demo-slide';
+    if (onDemo) pollDemo(); else { const v = document.getElementById('demo-video'); v.pause(); }
+  }
+  const fromHash = parseInt(location.hash.slice(1), 10);
+  show(Number.isFinite(fromHash) ? fromHash - 1 : 0);
+
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'BUTTON' && (e.key === ' ' || e.key === 'Enter')) return;
+    if (['ArrowRight', 'PageDown', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); show(current + 1); }
+    else if (['ArrowLeft', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); show(current - 1); }
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(total - 1);
+    else if (e.key === 'f' || e.key === 'F') {
+      if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen();
+    }
+  });
+
+  const hint = document.getElementById('hint');
+  setTimeout(() => { hint.style.opacity = 0; }, 4000);
+
+  // ---- Demo ----
+  const served = location.protocol.startsWith('http');
+  const msg = document.getElementById('demo-msg');
+  const live = document.getElementById('demo-live');
+  const video = document.getElementById('demo-video');
+  const btnCam = document.getElementById('btn-camera');
+  const btnVid = document.getElementById('btn-video');
+  const btnStop = document.getElementById('btn-stop');
+  let timer = null;
+
+  function setRunning(running, mode) {
+    live.classList.toggle('on', running);
+    btnStop.hidden = !running;
+    btnCam.disabled = btnVid.disabled = running;
+    if (running) {
+      video.pause();
+      msg.textContent = mode === 'video' ? 'Đang chạy trên video mẫu.' : 'Đang chạy bằng webcam.';
+    }
+  }
+
+  function playRecording(reason) {
+    live.classList.remove('on');
+    video.controls = true;
+    video.currentTime = 0;
+    video.play();
+    msg.textContent = reason;
+  }
+
+  async function call(path, method = 'GET') {
+    const r = await fetch(path, { method });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || r.statusText);
+    return data;
+  }
+
+  async function pollDemo() {
+    if (!served) return;
+    clearTimeout(timer);
+    try {
+      const s = await call('/api/demo');
+      setRunning(s.running, s.mode);
+      if (!s.running && btnStop.dataset.was === '1') msg.textContent = 'Demo đã đóng.';
+      btnStop.dataset.was = s.running ? '1' : '0';
+    } catch { return; }
+    if (slides[current].id === 'demo-slide') timer = setTimeout(pollDemo, 1500);
+  }
+
+  async function start(mode) {
+    if (!served) {
+      playRecording('Đang phát bản ghi demo. Muốn chạy trực tiếp, mở slide bằng: python docs/slides/serve.py');
+      return;
+    }
+    msg.textContent = 'Đang khởi động mô hình…';
+    try {
+      const s = await call(`/api/demo/start?mode=${mode}`, 'POST');
+      setRunning(s.running, s.mode);
+      btnStop.dataset.was = '1';
+      pollDemo();
+    } catch (err) {
+      playRecording(`Không chạy được demo (${err.message}). Đang phát bản ghi.`);
+    }
+  }
+
+  btnCam.addEventListener('click', () => start('camera'));
+  btnVid.addEventListener('click', () => start('video'));
+  btnStop.addEventListener('click', async () => {
+    try { const s = await call('/api/demo/stop', 'POST'); setRunning(s.running, s.mode); msg.textContent = 'Đã dừng demo.'; } catch {}
+  });
+  if (!served) msg.textContent = 'Đang mở trực tiếp từ tệp: nút sẽ phát bản ghi demo.';
+})();
+</script>
+</body>
+</html>

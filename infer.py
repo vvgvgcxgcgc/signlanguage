@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 SIGN_DIR = Path(__file__).resolve().parent
 DEFAULT_GLOSSES = SIGN_DIR / "glosses.txt"
-DEFAULT_CHECKPOINTS = SIGN_DIR / "checkpoints"
+DEFAULT_CHECKPOINTS = SIGN_DIR / "assets" / "checkpoints"  # python assets.py
 
 
 def load_glosses(path: Path) -> list[str]:

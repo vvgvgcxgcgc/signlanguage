@@ -10,11 +10,16 @@ export NCCL_P2P_DISABLE=1
 export NCCL_IB_DISABLE=1
 export NCCL_NVLS_ENABLE=0
 export NCCL_CUMEM_ENABLE=0
-# Empty trains from scratch. Example: checkpoints/j68_AAGCN_last.pth
-RESUME=""
+# Dữ liệu và checkpoint đều là dataset public trên Kaggle (Add Input khi chạy notebook).
+# Chạy ở máy khác: DATA_ROOT=vsl400-keypoint CKPT_ROOT=assets/checkpoints bash training/runs/07_aagcn_j68.sh
+DATA_ROOT="${DATA_ROOT:-/kaggle/input/datasets/huynguang/vsl400-keypoints-final/vsl400-keypoint}"
+CKPT_ROOT="${CKPT_ROOT:-/kaggle/input/datasets/huynguang/vsl-sign-checkpoints/checkpoints}"
+# Trống: huấn luyện từ đầu. RESUME=1: tiếp tục từ j68_AAGCN_last.pth của dataset checkpoint.
+RESUME="${RESUME:-}"
+if [ "$RESUME" = 1 ]; then RESUME="$CKPT_ROOT/j68_AAGCN_last.pth"; fi
 LABELS="labels/j76_CTR-GCN.json"
 torchrun --standalone --nproc_per_node=2 -m training.run \
-  --root "/kaggle/input/datasets/huynguang/vsl400-keypoints-final/vsl400-keypoint" \
+  --root "$DATA_ROOT" \
   --model AAGCN \
   --frames 64 \
   --epochs 70 \

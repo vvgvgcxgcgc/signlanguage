@@ -32,9 +32,9 @@ from preprocess.dataset import N_JOINTS, N_COORDS, PREPARE_PAD, pad_prepare, res
 logger = logging.getLogger("infer_signconnect")
 
 SIGN_DIR = Path(__file__).resolve().parent
-DEFAULT_KEYPOINTS = SIGN_DIR / "data" / "signconnect" / "keypoints"
-DEFAULT_EVAL_LABELS = SIGN_DIR / "labels" / "signconnect_j76_common.json"
-DEFAULT_CHECKPOINTS = SIGN_DIR / "checkpoints"
+DEFAULT_KEYPOINTS = SIGN_DIR / "assets" / "signconnect-keypoints"
+DEFAULT_EVAL_LABELS = SIGN_DIR / "assets" / "labels" / "signconnect_j76_common.json"  # python assets.py
+DEFAULT_CHECKPOINTS = SIGN_DIR / "assets" / "checkpoints"
 DEFAULT_OUTPUT = SIGN_DIR / "reports" / "signconnect"
 LABEL_SMOOTHING = 0.1
 TOP_K = 5

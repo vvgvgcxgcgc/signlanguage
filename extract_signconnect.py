@@ -36,8 +36,8 @@ logger = logging.getLogger("extract_signconnect")
 SIGN_DIR = Path(__file__).resolve().parent
 DEFAULT_VIDEOS = SIGN_DIR / "data" / "signconnect" / "Videos"
 DEFAULT_KEYPOINTS = SIGN_DIR / "data" / "signconnect" / "keypoints"
-DEFAULT_EVAL_LABELS = SIGN_DIR / "labels" / "signconnect_j76_common.json"
-DEFAULT_POSE = SIGN_DIR / "checkpoints" / "pose_state_mlp_best.pth"
+DEFAULT_EVAL_LABELS = SIGN_DIR / "assets" / "labels" / "signconnect_j76_common.json"  # python assets.py
+DEFAULT_POSE = SIGN_DIR / "assets" / "pose_state_mlp_best.pth"
 _TRAILING_INDEX = re.compile(r"\(\d+\)$")
 _WORKER: dict[str, object] = {}
 
