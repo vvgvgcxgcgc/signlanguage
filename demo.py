@@ -605,7 +605,7 @@ def run(args: argparse.Namespace) -> None:
                         state.phase = "done"
                         finish(clip)
                     elif not scored and video_rows:
-                        # Clip cắt sát, không có tư thế nghỉ ở đầu: chấm cả video như infer.py.
+                        # Clip cắt sát, không có tư thế nghỉ ở đầu: chấm cả video một lần.
                         kept, dropped = select_sign_frames(np.stack(video_rows), args.min_shoulder)
                         state.result = recognizer.classify(kept, int(kept.shape[0]), dropped, pad=False)
                         if state.result.kind in ("sure", "accept"):

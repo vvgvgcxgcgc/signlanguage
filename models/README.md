@@ -299,9 +299,8 @@ Not implemented here, but this is what the architectures were sized for.
   validation split, so there is nothing to select a checkpoint on except the
   test set, which inflates whatever you report.
 - `preprocess.keypoints.to_model_input` still produces `(80, 228)` with three
-  channels. The inference entry points, `infer.py` and
-  `preprocess/camera.py`, therefore break at runtime against these models.
-  Inference needs the training pipeline instead: `normalize_clip`,
+  channels, which these models do not accept. Inference (`demo.py`,
+  `infer_camera.py`) uses the training pipeline instead: `normalize_clip`,
   `drop_legs`, `interpolate_clip` to `T`. The normalization in
   `keypoints.normalize_body` and `keypoints.normalize_hands` is a different
   coordinate system and is not interchangeable.
