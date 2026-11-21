@@ -1021,7 +1021,9 @@ body.still .rise,body.still header h2,body.still .hbar .fill,body.still .ladder 
   setTimeout(() => { hint.style.opacity = 0; }, 4000);
 
   // ---- Demo ----
-  const served = location.protocol.startsWith('http');
+  // Chỉ serve.py (chạy trên máy trình chiếu) có API demo; bản trên web và mở từ tệp thì phát bản ghi.
+  const served = ['127.0.0.1', 'localhost'].includes(location.hostname);
+  const online = location.protocol.startsWith('http') && !served;
   const msg = document.getElementById('demo-msg');
   const live = document.getElementById('demo-live');
   const video = document.getElementById('demo-video');
@@ -1069,7 +1071,9 @@ body.still .rise,body.still header h2,body.still .hbar .fill,body.still .ladder 
 
   async function start(mode) {
     if (!served) {
-      playRecording('Đang phát bản ghi demo. Muốn chạy trực tiếp, mở slide bằng: python docs/slides/serve.py');
+      playRecording(online
+        ? 'Đang phát bản ghi demo. Bản chạy trực tiếp bằng webcam: python docs/slides/serve.py'
+        : 'Đang phát bản ghi demo. Muốn chạy trực tiếp, mở slide bằng: python docs/slides/serve.py');
       return;
     }
     msg.textContent = 'Đang khởi động mô hình…';
@@ -1088,7 +1092,7 @@ body.still .rise,body.still header h2,body.still .hbar .fill,body.still .ladder 
   btnStop.addEventListener('click', async () => {
     try { const s = await call('/api/demo/stop', 'POST'); setRunning(s.running, s.mode); msg.textContent = 'Đã dừng demo.'; } catch {}
   });
-  if (!served) msg.textContent = 'Đang mở trực tiếp từ tệp: nút sẽ phát bản ghi demo.';
+  if (!served) msg.textContent = online ? 'Bấm nút để xem bản ghi demo.' : 'Đang mở trực tiếp từ tệp: nút sẽ phát bản ghi demo.';
 })();
 </script>
 </body>

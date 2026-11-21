@@ -44,3 +44,6 @@ demo-video/
 docs/trinh-bay-y-tuong/in.docx
 mau trinh bay y tuong.docx
 .env
+
+# bản ghi demo phát trên slide (GitHub Pages)
+!docs/slides/assets/demo.mp4
