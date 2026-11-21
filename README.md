@@ -53,6 +53,10 @@ Bản rút gọn chỉ có vòng lặp webcam: `.venv/bin/python infer_camera.py
 
 ## 3. Trình chiếu slide
 
+Bản trực tuyến: **https://vvgvgcxgcgc.github.io/signlanguage/slides/**. GitHub Pages xuất bản thư mục `docs/` của nhánh `main`. Nút demo ở bản này phát bản ghi có sẵn.
+
+Chạy trên máy, có demo trực tiếp bằng webcam:
+
 ```bash
 .venv/bin/python docs/slides/serve.py         # mở http://127.0.0.1:8765/slides/
 ```
